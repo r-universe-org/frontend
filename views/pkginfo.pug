@@ -1,0 +1,191 @@
+extends layout
+
+block content
+  .row.card.details-card
+    h5.card-header.text-center
+      span.package-details-header
+      .float-end
+        a.package-json-link.text-decoration-none(target='_blank')
+          i.fab.fa-js-square.text-dark.grow-on-over
+        a.upstream-git-link.text-decoration-none.ms-1(target='_blank')
+          i.fab.fa-git-square.text-dark.grow-on-over
+        a.citation-link.text-decoration-none(target='_blank')
+          img.grow-on-over.img-rounded(src='https://r-universe.dev/avatars/citation-file-format.png?size=50' style='width: 25px; margin-top:-4px;')
+    .card-body.col-12
+      img.d-none.package-details-logo.img-fluid.me-4.float-start(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 140px; max-width: 200px;')
+      .float-end.package-details-maintainer.text-center.ms-4.d-none
+        a.text-decoration-none
+          img.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px; border-radius: 50%;')
+          p
+            span.card-text.text-secondary.maintainer-name
+      h5.card-title
+        span.package-details-name.text-dark
+        | :
+        small.text-secondary.package-details-title
+      p.card-text.package-details-description.font-italic
+      p
+        | Authors:
+        span.card-text.text-dark.package-details-author
+      p.d-table
+        a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+        a.package-details-source
+        br
+        span.winmac-binaries
+          a.fab.fa-windows.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+          span.package-details-windows
+          br
+          a.fab.fa-apple.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+          span.package-details-macos
+          br
+        a.fab.fa-linux.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+        span.package-details-linux
+        a.text-dark.linux-binary-help(target='_blank' href='https://github.com/r-universe-org/help#does-r-universe-have-linux-binaries')
+          i.far.fa-question-circle
+        br
+        span.wasm-binaries.d-none
+          a.fab.fa-chrome.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+          span.package-details-wasm
+          a.text-dark.wasm-binary-help(target='_blank' href='https://github.com/r-universe-org/help#how-to-use-webassembly-binaries')
+            i.far.fa-question-circle
+          br
+        a.fas.fa-file-pdf.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+        a.package-details-manual.pe-1(target='_blank')
+        |  |
+        a.px-1.package-details-htmlmanual(target='_blank')
+        | &#x2728;
+        br
+        a.fa.fa-file-code.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+        a.package-details-json
+        |  (API)
+        br
+        span.details-news
+          a.fas.fa-file-alt.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+          a.package-details-news(target='_blank')
+          br
+      #install.row.card.m-0.mb-3.py-1.d-none.d-md-block
+        // <link rel="stylesheet" href="https://github.githubassets.com/assets/gist-embed-c77408be8058.css">
+        link(rel='stylesheet' href='https://r-universe.dev/static/gist-embed.css')
+        .gist
+          button#copy-code-button.float-end.btn.btn-outline-dark.far.fa-copy.p-2.m-1(type='button')
+          table
+            tbody
+              tr
+                td.blob-code.blob-code-inner.js-file-line
+                  span.pl-c #
+                  |  Install
+                  span.package-details-gist-name
+                  |  in R:
+              tr
+                td#file-install-r-LC2.blob-code.blob-code-inner.js-file-line
+                  | install.packages(
+                  span.pl-s
+                    span.pl-pds &apos;
+                    span.package-details-gist-name
+                    span.pl-pds &apos;
+                  | ,
+                  span.pl-v repos
+                  span.pl-k =
+                  span.nocran
+                    | c(
+                    span.pl-s
+                      span.pl-pds &apos;
+                      | https://
+                      span.title-universe-name
+                      | .r-universe.dev
+                      span.pl-pds &apos;
+                    | ,
+                  span.pl-s
+                    span.pl-pds &apos;
+                    | https://cloud.r-project.org
+                    span.pl-pds &apos;
+                  | )
+                  span.nocran )
+      p.build-failure-alert.alert.alert-danger.d-none(role='alert')
+        | The latest version of this package failed to build. Look at the
+        a.build-failure-url build logs
+        |  for more information.
+      p.package-details-peerreview.mb-2.d-none
+        | Peer review:
+        u
+          a.peerreview-link.text-dark(target='_blank' href='#')
+        span.peerreview-status
+      p.mb-2.package-details-issues
+        | Bug tracker:
+        u
+          a.card-text.text-dark(target='_blank')
+        span.open-issues-count.badge.badge-warning
+      .system-library-row.d-none
+        span.float-start Uses libs:
+        ul.system-library-list.list-unstyled.d-table.ps-1.mb-2
+      .dataset-row.d-none
+        span.float-start Datasets:
+        ul.dataset-list.list-unstyled.d-table.ps-1.mb-2
+      p.package-details-release.mb-2
+        span.release-title On CRAN:
+        u
+          a.release-version.text-dark
+        span.release-date.text-muted
+        span.release-comment
+        u
+          a.devel-version.text-dark
+        span.devel-date.text-muted
+      p.mb-2.package-details-notracker.text-danger
+        i
+          | This package does not link to any Github/Gitlab/R-forge repository. No issue tracker or development information is available.
+      p.card-text.package-details-topics.clearfix
+      p.metric-icons
+        a.text-muted.badge.badge-light.package-details-exports.p-1.border.d-none(data-toggle='collapse' href='#exportlist')
+          i.fas.fa-shapes.text-dark
+        a.text-muted.badge.badge-light.package-details-stars.d-none.p-1.border(target='_blank')
+          i.fas.fa-star.text-warning
+        a.text-muted.badge.badge-light.package-details-pkgscore.p-1.border(target='_blank' href='https://github.com/r-universe-org/help#how-is-the-package-rank-score-calculated')
+          i.fas.fa-chart-line.text-primary
+        a.text-muted.badge.badge-light.package-details-dependencies.p-1.border.d-none(data-toggle='collapse' href='#dependslist')
+          i.fas.fa-cube.text-danger
+        a.text-muted.badge.badge-light.package-details-dependents.p-1.border.d-none
+          i.fas.fa-cubes.text-success
+        a.text-muted.badge.badge-light.package-details-mentions.p-1.border.d-none(target='_blank')
+          i.fas.fa-file-pdf.text-secondary
+      p.card-text
+        small.text-muted
+          span.last-build-status
+          span.package-details-updated Last updated ??
+          |  from:
+          a.package-details-sha.text-secondary(target='_blank')
+          span.package-details-remoteref
+      p#exportlist.card-text.clearfix.noanim.collapse
+        b Exports:
+        span.labels
+      p#dependslist.card-text.clearfix.noanim.collapse
+        b Dependencies:
+        span.labels
+    .package-details-article-list.list-group
+      .vignette-failure-alert.alert.alert-warning.m-0.d-none(role='alert')
+        | Articles and/or reference manual for this package failed to build, some documents may be unavailable. Please inspect the
+        a.vignette-failure-url build logs
+        |  for more information.
+
+
+  #citation.package-details-citation.row.d-none.card.mt-4
+    a.plink.h5.card-title.card-header.text-center.text-dark(href='#citation') Citation
+    .package-citation-content.card-body
+  #readme.package-details-readme.row.card.mt-4
+    a.plink.h5.card-title.card-header.text-center.text-dark(href='#readme') Readme and manuals
+    .card-body
+      .package-readme-content
+      a#reference.plink.h4.text-dark(href='#reference') Reference manual
+      table.col-12.table.table-sm.table-hover.manpages-table
+        thead
+          tr
+            th Help page
+            th Topics
+        tbody
+  #development.row.card.mt-4
+    a.plink.h5.card-title.card-header.text-center.text-dark(href='#development') Development and contributors
+    .card-body.col-12
+      .p-0
+        canvas#package-updates-canvas.col.p-0(height='300')
+      .package-details-contributors.text-center
+  #users.row.card.mt-4
+    a.plink.h5.card-title.card-header.text-center.text-dark(href='#users') Usage by other packages
+    ul.list-group.list-group-flush.package-details-revdeps
