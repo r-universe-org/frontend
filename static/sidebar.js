@@ -11,7 +11,7 @@ function get_url(url){
     if (res.ok) {
       return res;
     }
-    throw new Error(`HTTP ${res} for: ${url}`);
+    throw new Error(`HTTP ${res.status} for: ${url}`);
   });
 }
 
