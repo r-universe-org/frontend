@@ -21,6 +21,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/:package', function(req, res, next) {
   return get_json(`https://cran.dev/${req.params.package}/json`).then(function(pkgdata){
+    pkgdata.title = `The ${pkgdata.Package} package!`;
     return res.render('pkginfo', pkgdata);
   }).catch(next);
 });

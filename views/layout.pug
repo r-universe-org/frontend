@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title Frontend
+    title #{title}
     meta(charset='utf-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
@@ -67,7 +67,7 @@ html
                 .text-truncate.py-1
                   span.fa.fa-user-astronaut.fa-fw.me-3
                   | Links to
-                  span.title-universe-name
+                  span.ps-1.title-universe-name
                 a.text-muted.py-1(data-bs-toggle='collapse' href='#maintainer-list' role='button')
                   span.fa.collapse-icon
               #maintainer-list.collapse.show.list-group.list-group-flush
