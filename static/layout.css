@@ -1,0 +1,49 @@
+/*
+ * Custom CSS
+ */
+
+:root {
+  --bs-body-bg: var(--bs-gray-100);
+  --bs-card-title-spacer-y: 0.5rem;
+  --bs-list-group-item-padding-x: 1rem;
+  --bs-list-group-item-padding-y: 0.25rem;
+  --bs-card-spacer-x: 1.0rem;
+  --bs-card-spacer-y: 1.0rem;
+}
+
+body {
+  font-size: .875rem;
+}
+
+a {
+  color: #3b71ca;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.table-sm>:not(caption)>*>* {
+  padding: 0.5rem;
+}
+
+.sidebar-user-details li {
+  padding-bottom: 0.25rem;
+}
+
+.collapse-icon::before {
+  content: " \f0a8";
+}
+
+.collapsed .collapse-icon::before {
+  content: " \f0ab";
+}
+
+.grow-on-over:hover {
+  transition: all .2s ease-in-out;
+}
+
+.grow-on-over:hover {
+  transform: scale(1.2);
+}

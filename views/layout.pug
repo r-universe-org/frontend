@@ -1,0 +1,86 @@
+doctype html
+html
+  head
+    title Frontend
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css')
+    link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/prism.css')
+    link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/manual.css')
+    link(rel='stylesheet' href='layout.css')
+  body
+    #content-container.container(style='max-width: 1440px')
+      .row.el-element-overlay
+        nav.col-xl-auto.d-none.d-xl-block
+          div(style='width:280px;')
+            .sidebar-metadata
+              a(href='/')
+                img#github-user-avatar.rounded.card-img-top.rounded-circle.p-3(src='https://r-universe.dev/static/nobody.jpg' style='min-height: 262px;')
+              .card-body
+                h5.card-title
+                  span#github-user-name
+                  a#github-user-keys.float-end.d-none.grow-on-over(target='_blank')
+                    span.fa.fa-key.fa-fw.me-1.text-secondary
+                  a#github-user-twitter.float-end.d-none.grow-on-over(target='_blank')
+                    span.fa-brands.fa-twitter.fa-fw.me-1
+                  a#github-user-orcid.float-end.d-none.grow-on-over(target='_blank')
+                    span.fa-brands.fa-orcid.fa-fw.me-1.text-success
+                p#github-user-bio.card-text
+              ul.list-group.list-group-flush.pb-2.sidebar-user-details
+                li#github-user-universe-row.list-group-item.border-light-subtle.text-truncate
+                  span.fa.fa-satellite-dish.fa-fw.me-3
+                  span#github-user-universe
+                  span#registry-status-spinner.spinner-border.spinner-border-sm(role='status')
+                  a#registry-status-link.ms-1(target='_blank')
+                    i#registry-status-icon.fa
+                li#github-user-company.d-none.list-group-item.border-light-subtle.text-truncate
+                  span.fa.fa-building.fa-fw.me-3
+                  span.content
+                li#github-user-location.d-none.list-group-item.border-light-subtle.text-truncate
+                  span.fa.fa-map-marker-alt.fa-fw.me-3
+                  span.content
+                li#github-user-blog.d-none.list-group-item.border-light-subtle.text-truncate
+                  span.fa.fa-home.fa-fw.me-3
+                  span.content
+                li#github-user-emails.d-none.list-group-item.border-light-subtle.text-nowrap
+                  span.fa.fa-envelope.fa-fw.me-3.d-inline-flex
+                  span.content.d-inline-flex
+                li#github-user-packages.list-group-item.border-light-subtle
+                  span.fa.fa-box-open.fa-fw.me-3.d-inline-flex
+                  a.content.d-inline-flex.text-dark(href='/packages')
+                li#github-user-articles.list-group-item.border-light-subtle
+                  span.fa.fa-file-alt.fa-fw.me-3.d-inline-flex
+                  a.content.d-inline-flex.text-dark(href='/articles')
+                li#github-user-datasets.list-group-item.border-light-subtle
+                  span.fa.fa-database.fa-fw.me-3.d-inline-flex
+                  a.content.d-inline-flex.text-dark(href='/api')
+                li#github-user-contributors.list-group-item.border-light-subtle
+                  span.fa.fa-user-astronaut.fa-fw.me-3.d-inline-flex
+                  a.content.d-inline-flex.text-dark(href='/contributors')
+                li#github-user-followers.d-none.list-group-item.border-light-subtle
+                  span.fa.fa-user-friends.fa-fw.me-3.d-inline-flex
+                  span.content.d-inline-flex
+            .card.my-3.maintainer-list-panel.border-dark-subtle
+              .card-header.d-flex.w-100.justify-content-between
+                .text-truncate.py-1
+                  span.fa.fa-user-astronaut.fa-fw.me-3
+                  | Links to
+                  span.title-universe-name
+                a.text-muted.py-1(data-bs-toggle='collapse' href='#maintainer-list' role='button')
+                  span.fa.collapse-icon
+              #maintainer-list.collapse.show.list-group.list-group-flush
+        main.col.border.border-dark-subtle.m-2
+          block content
+    #templatezone.d-none
+      a.maintainer-item.list-group-item.list-group-item-action.border-light.text-truncate.p-0(href='#')
+        .row.g-0
+          .col-md-3.maintainer-link
+            img.rounded.maintainer-avatar.card-img(src='https://r-universe.dev/static/nobody.jpg')
+          .col-md-9.my-2
+            .card-body
+              p.card-text.maintainer-name
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/js/bootstrap.bundle.min.js')
+    script(src='sidebar.js')
