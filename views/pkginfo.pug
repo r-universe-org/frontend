@@ -2,91 +2,109 @@ extends layout
 
 block content
   .row.card.details-card
-    h5.card-header.text-center
+    h1.h5.card-header.text-center #{Package} #{Version}
       span.package-details-header
       .float-end
-        a.package-json-link.text-decoration-none(target='_blank')
+        a.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}`)
           i.fab.fa-js-square.text-dark.grow-on-over
-        a.upstream-git-link.text-decoration-none.ms-1(target='_blank')
+        a.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
           i.fab.fa-git-square.text-dark.grow-on-over
-        a.citation-link.text-decoration-none(target='_blank')
+        a.citation-link.text-decoration-none(target='_blank' href=`/${Package}/citation.cff`)
           img.grow-on-over.img-rounded(src='https://r-universe.dev/avatars/citation-file-format.png?size=50' style='width: 25px; margin-top:-4px;')
     .card-body.col-12
-      img.d-none.package-details-logo.img-fluid.me-4.float-start(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 140px; max-width: 200px;')
-      .float-end.package-details-maintainer.text-center.ms-4.d-none
-        a.text-decoration-none
-          img.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px; border-radius: 50%;')
-          p
-            span.card-text.text-secondary.maintainer-name
-      h5.card-title
-        span.package-details-name.text-dark
-        | :
-        small.text-secondary.package-details-title
-      p.card-text.package-details-description.font-italic
+      if _pkglogo
+        img.package-details-logo.img-fluid.me-4.float-start(src=_pkglogo style='max-height: 140px; max-width: 200px;')
+      .float-end.package-details-maintainer.text-center.ms-4
+        if _user !== _maintainer.login
+          a.text-decoration-none(href=`https://${_maintainer.login}.r-universe.dev`)
+            img.img.mb-2(src=`https://r-universe.dev/avatars/${_maintainer.login}.png?size=140` style='max-height: 120px; border-radius: 50%;')
+            p
+              span.card-text.text-secondary.maintainer-name #{_maintainer.name}
+      h2.h5.card-title
+        span.package-details-name.text-dark #{Package}
+        | : 
+        small.text-secondary.package-details-title #{Title}
+      p.card-text.package-details-description.fst-italic #{Description}
       p
         | Authors:
-        span.card-text.text-dark.package-details-author
+        span.card-text.text-dark.package-details-author #{Author}
       p.d-table
-        a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
-        a.package-details-source
+        a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
+        a.package-details-source(href=`/src/contrib/${Package}_${Version}.tar.gz`) #{Package}_#{Version}.tar.gz
         br
-        span.winmac-binaries
-          a.fab.fa-windows.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
-          span.package-details-windows
-          br
-          a.fab.fa-apple.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
-          span.package-details-macos
-          br
-        a.fab.fa-linux.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+        if _user !== 'cran'
+          span.winmac-binaries
+            a.fab.fa-windows.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
+            span.package-details-windows
+              each bin in _grouped.win
+                a(href = bin.url) #{bin.filename}
+                span.px-1 (#{bin.repo})
+            br
+            a.fab.fa-apple.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
+            span.package-details-macos
+              each bin in _grouped.mac
+                a(href = bin.url) #{bin.filename}
+                span.px-1 (#{bin.repo})
+            br
+        a.fab.fa-linux.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
         span.package-details-linux
+          each bin in _grouped.linux
+            a(href = bin.url) #{bin.filename}
+            span.px-1 (#{bin.repo})
         a.text-dark.linux-binary-help(target='_blank' href='https://github.com/r-universe-org/help#does-r-universe-have-linux-binaries')
           i.far.fa-question-circle
         br
-        span.wasm-binaries.d-none
-          a.fab.fa-chrome.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
-          span.package-details-wasm
-          a.text-dark.wasm-binary-help(target='_blank' href='https://github.com/r-universe-org/help#how-to-use-webassembly-binaries')
-            i.far.fa-question-circle
-          br
-        a.fas.fa-file-pdf.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
-        a.package-details-manual.pe-1(target='_blank')
+        if _grouped.wasm.length
+          span.wasm-binaries
+            a.fab.fa-chrome.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+            span.package-details-wasm
+              each bin in _grouped.wasm
+                a(href = bin.url) #{bin.filename}
+                span.px-1 (#{bin.repo})
+            a.text-dark.wasm-binary-help(target='_blank' href='https://github.com/r-universe-org/help#how-to-use-webassembly-binaries')
+              i.far.fa-question-circle
+            br
+        if _assets.includes("manual.pdf")
+          a.fas.fa-file-pdf.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
+          a.package-details-manual.pe-1(target='_blank' href=`/${Package}/${Package}.pdf`) #{Package}.pdf
         |  |
-        a.px-1.package-details-htmlmanual(target='_blank')
+        a.px-1.package-details-htmlmanual(target='_blank' href=`/${Package}/doc/manual.html`) #{Package}.html
         | &#x2728;
         br
         a.fa.fa-file-code.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
-        a.package-details-json
+        a.package-details-json(href=`/api/packages/${Package}`) #{Package}/json
         |  (API)
         br
-        span.details-news
-          a.fas.fa-file-alt.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
-          a.package-details-news(target='_blank')
-          br
+        if _assets.includes("extra/NEWS.html")
+          span.details-news
+            a.fas.fa-file-alt.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
+            a.package-details-news(target='_blank' href=`/${Package}/NEWS`) NEWS
+            br
       #install.row.card.m-0.mb-3.py-1.d-none.d-md-block
         // <link rel="stylesheet" href="https://github.githubassets.com/assets/gist-embed-c77408be8058.css">
         link(rel='stylesheet' href='https://r-universe.dev/static/gist-embed.css')
-        .gist
+        .gist.ps-0
           button#copy-code-button.float-end.btn.btn-outline-dark.far.fa-copy.p-2.m-1(type='button')
           table
             tbody
               tr
                 td.blob-code.blob-code-inner.js-file-line
                   span.pl-c #
-                  |  Install
-                  span.package-details-gist-name
+                  |  Install 
+                  span.package-details-gist-name #{Package}
                   |  in R:
               tr
                 td#file-install-r-LC2.blob-code.blob-code-inner.js-file-line
                   | install.packages(
                   span.pl-s
                     span.pl-pds &apos;
-                    span.package-details-gist-name
+                    span.package-details-gist-name #{Package}
                     span.pl-pds &apos;
-                  | ,
+                  | , 
                   span.pl-v repos
-                  span.pl-k =
+                  span.pl-k  =
                   span.nocran
-                    | c(
+                    |  c(
                     span.pl-s
                       span.pl-pds &apos;
                       | https://
@@ -112,7 +130,7 @@ block content
       p.mb-2.package-details-issues
         | Bug tracker:
         u
-          a.card-text.text-dark(target='_blank')
+          a.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
         span.open-issues-count.badge.badge-warning
       .system-library-row.d-none
         span.float-start Uses libs:
@@ -189,3 +207,8 @@ block content
   #users.row.card.mt-4
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#users') Usage by other packages
     ul.list-group.list-group-flush.package-details-revdeps
+
+block scripts
+  script
+    | window.pkginfo = {package:"#{Package}", universe:"#{_user}"};
+  script(src='pkginfo.js')

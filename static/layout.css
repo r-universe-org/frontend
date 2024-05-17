@@ -9,10 +9,16 @@
   --bs-list-group-item-padding-y: 0.25rem;
   --bs-card-spacer-x: 1.0rem;
   --bs-card-spacer-y: 1.0rem;
+  --bs-body-bg: white;
 }
 
 body {
   font-size: .875rem;
+}
+
+small {
+  font-weight: 400;
+  font-size: 80%;
 }
 
 a {
