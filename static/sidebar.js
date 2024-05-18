@@ -157,7 +157,7 @@ function load_universe_stats(){
 }
 
 function init_page(){
-  var testuser = 'jeroen'
+  var testuser = window.universe || 'jeroen';
   var isprod = location.hostname.endsWith("r-universe.dev");
   window.universe = isprod ? host.split(".")[0] : testuser;
   window.server = isprod ? "" : 'https://' + universe + '.r-universe.dev';

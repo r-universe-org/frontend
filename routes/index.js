@@ -82,7 +82,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata.Author = normalize_authors( pkgdata.Author);
     pkgdata._grouped = group_binaries(pkgdata);
     pkgdata._bugtracker = guess_tracker_url(pkgdata);
-    return res.render('pkginfo', pkgdata);
+    res.render('pkginfo', pkgdata);
   }).catch(next);
 });
 

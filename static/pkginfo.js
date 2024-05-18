@@ -1,6 +1,4 @@
 function update_copy_gist(){
-  var universe = pkginfo.universe;
-  var package = pkginfo.package;
   var link = $('#copy-code-button').unbind("click");
   var tooltip_text = 'Copy to clipboard';
   link.click(function(e){

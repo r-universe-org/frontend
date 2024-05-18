@@ -208,7 +208,10 @@ block content
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#users') Usage by other packages
     ul.list-group.list-group-flush.package-details-revdeps
 
-block scripts
+block before_scripts
   script
-    | window.pkginfo = {package:"#{Package}", universe:"#{_user}"};
+    | window.package="#{Package}";
+    | window.universe="#{_user}";
+
+block after_scripts
   script(src='pkginfo.js')
