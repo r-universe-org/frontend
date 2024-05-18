@@ -160,6 +160,10 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'R-universe' });
 });
 
+router.get('/favicon.ico', function(req, res, next) {
+  res.status(404).send("No favicon yet")
+});
+
 router.get('/:package', function(req, res, next) {
   return get_json(`https://cran.dev/${req.params.package}/json`).then(function(pkgdata){
     pkgdata.title = `${pkgdata.Package}: ${pkgdata.Title}`;
