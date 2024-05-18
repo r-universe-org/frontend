@@ -16,8 +16,11 @@ block content
         img.package-details-logo.img-fluid.me-4.float-start(src=_pkglogo style='max-height: 140px; max-width: 200px;')
       .float-end.package-details-maintainer.text-center.ms-4
         if _user !== _maintainer.login
-          a.text-decoration-none(href=`https://${_maintainer.login}.r-universe.dev`)
-            img.img.mb-2(src=`https://r-universe.dev/avatars/${_maintainer.login}.png?size=140` style='max-height: 120px; border-radius: 50%;')
+          if _maintainer.login
+            a.text-decoration-none(href=`https://${_maintainer.login}.r-universe.dev`)
+              img.img.mb-2(src=`https://r-universe.dev/avatars/${_maintainer.login}.png?size=140` style='max-height: 120px; border-radius: 50%;')
+          else
+            img.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px; border-radius: 50%;')
             p
               span.card-text.text-secondary.maintainer-name #{_maintainer.name}
       h2.h5.card-title
@@ -127,11 +130,12 @@ block content
         u
           a.peerreview-link.text-dark(target='_blank' href='#')
         span.peerreview-status
-      p.mb-2.package-details-issues
-        | Bug tracker:
-        u
-          a.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
-        span.open-issues-count.badge.badge-warning
+      if _bugtracker
+        p.mb-2.package-details-issues
+          | Bug tracker:
+          u
+            a.ms-1.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
+          span.open-issues-count.badge.text-bg-warning.ms-1
       .system-library-row.d-none
         span.float-start Uses libs:
         ul.system-library-list.list-unstyled.d-table.ps-1.mb-2
@@ -141,15 +145,16 @@ block content
       p.package-details-release.mb-2
         span.release-title On CRAN:
         u
-          a.release-version.text-dark
-        span.release-date.text-muted
+          a.mx-1.release-version.text-dark-emphasis
+        span.release-date.text-black-50
         span.release-comment
         u
           a.devel-version.text-dark
         span.devel-date.text-muted
-      p.mb-2.package-details-notracker.text-danger
-        i
-          | This package does not link to any Github/Gitlab/R-forge repository. No issue tracker or development information is available.
+      if ! _bugtracker
+        p.mb-2.package-details-notracker.text-danger
+          i
+            | This package does not link to any Github/Gitlab/R-forge repository. No issue tracker or development information is available.
       p.card-text.package-details-topics.clearfix
       p.metric-icons
         a.text-muted.badge.badge-light.package-details-exports.p-1.border.d-none(data-toggle='collapse' href='#exportlist')
@@ -212,6 +217,8 @@ block before_scripts
   script
     | window.package="#{Package}";
     | window.universe="#{_user}";
+    | window.bugtracker="#{_bugtracker}"
+    | window.upstream="#{_upstream}"
 
 block after_scripts
   script(src='pkginfo.js')
