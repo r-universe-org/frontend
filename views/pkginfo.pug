@@ -210,12 +210,18 @@ block content
           a.ms-1.package-details-sha.text-secondary(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id}
           if RemoteRef && RemoteRef !== "HEAD"
             span.package-details-remoteref  (via #{RemoteRef})
-      p#exportlist.card-text.clearfix.noanim.collapse
-        b Exports:
-        span.labels
-      p#dependslist.card-text.clearfix.noanim.collapse
-        b Dependencies:
-        span.labels
+      if _exports
+        p#exportlist.card-text.clearfix.noanim.collapse
+          b Exports:
+          span.labels
+            each object in _exports
+              a.badge.text-bg-secondary.ms-1(href=`https://r-universe.dev/search?q=exports:${object}`) #{object}
+      if _rundeps
+        p#dependslist.card-text.clearfix.noanim.collapse
+          b Dependencies:
+          span.labels
+            each dep in _rundeps
+              a.badge.text-bg-danger.rounded-pill.ms-1(href=`https://r-universe.dev/search?q=package:${dep}`) #{dep}
     .package-details-article-list.list-group
       .vignette-failure-alert.alert.alert-warning.m-0.d-none(role='alert')
         | Articles and/or reference manual for this package failed to build, some documents may be unavailable. Please inspect the
