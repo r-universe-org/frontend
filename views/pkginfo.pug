@@ -155,10 +155,10 @@ block content
           ul.dataset-list.list-unstyled.d-table.ps-1.mb-2
             each data in _datasets
               li
-                a.fw-bold.text-dark(target='_blank' href=data.helpurl) #{data.name}
-                i  - #{data.description}
-                if data.dlurl
-                  a.mx-1(href=data.dlurl)
+                a.fw-bold.text-dark(target='_blank' href=data.help) #{data.name}
+                i  - #{data.title}
+                if data.url
+                  a.dataset-download.mx-1(href=data.url data-name=data.name data-title=data.title data-type=data.type data-help=data.help data-table=data.table data-tojson=data.tojson data-df=data.df)
                     small.fas.fa-download
       p.package-details-release.mb-2
         span.release-title On CRAN:
@@ -230,6 +230,35 @@ block content
   #users.row.card.mt-4
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#users') Usage by other packages
     ul.list-group.list-group-flush.package-details-revdeps
+
+  #download-data-modal.modal.fade
+    .modal-dialog.modal-xl
+      .modal-content
+        .modal-header
+          h5.modal-title
+          button.btn-close(type='button' data-bs-dismiss='modal')
+        .modal-body
+        .modal-footer
+          span.me-auto.export-type
+          a.btn.btn-outline-primary.export-csv(target='_blank' type='button')
+            i.fas.fa-download
+            |  csv
+          a.btn.btn-outline-primary.export-xlsx(target='_blank' type='button')
+            i.fas.fa-download
+            |  xlsx
+          a.btn.btn-outline-primary.export-json(target='_blank' type='button')
+            i.fas.fa-download
+            |  json
+          a.btn.btn-outline-primary.export-ndjson(target='_blank' type='button')
+            i.fas.fa-download
+            |  ndjson
+          a.btn.btn-outline-primary.export-rda(target='_blank' type='button')
+            i.fas.fa-download
+            |  rda
+          a.btn.btn-outline-primary.export-rds(target='_blank' type='button')
+            i.fas.fa-download
+            |  rds
+
 
 block before_scripts
   script

@@ -108,13 +108,15 @@ function prepare_datasets(pkgdata){
   if(pkgdata._datasets){
     var lazydata = (pkgdata.LazyData || "").toLowerCase();
     return pkgdata._datasets.map(function(x){
-      x.helpurl = help_page_url(pkgdata.Package, pkgdata._help, x.name);
-      x.description = cleanup_desc(x.title);
+      x.help = help_page_url(pkgdata.Package, pkgdata._help, x.name);
+      x.title = cleanup_desc(x.title);
       if(lazydata == 'yes' || lazydata == 'true' || (x.file && !x.file.match(/\.R$/i))){
-        x.dlurl = `/${pkgdata.Package}/data/${x.name}`;
+        x.url = `/${pkgdata.Package}/data/${x.name}`;
+        x.df = Array.isArray(x.class) && x.class.includes('data.frame');
+        x.type = x.class.length && x.class[0] || 'unknown';
       }
       return x;
-    }).filter(x => x.helpurl);
+    }).filter(x => x.help);
   }
 }
 

@@ -104,9 +104,42 @@ function update_peer_review(){
   }
 }
 
+function show_data_download(x){
+  $('#download-data-modal h5').text(x.title);
+  $('#download-data-modal .modal-body').empty().text("Loading...")
+  $('#download-data-modal').modal('show');
+  $('#download-data-modal .export-type').empty().append(`${x.name} is a <b>${x.type}</b>`);
+  $('#download-data-modal .export-rda').attr('href', `${server}/${package}/data/${x.name}/rda`);
+  $('#download-data-modal .export-rds').attr('href', `${server}/${package}/data/${x.name}/rds`);
+  $('#download-data-modal .export-csv').attr('href', `${server}/${package}/data/${x.name}/csv`).toggle(x.table);
+  $('#download-data-modal .export-xlsx').attr('href', `${server}/${package}/data/${x.name}/xlsx`).toggle(x.table && x.df);
+  $('#download-data-modal .export-ndjson').attr('href', `${server}/${package}/data/${x.name}/ndjson`).toggle(x.df && x.tojson);
+  $('#download-data-modal .export-json').attr('href', `${server}/${package}/data/${x.name}/json`).toggle(x.tojson);
+  get_text(server + x.help.replace("manual.html#", "page/")).then(function(str){
+    var el = $.parseHTML(`<div>${str.replaceAll("main>", "div>")}</div>`);
+    $(el).find("hr").remove();
+    $(el).find("h2").remove();
+    $(el).find("h3").addClass('h5');
+    $(el).find("table").addClass('table table-sm table-responsive');
+    $('#download-data-modal .modal-body').empty().append(el);
+  });
+}
+
+function update_dataset_onclick(){
+  $(".dataset-download").click(function(e){
+    e.preventDefault();
+    var dataset = Object.assign({}, this.dataset);
+    dataset.tojson = dataset.tojson !== undefined;
+    dataset.table = dataset.table !== undefined;
+    dataset.df = dataset.df !== undefined;
+    show_data_download(dataset);
+  });
+}
+
 $(function(){ 
   update_copy_gist();
   update_cran_status();
   update_open_issues();
   update_peer_review();
+  update_dataset_onclick();
 });
