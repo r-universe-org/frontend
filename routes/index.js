@@ -71,6 +71,53 @@ function guess_tracker_url(src){
   return upstream;
 }
 
+function cleanup_desc(str){
+  if(!str) return "";
+  var str = str.charAt(0).toUpperCase() + str.slice(1);
+  return str.replace(/\(.*\)$/, '').replace('SASL -', 'SASL').replace(/[-,]+ .*(shared|runtime|binary|library|legacy|precision|quantum).*$/i, '');
+}
+
+function filter_sysdeps(pkgdata){
+  var sysdeps = pkgdata._sysdeps;
+  var out = {};
+  if(sysdeps && sysdeps.length){
+    sysdeps.forEach(function(x){
+      if(x.source != 'glibc' && !out[x.name]){
+        x.description = cleanup_desc(x.description);
+        out[x.name] = x;
+      }
+    });
+    var values = Object.values(out);
+    return values.length ? values : null;
+  }
+}
+
+function get_topic_page(index, topic){
+  if(!topic || !index || !index.length) return;
+  return index.find(function(x) {return Array.isArray(x.topics) && x.topics.includes(topic)});
+}
+
+function help_page_url(package, index, topic){
+  var chapter = get_topic_page(index, topic);
+  if(chapter && chapter.page){
+    return `/${package}/doc/manual.html#${chapter.page.replace(/.html$/, "")}`;
+  }
+}
+
+function prepare_datasets(pkgdata){
+  if(pkgdata._datasets){
+    var lazydata = (pkgdata.LazyData || "").toLowerCase();
+    return pkgdata._datasets.map(function(x){
+      x.helpurl = help_page_url(pkgdata.Package, pkgdata._help, x.name);
+      x.description = cleanup_desc(x.title);
+      if(lazydata == 'yes' || lazydata == 'true' || (x.file && !x.file.match(/\.R$/i))){
+        x.dlurl = `/${pkgdata.Package}/data/${x.name}`;
+      }
+      return x;
+    }).filter(x => x.helpurl);
+  }
+}
+
 /* Langing page (TODO) */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'R-universe' });
@@ -82,6 +129,8 @@ router.get('/:package', function(req, res, next) {
     pkgdata.Author = normalize_authors( pkgdata.Author);
     pkgdata._grouped = group_binaries(pkgdata);
     pkgdata._bugtracker = guess_tracker_url(pkgdata);
+    pkgdata._sysdeps = filter_sysdeps(pkgdata);
+    pkgdata._datasets = prepare_datasets(pkgdata);
     res.render('pkginfo', pkgdata);
   }).catch(next);
 });

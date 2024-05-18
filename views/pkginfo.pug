@@ -138,12 +138,28 @@ block content
           u
             a.ms-1.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
           span.open-issues-count.badge.text-bg-warning.ms-1
-      .system-library-row.d-none
-        span.float-start Uses libs:
-        ul.system-library-list.list-unstyled.d-table.ps-1.mb-2
-      .dataset-row.d-none
-        span.float-start Datasets:
-        ul.dataset-list.list-unstyled.d-table.ps-1.mb-2
+      if _sysdeps
+        .system-library-row
+          span.float-start Uses libs:
+          ul.system-library-list.list-unstyled.d-table.ps-1.mb-2
+            each library in _sysdeps
+              li
+                b #{library.name}
+                i.mx-1 – #{library.description}
+                if library.homepage
+                  a(target='_blank' href=library.homepage)
+                    sup.fas.fa-external-link-alt
+      if _datasets
+        .dataset-row
+          span.float-start Datasets:
+          ul.dataset-list.list-unstyled.d-table.ps-1.mb-2
+            each data in _datasets
+              li
+                a.fw-bold.text-dark(target='_blank' href=data.helpurl) #{data.name}
+                i  - #{data.description}
+                if data.dlurl
+                  a.mx-1(href=data.dlurl)
+                    small.fas.fa-download
       p.package-details-release.mb-2
         span.release-title On CRAN:
         u
