@@ -136,10 +136,16 @@ function update_dataset_onclick(){
   });
 }
 
+function update_problems_tooltip(){
+  var status = $(".last-build-status a");
+  status.tooltip({title: status.attr("data-summary")});
+}
+
 $(function(){ 
   update_copy_gist();
   update_cran_status();
   update_open_issues();
   update_peer_review();
   update_dataset_onclick();
+  update_problems_tooltip();
 });

@@ -120,6 +120,41 @@ function prepare_datasets(pkgdata){
   }
 }
 
+function fail_status(x){
+  return x && ["success", "skipped"].includes(x) == false;
+}
+
+function problem_summary(src){
+  var os_type = src.OS_type
+  var docfail = src._status != 'success';
+  var winfail = fail_status(src._winbinary) && os_type != 'unix';
+  var macfail = fail_status(src._macbinary) && os_type != 'windows';
+  if(docfail || winfail || macfail){
+    var problems = [];
+    if(docfail) problems.push('Vignettes');
+    if(winfail) problems.push('Windows');
+    if(macfail) problems.push('MacOS');
+    return problems;
+  }
+}
+
+function pretty_time_diff(ts){
+  var date = new Date(ts*1000);
+  var now = new Date();
+  var diff_time = now.getTime() - date.getTime();
+  var diff_hours = Math.round(diff_time / (1000 * 3600));
+  var diff_days = Math.round(diff_hours / 24);
+  if(diff_hours < 24){
+    return diff_hours + " hours ago"
+  } else if(diff_days < 31){
+    return diff_days + " days ago";
+  } else if (diff_days < 365){
+    return Math.round(diff_days / 30) + " months ago";
+  } else {
+    return Math.round(diff_days / 365) + " years ago";
+  }
+}
+
 /* Langing page (TODO) */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'R-universe' });
@@ -133,6 +168,8 @@ router.get('/:package', function(req, res, next) {
     pkgdata._bugtracker = guess_tracker_url(pkgdata);
     pkgdata._sysdeps = filter_sysdeps(pkgdata);
     pkgdata._datasets = prepare_datasets(pkgdata);
+    pkgdata._problems = problem_summary(pkgdata);
+    pkgdata._lastupdate = pretty_time_diff(pkgdata._commit.time);
     res.render('pkginfo', pkgdata);
   }).catch(next);
 });

@@ -179,7 +179,7 @@ block content
             a.badge.text-bg-primary.me-1(href=`https://r-universe.dev/search?q=${topic.includes("-") ? `"${topic}"` : encodeURIComponent(topic)}`) #{topic}
       p.metric-icons
         if _exports
-          a.text-muted.badge.text-bg-light.package-details-exports.p-1.me-1.border(data-toggle='collapse' href='#exportlist')
+          a.text-muted.badge.text-bg-light.package-details-exports.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
             i.fas.fa-shapes.text-dark
             |  #{_exports.length} exports
         if _stars
@@ -191,7 +191,7 @@ block content
             i.fas.fa-chart-line.text-primary
             |  #{Math.pow(_score-1, 2).toFixed(2)} score
         if _rundeps
-          a.text-muted.badge.text-bg-light.package-details-dependencies.p-1.me-1.border(data-toggle='collapse' href='#dependslist')
+          a.text-muted.badge.text-bg-light.package-details-dependencies.p-1.me-1.border(data-bs-toggle='collapse' href='#dependslist')
             i.fas.fa-cube.text-danger
             |  #{_rundeps.length} dependencies
         if _usedby
@@ -201,10 +201,15 @@ block content
       p.card-text
         small.text-muted
           span.last-build-status
-          span.package-details-updated Last updated ??
-          |  from:
-          a.package-details-sha.text-secondary(target='_blank')
-          span.package-details-remoteref
+            if _problems
+              a.fa.fa-question-circle.text-danger(href=_buildurl data-summary=`Build/check failure for ${_problems.join(', ')}`)
+            else
+              a.fa.fa-check.text-success(href=_buildurl data-summary=`Articles and win/mac binaries OK`)
+          span.mx-1.package-details-updated Last updated #{_lastupdate}
+          | from:
+          a.ms-1.package-details-sha.text-secondary(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id}
+          if RemoteRef && RemoteRef !== "HEAD"
+            span.package-details-remoteref  (via #{RemoteRef})
       p#exportlist.card-text.clearfix.noanim.collapse
         b Exports:
         span.labels
