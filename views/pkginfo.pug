@@ -116,15 +116,17 @@ block content
                       span.pl-pds &apos;
                     | ,
                   span.pl-s
-                    span.pl-pds &apos;
+                    |
+                    span.pl-pds  &apos;
                     | https://cloud.r-project.org
                     span.pl-pds &apos;
                   | )
                   span.nocran )
-      p.build-failure-alert.alert.alert-danger.d-none(role='alert')
-        | The latest version of this package failed to build. Look at the
-        a.build-failure-url build logs
-        |  for more information.
+      if _failure
+        p.build-failure-alert.alert.alert-danger(role='alert')
+          | The latest version of this package failed to build. Look at the
+          a.build-failure-url.ms-1(href=_failure.buildurl target='_blank') build logs
+          |  for more information.
       p.package-details-peerreview.mb-2.d-none
         | Peer review:
         u
@@ -145,7 +147,7 @@ block content
       p.package-details-release.mb-2
         span.release-title On CRAN:
         u
-          a.mx-1.release-version.text-dark-emphasis
+          a.mx-1.release-version.text-dark
         span.release-date.text-black-50
         span.release-comment
         u
