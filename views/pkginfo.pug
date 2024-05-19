@@ -264,6 +264,7 @@ block content
     .card-body
       if _assets.includes("extra/readme.html")
         .package-readme-content
+      if _help
       a#reference.plink.h4.text-dark(href='#reference') Reference manual
       table.col-12.table.table-sm.table-hover.manpages-table
         thead
@@ -271,6 +272,14 @@ block content
             th Help page
             th Topics
         tbody
+          each page in _help
+            tr
+              - var name = page.page.replace(/\.html$/, "");
+              td
+                a(target='_blank' href=`/${Package}/doc/manual.html#${name}`) #{page.title || name}
+              td
+                | #{Array.isArray(page.topics) && page.topics.join(" ")}
+
   #development.row.card.mt-4
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#development') Development and contributors
     .card-body.col-12
