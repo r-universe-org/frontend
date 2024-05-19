@@ -141,6 +141,15 @@ function update_problems_tooltip(){
   status.tooltip({title: status.attr("data-summary")});
 }
 
+function update_citation_html(){
+  if($('#citation').length){
+    get_text(`${server}/${package}/citation.html`).then(function(htmlString){
+      var htmlDoc = (new DOMParser()).parseFromString(htmlString, "text/html");
+      $(htmlDoc).find('.container').removeClass('container').appendTo('.package-citation-content');
+    });
+  }
+}
+
 $(function(){ 
   update_copy_gist();
   update_cran_status();
@@ -148,4 +157,5 @@ $(function(){
   update_peer_review();
   update_dataset_onclick();
   update_problems_tooltip();
+  update_citation_html();
 });
