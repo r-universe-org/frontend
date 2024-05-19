@@ -225,13 +225,34 @@ block content
           span.labels
             each dep in _rundeps
               a.badge.text-bg-danger.rounded-pill.ms-1(href=`https://r-universe.dev/search?q=package:${dep}`) #{dep}
-    .package-details-article-list.list-group
+    .package-details-article-list.list-group.pe-0
       if _status === 'failure'
         .vignette-failure-alert.alert.alert-warning.m-0(role='alert')
           | Articles and/or reference manual for this package failed to build, some documents may be unavailable. Please inspect the
           a.ms-1.vignette-failure-url(target='_blank' href=_buildurl) build logs
           |  for more information.
-
+      if _vignettes
+        each article in _vignettes
+          a.package-details-article.list-group-item.list-group-item-action.border-0.pb-1(href=`/${Package}/doc/${article.filename}`)
+            .d-flex.w-100.justify-content-between
+              div.text-dark-emphasis
+                h5.mb-1
+                  small
+                    i.fas.fa-book.me-2
+                    span.article-title #{article.title}
+                p.mb-1.package-details-article-author #{article.author}
+                small.text-muted
+                  | Rendered from
+                  code.mx-1.detail-article-source #{article.source}
+                  | using
+                  code.mx-1.detail-article-engine #{article.engine}
+                  | on
+                  span.mx-1.detail-article-build #{_created.substring(0, 19).replace("T", " ")}
+                  | .
+              p.text-end
+                small.text-muted.article-modified.text-nowrap Last update: #{(article.modified || "??").substring(0, 10)}
+                br
+                small.text-muted.article-created.text-nowrap Started: #{(article.created || "??").substring(0, 10)}
 
   #citation.package-details-citation.row.d-none.card.mt-4
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#citation') Citation
