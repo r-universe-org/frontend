@@ -2,7 +2,7 @@ extends layout
 
 block content
   .row.card.details-card
-    h1.h5.card-header.text-center #{Package} #{Version}
+    h1.h5.card-header.text-center Package: #{Package} #{Version}
       span.package-details-header
       .float-end
         a.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}`)
@@ -262,7 +262,8 @@ block content
   #readme.package-details-readme.row.card.mt-4
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#readme') Readme and manuals
     .card-body
-      .package-readme-content
+      if _assets.includes("extra/readme.html")
+        .package-readme-content
       a#reference.plink.h4.text-dark(href='#reference') Reference manual
       table.col-12.table.table-sm.table-hover.manpages-table
         thead

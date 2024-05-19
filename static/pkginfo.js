@@ -150,6 +150,34 @@ function update_citation_html(){
   }
 }
 
+function update_readme_html(){
+  if($('.package-readme-content').length){
+    get_text(`${server}/${package}/doc/readme?highlight=hljs`).then(function(res){
+      var doc = $(res);
+      doc.find("a").attr("target", "_blank").each(function(){
+        if($(this).attr('href').startsWith("#")){
+          $(this).removeAttr('href');
+        }
+      });
+      doc.find("h1").addClass("h3");
+      doc.find("h2").addClass("h4");
+      doc.find("h3").addClass("h5"); /* Override bootstrap table css to prevent overflowing */
+      doc.find("table").addClass("table table-sm").attr('style', 'display: block; overflow:auto; width: 0; min-width: 100%;');
+      doc.find('img').addClass('d-none').on("load", function() {
+        var img = $(this);
+        /* Do not show badges and broken images */
+        if(img[0].naturalHeight > 60 || img[0].naturalWidth > 300) {
+          var islogo = img.attr('src').includes('logo');
+          img.addClass('p-2').css('max-height', islogo ? '200px' : '400px').css('width', 'auto').css('max-width', '90%').removeClass('d-none');
+        } else {
+          img.remove();
+        }
+      });
+      $('.package-readme-content').html(doc);
+    });
+  }
+}
+
 $(function(){ 
   update_copy_gist();
   update_cran_status();
@@ -158,4 +186,5 @@ $(function(){
   update_dataset_onclick();
   update_problems_tooltip();
   update_citation_html();
+  update_readme_html();
 });
