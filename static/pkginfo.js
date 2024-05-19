@@ -150,6 +150,15 @@ function update_citation_html(){
   }
 }
 
+function replace_headers(doc, from, to){
+  doc.find(from).each(function(){
+    var old = $(this)
+    var replacement = $(document.createElement(to));
+    replacement.text(old.text()).append(old.children());
+    old.replaceWith(replacement);
+  });
+}
+
 function update_readme_html(){
   if($('.package-readme-content').length){
     get_text(`${server}/${package}/doc/readme?highlight=hljs`).then(function(res){
@@ -159,9 +168,12 @@ function update_readme_html(){
           $(this).removeAttr('href');
         }
       });
-      doc.find("h1").addClass("h3");
-      doc.find("h2").addClass("h4");
-      doc.find("h3").addClass("h5"); /* Override bootstrap table css to prevent overflowing */
+      replace_headers(doc, "h4", "h6")
+      replace_headers(doc, "h3", "h5")
+      replace_headers(doc, "h2", "h4")
+      replace_headers(doc, "h1", "h3")
+
+      /* Override bootstrap table css to prevent overflowing */
       doc.find("table").addClass("table table-sm").attr('style', 'display: block; overflow:auto; width: 0; min-width: 100%;');
       doc.find('img').addClass('d-none').on("load", function() {
         var img = $(this);
