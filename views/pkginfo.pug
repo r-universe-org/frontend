@@ -161,14 +161,17 @@ block content
                   a.dataset-download.mx-1(href=data.url data-name=data.name data-title=data.title data-type=data.type data-help=data.help data-table=data.table data-tojson=data.tojson data-df=data.df)
                     small.fas.fa-download
       p.package-details-release.mb-2
-        span.release-title On CRAN:
-        u
-          a.mx-1.release-version.text-dark
-        span.release-date.text-black-50
-        span.release-comment
-        u
-          a.devel-version.text-dark
-        span.devel-date.text-muted
+        if _bioc
+          span On BioConductor:
+            each rls in _bioc
+              u.ms-1
+                a.text-dark(href=`https://bioconductor.org/packages/${rls.branch}/bioc/html/${Package}.html`) #{Package}-#{rls.version}
+              span.ms-1.text-muted (bioc #{rls.bioc})
+        else if _user !== "cran"
+          span.release-title On CRAN:
+          u
+            a.mx-1.release-version.text-dark
+          span.release-date.text-black-50
       if ! _bugtracker
         p.mb-2.package-details-notracker.text-danger
           i
