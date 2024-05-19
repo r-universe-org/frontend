@@ -226,10 +226,11 @@ block content
             each dep in _rundeps
               a.badge.text-bg-danger.rounded-pill.ms-1(href=`https://r-universe.dev/search?q=package:${dep}`) #{dep}
     .package-details-article-list.list-group
-      .vignette-failure-alert.alert.alert-warning.m-0.d-none(role='alert')
-        | Articles and/or reference manual for this package failed to build, some documents may be unavailable. Please inspect the
-        a.vignette-failure-url build logs
-        |  for more information.
+      if _status === 'failure'
+        .vignette-failure-alert.alert.alert-warning.m-0(role='alert')
+          | Articles and/or reference manual for this package failed to build, some documents may be unavailable. Please inspect the
+          a.ms-1.vignette-failure-url(target='_blank' href=_buildurl) build logs
+          |  for more information.
 
 
   #citation.package-details-citation.row.d-none.card.mt-4
