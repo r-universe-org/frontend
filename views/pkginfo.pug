@@ -321,7 +321,7 @@ block content
 
 block before_scripts
   script
-    | window.pkginfo=!{JSON.stringify({package: Package, universe: _user, bugtracker:_bugtracker, upstream:_upstream, releases: _releases, updates:_updates})}
+    | window.pkginfo=!{JSON.stringify({package: Package, universe: _user, bugtracker:_bugtracker, upstream:_upstream, releases: _releases, updates:_updates, contributions:_contributions})}
 
 block after_scripts
   script(src='pkginfo.js')

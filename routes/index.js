@@ -99,6 +99,12 @@ function filter_releases(pkgdata){
   }
 }
 
+function filter_contributions(pkgdata, max = 12){
+  if(pkgdata._contributions){
+    return Object.fromEntries(Object.entries(pkgdata._contributions).slice(0,max))
+  }
+}
+
 function get_topic_page(index, topic){
   if(!topic || !index || !index.length) return;
   return index.find(function(x) {return Array.isArray(x.topics) && x.topics.includes(topic)});
@@ -182,6 +188,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._problems = problem_summary(pkgdata);
     pkgdata._lastupdate = pretty_time_diff(pkgdata._commit.time);
     pkgdata._releases = filter_releases(pkgdata);
+    pkgdata._contributions = filter_contributions(pkgdata);
     res.render('pkginfo', pkgdata);
   }).catch(next);
 });
