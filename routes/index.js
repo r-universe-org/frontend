@@ -92,6 +92,13 @@ function filter_sysdeps(pkgdata){
   }
 }
 
+function filter_releases(pkgdata){
+  if(pkgdata._releases){
+    var cutoff = new Date(new Date() - 365*24*60*60*1000);
+    return pkgdata._releases.filter((x) => new Date(x.date) > cutoff);
+  }
+}
+
 function get_topic_page(index, topic){
   if(!topic || !index || !index.length) return;
   return index.find(function(x) {return Array.isArray(x.topics) && x.topics.includes(topic)});
@@ -174,6 +181,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._datasets = prepare_datasets(pkgdata);
     pkgdata._problems = problem_summary(pkgdata);
     pkgdata._lastupdate = pretty_time_diff(pkgdata._commit.time);
+    pkgdata._releases = filter_releases(pkgdata);
     res.render('pkginfo', pkgdata);
   }).catch(next);
 });
