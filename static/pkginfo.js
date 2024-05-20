@@ -1,6 +1,7 @@
 const color_ok = '#22863a';
 const color_bad = '#cb2431';
 const color_meh = 'slategrey';
+const package = pkginfo.package;
 
 function update_copy_gist(){
   var link = $('#copy-code-button').unbind("click");
@@ -30,6 +31,7 @@ function github_repo_info(repo){
 }
 
 function update_open_issues(src, details){
+  var bugtracker = pkginfo.bugtracker;
   if(bugtracker){
     const ghrepo = bugtracker.match('github.com/([^/]+/[^/]+)');
     if(ghrepo){
@@ -47,6 +49,7 @@ function compare_url(giturl, cran){
 }
 
 function update_cran_status(){
+  var upstream = pkginfo.upstream;
   if(universe == 'cran' || universe == 'bioc') return;
   get_json(`${server}/shared/cranstatus/${package}`).then(function(craninfo){
     if(craninfo.version){
