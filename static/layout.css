@@ -53,3 +53,22 @@ a:hover {
 .grow-on-over:hover {
   transform: scale(1.2);
 }
+
+/* Test package: chromote */
+.package-readme-content pre span{
+  word-break: break-all;
+}
+
+/* Test package: js, BOE */
+.package-readme-content pre, .package-citation-content pre{
+  white-space: pre-wrap;
+  width:0;
+  min-width:100%;
+}
+
+.package-readme-content table, .package-citation-content table {
+  display: block;
+  overflow: auto;
+  width:0;
+  min-width:100%;
+}
