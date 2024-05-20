@@ -190,6 +190,39 @@ function update_readme_html(){
   }
 }
 
+function update_package_revdeps(){
+  var revdepdiv = $(".package-details-revdeps").empty();
+  return get_ndjson(`https://r-universe.dev/stats/usedbyorg?package=${package}`).then(function(revdeps){
+    function make_link(pkg, owner){
+      return $("<a>").text(pkg).addClass('text-dark').attr('href', `https://${owner}.r-universe.dev/${pkg}`);
+    }
+    function add_one_user(){
+      if(!revdeps.length) return;
+      var x = revdeps.shift();
+      var item = $("#templatezone .revdep-item").clone().appendTo(revdepdiv);
+      item.find('.revdep-user-link').attr('href', 'https://' + x.owner + '.r-universe.dev');
+      item.find('.revdep-user-avatar').attr('src', avatar_url(x.owner, 120));
+      var packages = item.find('.revdep-user-packages');
+      x.packages.sort((a,b) => a.stars > b.stars ? -1 : 1).forEach(function(pkg){
+        packages.append(make_link(pkg.package, x.owner)).append(" ");
+      });
+    }
+    var totalusers = revdeps.length;
+    if(totalusers){
+      for(var i = 0; i < 20; i++) add_one_user();
+      if(revdeps.length){
+        var morelink = $(`<button class="btn btn-sm btn-outline-primary m-2"><i class="fas fa-sync"></i> Show all ${totalusers} users</button>`).click(function(e){
+          $(this).remove()
+          e.preventDefault();
+          while(revdeps.length) add_one_user();
+        }).appendTo(revdepdiv);
+      }
+    } else {
+      revdepdiv.append($("<i>").text(`No packages in r-universe depending on '${package}' yet.`))
+    }
+  });
+}
+
 $(function(){ 
   update_copy_gist();
   update_cran_status();
@@ -199,4 +232,5 @@ $(function(){
   update_problems_tooltip();
   update_citation_html();
   update_readme_html();
+  update_package_revdeps(); //maybe lazyload this?
 });
