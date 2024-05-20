@@ -223,6 +223,22 @@ function update_package_revdeps(){
   });
 }
 
+function lazy_update_package_revdeps(){
+  var done = 0;
+  var options = {rootMargin: "1000px"};
+  const observer = new IntersectionObserver(function(entries){
+    for (let entry of entries) {
+      if (entry.target.id == 'users' && entry.isIntersecting && !done) {
+        done = 1;
+        observer.disconnect()
+        update_package_revdeps();
+      }
+    }
+  }, options);
+  var element = document.querySelector('#users');
+  observer.observe(element);
+}
+
 $(function(){ 
   update_copy_gist();
   update_cran_status();
@@ -232,5 +248,5 @@ $(function(){
   update_problems_tooltip();
   update_citation_html();
   update_readme_html();
-  update_package_revdeps(); //maybe lazyload this?
+  lazy_update_package_revdeps();
 });
