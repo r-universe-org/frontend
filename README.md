@@ -4,7 +4,7 @@ New front-end in express with some SSR.
 
 ## How to test
 
-Clone the repo and run `npm install .` once to get dependencies. After that run:
+Clone the repo, cd into it and run `npm install .` once to get dependencies. After that run:
 
 ```sh
 npm start
