@@ -72,3 +72,12 @@ a:hover {
   width:0;
   min-width:100%;
 }
+
+.package-contributor-img:hover{
+  background-color: #dc3545;
+}
+
+canvas {
+  min-width: 100%;
+  max-width: 100%;
+}

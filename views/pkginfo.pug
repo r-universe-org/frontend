@@ -18,7 +18,7 @@ block content
         if _user !== _maintainer.login
           if _maintainer.login
             a.text-decoration-none(href=`https://${_maintainer.login}.r-universe.dev`)
-              img.img.mb-2(src=`https://r-universe.dev/avatars/${_maintainer.login}.png?size=140` style='max-height: 120px; border-radius: 50%;')
+              img.mb-2(src=`https://r-universe.dev/avatars/${_maintainer.login}.png?size=140` style='max-height: 120px; border-radius: 50%;')
           else
             img.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px; border-radius: 50%;')
           p
@@ -284,9 +284,14 @@ block content
   #development.row.card.mt-4
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#development') Development and contributors
     .card-body.col-12
-      .p-0
-        canvas#package-updates-canvas.col.p-0(height='300')
-      .package-details-contributors.text-center
+      .p-0.d-none.d-md-block
+        canvas#package-updates-canvas(height='300')
+      if _contributions
+        .package-details-contributors.text-center
+          each count, login in _contributions
+            a.me-1.package-details-contributor.text-decoration-none(href=`https://${login}.r-universe.dev/contributors`)
+              img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=`https://r-universe.dev/avatars/${login}.png?size=160`)
+
   #users.row.card.mt-4
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#users') Usage by other packages
     ul.list-group.list-group-flush.package-details-revdeps
@@ -325,4 +330,6 @@ block before_scripts
     | window.pkginfo=!{JSON.stringify({package: Package, universe: _user, bugtracker:_bugtracker, upstream:_upstream, releases: _releases, updates:_updates, contributions:_contributions})}
 
 block after_scripts
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js')
   script(src='pkginfo.js')

@@ -242,6 +242,137 @@ function lazy_update_package_revdeps(){
   observer.observe(element);
 }
 
+Date.prototype.getWeek = function() {
+  var date = new Date(this.getTime());
+  date.setHours(0, 0, 0, 0);
+  // Thursday in current week decides the year.
+  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+  // January 4 is always in week 1.
+  var week1 = new Date(date.getFullYear(), 0, 4);
+  // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+  return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                        - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
+Date.prototype.getWeekYear = function() {
+  var date = new Date(this.getTime());
+  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+  return date.getFullYear();
+}
+
+Date.prototype.yyyymm = function(){
+  const wk = this.getWeek();
+  return this.getWeekYear() + '-' + (wk < 10 ? '0' + wk : wk);
+}
+
+function activity_data(updates){
+  const now = new Date();
+  const weeks = Array(53).fill(0).map((_, i) => new Date(now - i*604800000).yyyymm()).reverse();
+  return weeks.map(function(weekval){
+    var out = {
+      year : weekval.split('-')[0],
+      week : parseInt(weekval.split('-')[1])
+    };
+    var rec = updates.find(x => x.week == weekval);
+    if(rec){
+      out.total = rec.total;
+    }
+    return out;
+  });
+}
+
+function release_annotations(tags, activity_data){
+  return tags.sort((a, b) => (a.date > b.date) ? 1 : -1).map(function(x, i){
+    var date = new Date(x.date);
+    var week = date.getWeek();
+    var year = date.getWeekYear();
+    var bin = activity_data.findIndex(x => x.week == week && x.year == year);
+    //var latest = (i == tags.length-1);
+    var color = 'black';
+    return {
+      type: 'line',
+      xMin: bin,
+      xMax: bin,
+      borderColor: color,
+      borderDash: [20, 5],
+      arrowHeads: { end: {
+        borderDash: [1,0],
+        display: true,
+        fill: true,
+        width: 5,
+        length: 5
+      }},
+      label: {
+        display: true,
+        content: x.version,
+        position: 'end',
+        yAdjust: 10
+      }
+    }
+  });
+}
+
+function update_commit_chart(){
+  const ctx = $('#package-updates-canvas').empty().attr('height', '300').height(300);
+  const data = activity_data(pkginfo.updates.map(x => ({total:x.n, week:x.week})));
+  const tags = release_annotations(pkginfo.releases || [], data);
+  const myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(x => x.week),
+      datasets: [{
+        label: 'updates',
+        data: data.map(x => x.total),
+        backgroundColor: 'rgb(54, 162, 235, 0.2)',
+        borderColor: 'rgb(54, 162, 235, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins : {
+        legend: false,
+        title: {
+          display: false,
+        },
+        tooltip: {
+          animation: false,
+          callbacks: {
+            title: function(items){
+              const item = items[0];
+              const weekdata = data[item.dataIndex];
+              return weekdata.year + ' week ' + weekdata.week;
+            }
+          }
+        },
+        annotation: {
+          annotations: tags
+        }
+      },
+      layout: {
+        padding: 20
+      },
+      scales: {
+        y : {
+          title: {
+            display: true,
+            text: 'Weekly updates'
+          }
+        }
+      }
+    }
+  });
+}
+
+function update_contributor_tooltips(){
+  $(".package-contributor-img").each(function(){
+    var data = this.dataset;
+    $(this).tooltip({title: `${data.login} made ${data.count} contributions to ${package}`});
+  });
+}
+
 $(function(){ 
   update_copy_gist();
   update_cran_status();
@@ -251,5 +382,7 @@ $(function(){
   update_problems_tooltip();
   update_citation_html();
   update_readme_html();
+  update_commit_chart();
+  update_contributor_tooltips();
   lazy_update_package_revdeps();
 });
