@@ -237,7 +237,7 @@ block content
           a.package-details-article.list-group-item.list-group-item-action.border-0.pb-1(href=`/${Package}/doc/${article.filename}`)
             .d-flex.w-100.justify-content-between
               div.text-dark-emphasis
-                h5.mb-1
+                h2.h5.mb-1
                   small
                     i.fas.fa-book.me-2
                     span.article-title #{article.title}
@@ -257,11 +257,13 @@ block content
 
   if _assets.includes("extra/citation.html")
     #citation.package-details-citation.row.card.mt-4
-      a.plink.h5.card-title.card-header.text-center.text-dark(href='#citation') Citation
+      a.plink.card-title.card-header.text-center.text-dark(href='#citation')
+        h2.h5.mb-0 Citation
       .package-citation-content.card-body
 
   #readme.package-details-readme.row.card.mt-4
-    a.plink.h5.card-title.card-header.text-center.text-dark(href='#readme') Readme and manuals
+    a.plink.card-title.card-header.text-center.text-dark(href='#readme')
+      h2.h5.mb-0 Readme and manuals
     .card-body
       if _assets.includes("extra/readme.html") || _assets.includes("readme.html")
         .package-readme-content
@@ -282,7 +284,8 @@ block content
                 | #{Array.isArray(page.topics) && page.topics.join(" ")}
 
   #development.row.card.mt-4
-    a.plink.h5.card-title.card-header.text-center.text-dark(href='#development') Development and contributors
+    a.plink.card-title.card-header.text-center.text-dark(href='#development')
+      h2.h5.mb-0 Development and contributors
     .card-body.col-12
       .p-0.d-none.d-md-block
         canvas#package-updates-canvas(height='300')
@@ -293,7 +296,8 @@ block content
               img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
 
   #users.row.card.mt-4
-    a.plink.h5.card-title.card-header.text-center.text-dark(href='#users') Usage by other packages
+    a.plink.card-title.card-header.text-center.text-dark(href='#users') 
+      h2.h5.mb-0 Usage by other packages (reverse dependencies)
     ul.list-group.list-group-flush.package-details-revdeps
 
   #download-data-modal.modal.fade
