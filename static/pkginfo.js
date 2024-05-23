@@ -247,13 +247,13 @@ function release_annotations(tags, activity_data){
     var date = new Date(x.date);
     var week = date.getWeek();
     var year = date.getWeekYear();
-    var bin = activity_data.findIndex(x => x.week == week && x.year == year);
+    var matchdate = activity_data.find(x => x.date.getWeek() == week && x.date.getWeekYear() == year).date;
     //var latest = (i == tags.length-1);
     var color = 'black';
     return {
       type: 'line',
-      xMin: bin,
-      xMax: bin,
+      xMin: matchdate,
+      xMax: matchdate,
       borderColor: color,
       borderDash: [20, 5],
       arrowHeads: { end: {
@@ -265,7 +265,7 @@ function release_annotations(tags, activity_data){
       }},
       label: {
         display: true,
-        content: x.version,
+        content: `v${x.version.replace(/^v/, '')}`,
         position: 'end',
         yAdjust: 10
       }
@@ -280,7 +280,7 @@ function update_commit_chart(){
   const myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: data.map(x => x.week),
+      labels: data.map(x => x.date),
       datasets: [{
         label: 'updates',
         data: data.map(x => x.total),
@@ -302,9 +302,7 @@ function update_commit_chart(){
           animation: false,
           callbacks: {
             title: function(items){
-              const item = items[0];
-              const weekdata = data[item.dataIndex];
-              return weekdata.year + ' week ' + weekdata.week;
+              return `Week ${data[items[0].dataIndex].date.getWeek()}`
             }
           }
         },
@@ -316,6 +314,12 @@ function update_commit_chart(){
         padding: 20
       },
       scales: {
+        x: {
+            type: 'time',
+            time: {
+                unit: 'month'
+            }
+        },
         y : {
           title: {
             display: true,

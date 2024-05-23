@@ -5,7 +5,7 @@ function make_activity_chart(){
     const myChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: data.map(x => x.week),
+        labels: data.map(x => x.date),
         datasets: [{
           label: 'updates',
           data: data.map(x => x.total),
@@ -16,8 +16,16 @@ function make_activity_chart(){
       },
       options: {
         responsive: true,
-//        animation: false,
+        animation: false,
         maintainAspectRatio: false,
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'month'
+                }
+            }
+        },
         plugins : {
           legend: false,
           title: {
@@ -28,9 +36,7 @@ function make_activity_chart(){
             animation: false,
             callbacks: {
               title: function(items){
-                const item = items[0];
-                const weekdata = data[item.dataIndex];
-                return weekdata.year + ' week ' + weekdata.week;
+                return `Week ${data[items[0].dataIndex].date.getWeek()}`
               },
               label: function(item) {
                 let packages = data[item.dataIndex].packages;
