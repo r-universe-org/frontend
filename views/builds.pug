@@ -13,16 +13,15 @@ block content
             th(scope='col') Version
             th(scope='col') Maintainer
             if universe == 'ropensci'
-              th#thdocs(scope='col')
+              th#thdocs(scope='col') Docs
             th(scope='col') Src
             th.text-nowrap(scope='col') Binaries
             th#rebuild.text-nowrap(scope='col')
             th.d-none.d-xl-table-cell.text-nowrap(scope='col') Build
-            th.d-none.d-xl-table-cell(scope='col') System Dependencies
         tbody#packages-table-body
           each row in pkgdata
             tr
-              td #{format_date(row._commit.time*1000)}
+              td.text-nowrap #{format_date(row._commit.time*1000)}
               td
                 if row._user === universe && row._owner === universe
                   a(href=`/${row.Package}`) #{row.Package}
@@ -30,13 +29,31 @@ block content
                   a(href=`/${row.Package}`) #{row._owner}/#{row.Package}
                 else
                   a(href=`https://${row._user}.r-universe.dev/${row.Package}`) #{row._user}/#{row.Package}
+                if row._registered === false
+                  small.fw-medium.ms-1 (via remote)
+                if row.OS_type
+                  small.fw-medium.ms-1 (#{row.OS_type} only)
+                if row._failure
+                  a(href=row._failure.buildurl)
+                    small.fw-bold.ms-1.text-danger (build failure)
               td
                 a.text-dark(href=`${row._upstream}/commit/${row._commit.id}` target='_blank') #{row.Version}
               td
                 if row._maintainer.login
                   a.text-secondary(href=`https://${row._maintainer.login}.r-universe.dev`) #{row._maintainer.name}
                 else
-                  span #{row._maintainer.name}
+                  span.text-secondary #{row._maintainer.name}
               if universe == 'ropensci'
-                td docslink
-              td
+                td
+                  if row._pkgdocs == 'skipped'
+                    span.ms-1 –
+                  else if row._pkgdocs && row._pkgdocs.match(/succ/i)
+                    a.ms-1(href=`https://docs.ropensci.org/${row.Package}` target='_blank')
+                      i.fa.fa-book.color_ok
+                  else
+                    a.ms-1(href=row._buildurl target='_blank')
+                      i.fa.fa-book.color_bad
+              td src
+              td bin
+              td rebuild
+              td build

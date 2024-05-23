@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'ropensci'
+var universe = 'bioc'
 var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit', '_maintainer', '_upstream', '_binaries', '_sysdeps',
   '_created', '_winbinary', '_macbinary', '_wasmbinary', '_status', '_buildurl', '_failure', '_type', '_registered', '_pkgdocs',
   'Title', 'Description', '_rundeps', '_stars', '_score', '_topics', '_pkglogo'];

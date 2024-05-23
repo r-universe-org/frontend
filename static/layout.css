@@ -12,6 +12,14 @@
   --bs-body-bg: white;
 }
 
+.color_ok {
+  color: #22863a;
+}
+
+.color_bad {
+  color: #cb2431;
+}
+
 body {
   font-size: .875rem;
 }
