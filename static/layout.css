@@ -20,6 +20,14 @@
   color: #cb2431;
 }
 
+.color_meh {
+  color: slategrey;
+}
+
+.color_none {
+  opacity: 0;
+}
+
 body {
   font-size: .875rem;
 }

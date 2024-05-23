@@ -16,8 +16,7 @@ block content
               th#thdocs(scope='col') Docs
             th(scope='col') Src
             th.text-nowrap(scope='col') Binaries
-            th#rebuild.text-nowrap(scope='col')
-            th.d-none.d-xl-table-cell.text-nowrap(scope='col') Build
+            th.d-none.d-xl-table-cell.text-nowrap(scope='col') Built
         tbody#packages-table-body
           each row in pkgdata
             tr
@@ -47,15 +46,60 @@ block content
                   span.text-secondary #{row._maintainer.name}
               if universe == 'ropensci'
                 td
-                  if row._pkgdocs == 'skipped'
+                  if row._pkgdocs === 'skipped'
                     span.ms-1 –
-                  else if row._pkgdocs && row._pkgdocs.match(/succ/i)
+                  else if row._pkgdocs === 'success'
                     a.ms-1(href=`https://docs.ropensci.org/${row.Package}` target='_blank')
                       i.fa.fa-book.color_ok
                   else
                     a.ms-1(href=row._buildurl target='_blank')
                       i.fa.fa-book.color_bad
-              td src
-              td bin
-              td rebuild
-              td build
+              td
+                a(href = row._buildurl)
+                  if row._status && row._status.match(/succ/i)
+                    i.fa-fw.fa-solid.fa-box-archive.color_ok
+                  else
+                    i.fa-fw.fa-solid.fa-box-archive.color_bad
+
+              td.text-nowrap
+                a(href = row._buildurl)
+                  if row._linuxdevel === 'success'
+                    i.fa-fw.fab.fa-linux.color_ok
+                  else if  row._linuxdevel === 'failure'
+                    i.fa-fw.fab.fa-linux.color_bad
+                  else if row._linuxdevel === 'skipped'
+                    i.fa-fw.fa-solid.fa-minus.color_meh
+                  else
+                    i.fa-fw.fa-solid.fa-xmark.color_bad
+
+                  if row._winbinary === 'success'
+                    i.fa-fw.fab.fa-windows.color_ok
+                  else if row._winbinary == 'failure'
+                    i.fa-fw.fab.fa-windows.color_bad
+                  else if row._winbinary === 'skipped' || row.OS_type === 'unix'
+                    i.fa-fw.fa-solid.fa-minus.color_meh
+                  else
+                    i.fa-fw.fa-solid.fa-xmark.color_bad
+
+                  if row._macbinary === 'success'
+                    i.fa-fw.fab.fa-apple.color_ok
+                  else if row._macbinary === 'failure'
+                    i.fa-fw.fab.fa-apple.color_bad
+                  else if row._macbinary === 'arm64-failure'
+                    i.fa-fw.fab.fa-apple.color_bad
+                  else if row._macbinary === 'skipped'
+                    i.fa-fw.fa-solid.fa-minus.color_meh
+                  else
+                    i.fa-fw.fa-solid.fa-xmark.color_bad
+
+                  if row._wasmbinary === 'success'
+                    i.fa-fw.fab.fa-chrome.color_ok
+                  else
+                    i.fa-fw.fab.fa-chrome.color_meh
+
+                  if !all_ok(row)
+                    a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=row._buildurl data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row.Version}`)
+              td.text-nowrap.d-none.d-xl-table-cell #{format_date(row._created)}
+
+block after_scripts
+  script(src='builds.js')
