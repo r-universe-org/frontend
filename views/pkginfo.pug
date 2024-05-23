@@ -261,6 +261,18 @@ block content
         h2.h5.mb-0 Citation
       .package-citation-content.card-body
 
+  #development.row.card.mt-4
+    a.plink.card-title.card-header.text-center.text-dark(href='#development')
+      h2.h5.mb-0 Development and contributors
+    .card-body.col-12
+      .p-0.d-none.d-md-block
+        canvas#package-updates-canvas(height='300')
+      if _contributions
+        .package-details-contributors.text-center
+          each count, login in _contributions
+            a.me-1.package-details-contributor.text-decoration-none(href=`https://${login}.r-universe.dev/contributors`)
+              img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
+
   #readme.package-details-readme.row.card.mt-4
     a.plink.card-title.card-header.text-center.text-dark(href='#readme')
       h2.h5.mb-0 Readme and manuals
@@ -282,18 +294,6 @@ block content
                 a(target='_blank' href=`/${Package}/doc/manual.html#${name}`) #{page.title || name}
               td
                 | #{Array.isArray(page.topics) && page.topics.join(" ")}
-
-  #development.row.card.mt-4
-    a.plink.card-title.card-header.text-center.text-dark(href='#development')
-      h2.h5.mb-0 Development and contributors
-    .card-body.col-12
-      .p-0.d-none.d-md-block
-        canvas#package-updates-canvas(height='300')
-      if _contributions
-        .package-details-contributors.text-center
-          each count, login in _contributions
-            a.me-1.package-details-contributor.text-decoration-none(href=`https://${login}.r-universe.dev/contributors`)
-              img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
 
   #users.row.card.mt-4
     a.plink.card-title.card-header.text-center.text-dark(href='#users') 
