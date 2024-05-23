@@ -18,7 +18,7 @@ block content
         if _user !== _maintainer.login
           if _maintainer.login
             a.text-decoration-none(href=`https://${_maintainer.login}.r-universe.dev`)
-              img.mb-2(src=`https://r-universe.dev/avatars/${_maintainer.login}.png?size=140` style='max-height: 120px; border-radius: 50%;')
+              img.mb-2(src=avatar_url(_maintainer.login, 140) style='max-height: 120px; border-radius: 50%;')
           else
             img.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px; border-radius: 50%;')
           p
@@ -290,7 +290,7 @@ block content
         .package-details-contributors.text-center
           each count, login in _contributions
             a.me-1.package-details-contributor.text-decoration-none(href=`https://${login}.r-universe.dev/contributors`)
-              img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=`https://r-universe.dev/avatars/${login}.png?size=160`)
+              img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
 
   #users.row.card.mt-4
     a.plink.h5.card-title.card-header.text-center.text-dark(href='#users') Usage by other packages

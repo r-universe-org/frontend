@@ -1,6 +1,13 @@
 var express = require('express');
 var router = express.Router();
 
+function avatar_url(login, size = 120){
+  if(login.startsWith('gitlab-')) login = 'gitlab';
+  if(login.startsWith('bitbucket-')) login = 'atlassian';
+  login = login.replace('[bot]', '');
+  return `https://r-universe.dev/avatars/${login}.png?size=${size}`;
+}
+
 function get_url(url){
   return fetch(url).then((res) => {
     if (res.ok) {
@@ -179,6 +186,7 @@ router.get('/favicon.ico', function(req, res, next) {
 
 router.get('/:package', function(req, res, next) {
   return get_json(`https://cran.dev/${req.params.package}/json`).then(function(pkgdata){
+    pkgdata.avatar_url = avatar_url;
     pkgdata.title = `${pkgdata.Package}: ${pkgdata.Title}`;
     pkgdata.Author = normalize_authors( pkgdata.Author);
     pkgdata._grouped = group_binaries(pkgdata);
