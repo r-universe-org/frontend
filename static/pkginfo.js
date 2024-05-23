@@ -255,19 +255,12 @@ function release_annotations(tags, activity_data){
       xMin: matchdate,
       xMax: matchdate,
       borderColor: color,
-      borderDash: [20, 5],
-      arrowHeads: { end: {
-        borderDash: [1,0],
-        display: true,
-        fill: true,
-        width: 5,
-        length: 5
-      }},
+      borderDash: [3, 3],
       label: {
         display: true,
         content: `v${x.version.replace(/^v/, '')}`,
         position: 'end',
-        yAdjust: 10
+        yAdjust: -5
       }
     }
   });
