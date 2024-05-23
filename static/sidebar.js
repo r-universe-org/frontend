@@ -175,12 +175,17 @@ Date.prototype.getWeekYear = function() {
   return date.getFullYear();
 }
 
+Date.prototype.yyyymm = function(){
+  const wk = this.getWeek();
+  return this.getWeekYear() + '-' + (wk < 10 ? '0' + wk : wk);
+}
+
 function activity_data(updates){
   const now = new Date();
   const weeks = Array(53).fill(0).map((_, i) => new Date(now - i*604800000)).reverse();
   return weeks.map(function(date){
     var out = {date: date};
-    var rec = updates.find(x => x.week == `${date.getWeekYear()}-${date.getWeek()}`);
+    var rec = updates.find(x => x.week == `${date.yyyymm()}`);
     if(rec){
       out.total = rec.total;
       if(rec.packages){

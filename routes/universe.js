@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'jeroen'
+var universe = 'ropensci'
 var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit', '_maintainer', '_upstream', '_registered',
   '_created', '_linuxdevel', '_winbinary', '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
 var apiurl = `https://${universe}.r-universe.dev/api/packages?limit=2500&all=true&fields=${fields.join()}`;
