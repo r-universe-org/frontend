@@ -1,0 +1,42 @@
+extends layout
+
+block content
+  .row
+    .col-12.p-0.d-none.d-lg-block(style="max-height: 300px")
+      canvas#activity-canvas.col.p-0(height='300')
+    .col-12.table-responsive
+      table.table.table-sm.compact
+        thead
+          tr
+            th.text-nowrap(scope='col') Commit
+            th(scope='col') Package
+            th(scope='col') Version
+            th(scope='col') Maintainer
+            if universe == 'ropensci'
+              th#thdocs(scope='col')
+            th(scope='col') Src
+            th.text-nowrap(scope='col') Binaries
+            th#rebuild.text-nowrap(scope='col')
+            th.d-none.d-xl-table-cell.text-nowrap(scope='col') Build
+            th.d-none.d-xl-table-cell(scope='col') System Dependencies
+        tbody#packages-table-body
+          each row in pkgdata
+            tr
+              td #{format_date(row._commit.time*1000)}
+              td
+                if row._user === universe && row._owner === universe
+                  a(href=`/${row.Package}`) #{row.Package}
+                else if row._user === universe
+                  a(href=`/${row.Package}`) #{row._owner}/#{row.Package}
+                else
+                  a(href=`https://${row._user}.r-universe.dev/${row.Package}`) #{row._user}/#{row.Package}
+              td
+                a.text-dark(href=`${row._upstream}/commit/${row._commit.id}` target='_blank') #{row.Version}
+              td
+                if row._maintainer.login
+                  a.text-secondary(href=`https://${row._maintainer.login}.r-universe.dev`) #{row._maintainer.name}
+                else
+                  span #{row._maintainer.name}
+              if universe == 'ropensci'
+                td docslink
+              td

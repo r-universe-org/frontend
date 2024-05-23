@@ -111,7 +111,7 @@ block content
                     span.pl-s
                       span.pl-pds &apos;
                       | https://
-                      span.title-universe-name
+                      span.title-universe-name #{universe}
                       | .r-universe.dev
                       span.pl-pds &apos;
                     | ,
@@ -331,7 +331,7 @@ block content
 
 block before_scripts
   script
-    | window.pkginfo=!{JSON.stringify({package: Package, universe: _user, bugtracker:_bugtracker, upstream:_upstream, releases: _releases, updates:_updates, contributions:_contributions})}
+    | window.pkginfo=!{JSON.stringify({package: Package, bugtracker:_bugtracker, upstream:_upstream, releases: _releases, updates:_updates, contributions:_contributions})}
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js')

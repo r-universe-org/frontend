@@ -67,7 +67,7 @@ html
                 .text-truncate.py-1
                   span.fa.fa-user-astronaut.fa-fw.me-3
                   | Links to
-                  span.ps-1.title-universe-name
+                  span.ps-1.title-universe-name #{universe}
                 a.text-muted.py-1(data-bs-toggle='collapse' href='#maintainer-list' role='button')
                   span.fa.collapse-icon
               #maintainer-list.collapse.show.list-group.list-group-flush
@@ -88,6 +88,8 @@ html
             img.rounded.revdep-user-avatar.card-img(src='https://r-universe.dev/static/nobody.jpg' style='width: 60px;' loading="lazy")
           .col.revdep-user-packages
 
+    script
+      | window.universe="#{universe}"
     block before_scripts
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/js/bootstrap.bundle.min.js')

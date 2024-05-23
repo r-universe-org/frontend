@@ -157,12 +157,9 @@ function load_universe_stats(){
 }
 
 function init_page(){
-  var testuser = window.pkginfo && window.pkginfo.universe || 'jeroen';
   var isprod = location.hostname.endsWith("r-universe.dev");
-  window.universe = isprod ? host.split(".")[0] : testuser;
   window.server = isprod ? "" : 'https://' + universe + '.r-universe.dev';
   $(".nocran").toggle(universe != 'cran');
-  $(".title-universe-name").text(universe);
   load_registry_status();
   load_universe_stats();
   load_maintainer_list();
