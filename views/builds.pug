@@ -23,7 +23,9 @@ block content
             tr
               td.text-nowrap #{format_date(row._commit.time*1000)}
               td
-                if row._user === universe && row._owner === universe
+                if row._type === 'failure'
+                  | #{row.Package}
+                else if row._user === universe && row._owner === universe
                   a(href=`/${row.Package}`) #{row.Package}
                 else if row._user === universe
                   a(href=`/${row.Package}`) #{row._owner}/#{row.Package}
@@ -40,7 +42,7 @@ block content
                 a.text-dark(href=`${row._upstream}/commit/${row._commit.id}` target='_blank') #{row.Version}
               td
                 if row._maintainer.login
-                  a.text-secondary(href=`https://${row._maintainer.login}.r-universe.dev`) #{row._maintainer.name}
+                  a.text-dark(href=`https://${row._maintainer.login}.r-universe.dev`) #{row._maintainer.name}
                 else
                   span.text-secondary #{row._maintainer.name}
               if universe == 'ropensci'
