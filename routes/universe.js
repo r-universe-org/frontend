@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'bioc'
+var universe = 'jeroen'
 var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit', '_maintainer', '_upstream', '_registered',
   '_created', '_linuxdevel', '_winbinary', '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
 var apiurl = `https://${universe}.r-universe.dev/api/packages?limit=2500&all=true&fields=${fields.join()}`;
@@ -24,7 +24,7 @@ function get_universe_data(){
   return get_json(apiurl)
 }
 
-function format_date(x){
+function format_yymmdd(x){
   const date = new Date(x || NaN);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -60,7 +60,7 @@ router.get('/builds', function(req, res, next) {
     res.render('builds', {
       all_ok: all_ok,
       retry_url: retry_url,
-      format_date: format_date,
+      format_yymmdd: format_yymmdd,
       universe: universe,
       pkgdata: pkgdata
     });

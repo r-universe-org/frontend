@@ -156,6 +156,48 @@ function load_universe_stats(){
   })
 }
 
+Date.prototype.getWeek = function() {
+  var date = new Date(this.getTime());
+  date.setHours(0, 0, 0, 0);
+  // Thursday in current week decides the year.
+  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+  // January 4 is always in week 1.
+  var week1 = new Date(date.getFullYear(), 0, 4);
+  // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+  return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                        - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
+Date.prototype.getWeekYear = function() {
+  var date = new Date(this.getTime());
+  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+  return date.getFullYear();
+}
+
+Date.prototype.yyyymm = function(){
+  const wk = this.getWeek();
+  return this.getWeekYear() + '-' + (wk < 10 ? '0' + wk : wk);
+}
+
+function activity_data(updates){
+  const now = new Date();
+  const weeks = Array(53).fill(0).map((_, i) => new Date(now - i*604800000).yyyymm()).reverse();
+  return weeks.map(function(weekval){
+    var out = {
+      year : weekval.split('-')[0],
+      week : parseInt(weekval.split('-')[1])
+    };
+    var rec = updates.find(x => x.week == weekval);
+    if(rec){
+      out.total = rec.total;
+      if(rec.packages){
+        out.packages = Object.keys(rec.packages);
+      }
+    }
+    return out;
+  });
+}
+
 function init_page(){
   var isprod = location.hostname.endsWith("r-universe.dev");
   window.server = isprod ? "" : 'https://' + universe + '.r-universe.dev';

@@ -2,7 +2,7 @@ extends layout
 
 block content
   .row
-    .col-12.p-0.d-none.d-lg-block(style="max-height: 300px")
+    .col-12.px-3.d-none.d-lg-block(style="max-height: 300px")
       canvas#activity-canvas.col.p-0(height='300')
     .col-12.table-responsive
       table.table.table-sm.compact
@@ -20,7 +20,7 @@ block content
         tbody#packages-table-body
           each row in pkgdata
             tr
-              td.text-nowrap #{format_date(row._commit.time*1000)}
+              td.text-nowrap #{format_yymmdd(row._commit.time*1000)}
               td
                 if row._type === 'failure'
                   | #{row.Package}
@@ -99,7 +99,9 @@ block content
 
                   if !all_ok(row)
                     a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=row._buildurl data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row.Version}`)
-              td.text-nowrap.d-none.d-xl-table-cell #{format_date(row._created)}
+              td.text-nowrap.d-none.d-xl-table-cell #{format_yymmdd(row._created)}
 
 block after_scripts
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js')
   script(src='builds.js')
