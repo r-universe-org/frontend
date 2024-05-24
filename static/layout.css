@@ -12,6 +12,15 @@
   --bs-body-bg: white;
 }
 
+img#mainlogo {
+  filter: invert(100%);
+  opacity: 0.75;
+}
+
+#searchform {
+  width: 400px;
+}
+
 .color_ok {
   color: #22863a;
 }
