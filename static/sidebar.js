@@ -204,7 +204,8 @@ function activity_data(updates){
   });
 }
 
-function init_page(){
+/* Init global stuff */
+$(function(){
   var isprod = location.hostname.endsWith("r-universe.dev");
   window.server = isprod ? "" : 'https://' + universe + '.r-universe.dev';
   $(".nocran").toggle(universe != 'cran');
@@ -212,7 +213,4 @@ function init_page(){
   load_universe_stats();
   load_maintainer_list();
   load_github_user_info();
-}
-
-/* Init global stuff */
-init_page();
+});
