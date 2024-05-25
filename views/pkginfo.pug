@@ -20,7 +20,7 @@ block content
             a.text-decoration-none(href=`https://${_maintainer.login}.r-universe.dev`)
               img.mb-2(src=avatar_url(_maintainer.login, 140) style='max-height: 120px; border-radius: 50%;')
           else
-            img.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px; border-radius: 50%;')
+            img.rounded-circle.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px;')
           p
             span.card-text.text-secondary.maintainer-name #{_maintainer.name}
       h2.h5.card-title
