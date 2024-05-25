@@ -12,6 +12,14 @@
   --bs-body-bg: white;
 }
 
+#searchform input {
+  color: var(--bs-secondary)
+}
+
+#searchform input:focus{
+  color: black;
+}
+
 img#mainlogo {
   filter: invert(100%);
   opacity: 0.75;

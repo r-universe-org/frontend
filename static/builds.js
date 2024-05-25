@@ -84,8 +84,23 @@ function update_retry_buttons(){
   });
 }
 
+function update_searchbox(){
+  $("#searchform").on('submit', function(e){
+    e.preventDefault();
+    var query = $("#searchform input").val().trim();
+    if(query){
+      window.location = `https://r-universe.dev/search/?q=${encodeURIComponent(query)}`;
+    }
+  });
+  $("#searchform input").on('focus', function(e){
+    if(!$(this).val()){
+      $(this).val(`universe:${universe} `);
+    }
+  })
+}
 
 $(function(){
   update_retry_buttons();
   make_activity_chart();
+  update_searchbox()
 });
