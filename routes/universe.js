@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'eddelbuettel'
+var universe = 'r-lib'
 var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit', '_maintainer', '_upstream', '_registered',
   '_created', '_linuxdevel', '_winbinary', '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
 var apiurl = `https://${universe}.r-universe.dev/api/packages?limit=2500&all=true&fields=${fields.join()}`;
@@ -58,6 +58,7 @@ router.get('/', function(req, res, next) {
 router.get('/builds', function(req, res, next) {
   get_universe_data().then(function(pkgdata){
     res.render('builds', {
+      title: `R packages by ${universe}`,
       all_ok: all_ok,
       retry_url: retry_url,
       format_yymmdd: format_yymmdd,
