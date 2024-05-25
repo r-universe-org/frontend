@@ -16,8 +16,6 @@ html
         .d-flex.flex-wrap.align-items-center.justify-content-center.justify-content-lg-start
           ul.nav.col-12.col-lg-auto.me-lg-auto.mb-2.justify-content-center.mb-md-0
             li
-              a.nav-link.px-2.link-secondary(href='#') Home
-            li
               a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
             li
               a.nav-link.px-2.link-body-emphasis(href='/packages') Packages
@@ -29,10 +27,10 @@ html
               a.nav-link.px-2.link-body-emphasis(href='/badges') Badges
             li
               a.nav-link.px-2.link-body-emphasis(href='/api') API
-          form#searchform.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search')
+          form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search')
             input.form-control(type='text' placeholder=`universe:${universe} .....`)
             button.btn.btn-outline-secondary(type='submit') Search
-          .dropdown.text-end
+          .dropdown.text-end.d-none.d-xl-block
             a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown' aria-expanded='false')
               img#mainlogo(src='https://r-universe.dev/runiverse.svg', width=100)
             ul.dropdown-menu.text-small
