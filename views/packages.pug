@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  .row(data-masonry='{"percentPosition":true}')
+    each x in pkgdata
+      .col-xxl-6
+        .card.mt-4
+          .card-body
+            if x._pkglogo
+              img.package-details-logo.img-fluid.me-3.float-start(src=x._pkglogo loading="lazy" style='max-height: 80px; max-width: 80px;')
+            a.text-decoration-none.text-reset(href=`https://${x._user}.r-universe.dev/${x.Package}`)
+              h2.h5.pb-1
+                span.text-dark #{x.Package}
+                small.text-secondary  - #{x.Title}
+              p.card-text.fst-italic #{x.Description}
+            p.card-text.pt-2
+              small.text-muted.description-last-updated Last updated ??
+            p.card-text.description-topics
+            span.text-muted.badge.badge-light.description-github-stars.d-none.p-1.border
+              i.fas.fa-star.text-warning
+            span.text-muted.badge.badge-light.description-pkgscore.d-none.p-1.border
+              i.fas.fa-chart-line.text-primary
+            span.text-muted.badge.badge-light.description-dependencies.p-1.border.d-none
+              i.fas.fa-cube.text-danger
+            span.text-muted.badge.badge-light.description-dependents.p-1.border.d-none
+              i.fas.fa-cubes.text-success
+
+
+
+
+block after_scripts
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')

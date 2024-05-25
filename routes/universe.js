@@ -2,10 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'rstudio'
-var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit', '_maintainer', '_upstream', '_registered',
-  '_created', '_linuxdevel', '_winbinary', '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
-var apiurl = `https://${universe}.r-universe.dev/api/packages?limit=2500&all=true&fields=${fields.join()}`;
+var universe = 'ropensci'
+
 
 function get_url(url){
   return fetch(url).then((res) => {
@@ -20,7 +18,8 @@ function get_json(url){
   return get_url(url).then((res) => res.json());
 }
 
-function get_universe_data(){
+function get_universe_data(fields){
+  var apiurl = `https://${universe}.r-universe.dev/api/packages?limit=2500&all=true&fields=${fields.join()}`;
   return get_json(apiurl)
 }
 
@@ -56,7 +55,10 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/builds', function(req, res, next) {
-  get_universe_data().then(function(pkgdata){
+  var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
+    '_maintainer', '_upstream', '_registered', '_created', '_linuxdevel', '_winbinary',
+    '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
+  get_universe_data(fields).then(function(pkgdata){
     res.render('builds', {
       title: `R packages by ${universe}`,
       all_ok: all_ok,
@@ -65,7 +67,19 @@ router.get('/builds', function(req, res, next) {
       universe: universe,
       pkgdata: pkgdata
     });
-  });
+  }).catch(next);
+});
+
+router.get("/packages", function(req, res, next){
+  var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_maintainer', '_commit.time',
+    '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_sysdeps'];
+  get_universe_data(fields).then(function(pkgdata){
+    res.render('packages', {
+      title: `R packages by ${universe}`,
+      universe: universe,
+      pkgdata: pkgdata
+    });
+  }).catch(next);
 });
 
 router.get('/favicon.ico', function(req, res, next) {
