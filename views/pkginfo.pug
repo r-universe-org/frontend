@@ -280,20 +280,21 @@ block content
       if _assets.includes("extra/readme.html") || _assets.includes("readme.html")
         .package-readme-content
       if _help
-      a#reference.plink.h4.text-dark(href='#reference') Reference manual
-      table.col-12.table.table-sm.table-hover.manpages-table
-        thead
-          tr
-            th Help page
-            th Topics
-        tbody
-          each page in _help
+        a#manual.plink(href='#manual')
+          h3.h4.text-dark Help Manual
+        table.col-12.table.table-sm.table-hover.manpages-table
+          thead
             tr
-              - var name = page.page.replace(/\.html$/, "");
-              td
-                a(target='_blank' href=`/${Package}/doc/manual.html#${name}`) #{page.title || name}
-              td
-                | #{Array.isArray(page.topics) && page.topics.join(" ")}
+              th Help page
+              th Topics
+          tbody
+            each page in _help
+              tr
+                - var name = page.page.replace(/\.html$/, "");
+                td
+                  a(target='_blank' href=`/${Package}/doc/manual.html#${name}`) #{page.title || name}
+                td
+                  | #{Array.isArray(page.topics) && page.topics.join(" ")}
 
   #users.row.card.mt-4
     a.plink.card-title.card-header.text-center.text-dark(href='#users') 
