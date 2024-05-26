@@ -53,6 +53,8 @@ html
               li
                 a.dropdown-item(href='https://r-universe.dev/sysdeps/') System Libraries
 
+    script
+      | document.querySelector(`a.nav-link[href='${location.pathname}']`).classList.add('fw-bold')
     #content-container.container(style='max-width: 1440px')
       .row.el-element-overlay
         nav.col-xl-auto.d-none.d-xl-block
