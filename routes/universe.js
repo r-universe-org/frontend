@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'jeroen'
+var universe = 'eddelbuettel'
 
 
 function get_url(url){
@@ -72,7 +72,9 @@ function retry_url(x){
 
 /* Langing page (TODO) */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'R-universe' });
+  res.render('index', {
+    universe: universe
+  });
 });
 
 router.get('/builds', function(req, res, next) {
@@ -82,7 +84,6 @@ router.get('/builds', function(req, res, next) {
   get_universe_data(fields).then(function(pkgdata){
     res.render('builds', {
       format_yymmdd: format_yymmdd,
-      title: `R packages by ${universe}`,
       all_ok: all_ok,
       retry_url: retry_url,
       universe: universe,
@@ -98,7 +99,6 @@ router.get("/packages", function(req, res, next){
     res.render('packages', {
       format_count: format_count,
       format_time_since: format_time_since,
-      title: `R packages by ${universe}`,
       universe: universe,
       pkgdata: pkgdata
     });
