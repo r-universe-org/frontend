@@ -10,7 +10,7 @@ function sort_packages(array){
   return array.sort((a, b) => (a.count > b.count) ? -1 : 1);
 }
 
-function combine_results(results){
+function combine_results(results, max){
   const contributions = results[1];
   if(contributions.length == 0){
     return results[0];
@@ -31,13 +31,12 @@ function combine_results(results){
       rec.packages = rec.packages.concat(x.packages);
     });
   });
-  return data.sort(function(x,y){return (x.total + x.contributions > y.total + y.contributions) ? -1 : 1}).slice(0,30);
+  return data.sort(function(x,y){return (x.total + x.contributions > y.total + y.contributions) ? -1 : 1}).slice(0,max);
 }
 
-function make_contributor_chart(max){
-  var max = 20;
+function make_contributor_chart(max = 20){
   return get_user_data(universe, max).then(function(results){
-    const contributors = combine_results(results).filter(x => x.login != universe);
+    const contributors = combine_results(results, max).filter(x => x.login != universe);
     const size = 50;
     const logins = contributors.map(x => x.login);
     const totals = contributors.map(x => x.total);
@@ -150,18 +149,19 @@ function make_contributor_chart(max){
             }
           }
         },
-        layout: {
-          padding: {
-            right: 50
-          }
-        },
         scales: {
           y: {
             stacked: true,
             position: 'right',
             ticks: {
-              padding: 60,
-              beginAtZero: true
+              beginAtZero: true,
+              //padding: 60
+              callback: function(value, index, ticks){
+                var whitespace = ' '.repeat(15);
+                return whitespace + logins[value];
+              }
+              /* Padding above has a weord bug that also adds padding to the top of the chart
+                 Therefore we use the callback to add spaces before the label instead */
             }
           },
           x: {
