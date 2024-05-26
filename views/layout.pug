@@ -7,6 +7,7 @@ html
       title R packages by #{universe}
     meta(charset='utf-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
+    link(rel='alternate' type='application/rss+xml' href='/feed.xml')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css')
@@ -30,6 +31,8 @@ html
               a.nav-link.px-2.link-body-emphasis(href='/badges') Badges
             li
               a.nav-link.px-2.link-body-emphasis(href='/api') API
+            li
+              a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
           form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search')
             input.form-control(type='text' placeholder=`universe:${universe} .....`)
             button.btn.btn-outline-secondary(type='submit') Search
