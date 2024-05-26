@@ -78,8 +78,8 @@ function make_contributor_chart(max = 20){
       const pts = myChart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
       if(pts.length){
         const x = pts[0];
-        const user = logins[x.index];
-        window.location.href = `${server}/contributors`;
+        const contrib = logins[x.index];
+        window.location.href = `https://${contrib}.r-universe.dev/contributors`;
       }
     };
 
