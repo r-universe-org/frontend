@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  .row
+    .col.p-0
+      canvas#contributors-canvas.col.p-0(height="700")
+
+block after_scripts
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js')
+  script(src='contributors.js')

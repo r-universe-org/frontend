@@ -105,6 +105,12 @@ router.get("/packages", function(req, res, next){
   }).catch(next);
 });
 
+router.get("/contributors", function(req, res, next){
+  res.render('contributors', {
+    universe: universe
+  });
+});
+
 router.get('/favicon.ico', function(req, res, next) {
   res.status(404).send("No favicon yet")
 });
