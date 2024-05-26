@@ -4,7 +4,7 @@ block content
   .row(data-masonry='{"percentPosition":true}')
     each x in pkgdata
       .col-lg-6
-        .card.mt-4
+        .card.mt-4.package-description-card
           .card-body
             if x._pkglogo
               img.package-details-logo.img-fluid.me-3.float-start(src=x._pkglogo loading="lazy" style='max-height: 80px; max-width: 80px;')
