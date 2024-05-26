@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'ropensci'
+var universe = 'jeroen'
 
 
 function get_url(url){
@@ -99,6 +99,28 @@ router.get("/packages", function(req, res, next){
       format_count: format_count,
       format_time_since: format_time_since,
       title: `R packages by ${universe}`,
+      universe: universe,
+      pkgdata: pkgdata
+    });
+  }).catch(next);
+});
+
+router.get("/badges", function(req, res, next){
+  var fields = ['Package', '_user', '_registered'];
+  get_universe_data(fields).then(function(pkgdata){
+    pkgdata = pkgdata.filter(x => x._registered);
+    pkgdata.unshift({Package: ':total', _user: universe});
+    pkgdata.unshift({Package: ':registry', _user: universe});
+    pkgdata.unshift({Package: ':name', _user: universe});
+    pkgdata = pkgdata.sort(function(x,y) {
+      return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
+    }).map(function(x){
+      return Object.assign(x, {
+        badge: `https://${x._user}.r-universe.dev/badges/${x.Package}`,
+        link: `https://${x._user}.r-universe.dev/${x.Package[0] == ":" ? "" : x.Package}`
+      });
+    });
+    res.render('badges', {
       universe: universe,
       pkgdata: pkgdata
     });

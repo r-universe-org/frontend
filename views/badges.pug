@@ -1,0 +1,31 @@
+extends layout
+
+block content
+  .row
+    .col.p-0
+      p.pt-2
+        | Badges can be customized with 'color', 'scale', and 'style' parameters from
+        a.ms-1(href='https://www.npmjs.com/package/badgen') badgen.
+        br
+        | For example:
+        a.ms-1(target='_blank' href='https://ropensci.r-universe.dev/badges/:total?scale=2&color=pink&style=flat')
+          tt https://ropensci.r-universe.dev/badges/:total?scale=2&amp;color=pink&amp;style=flat
+      table.table.table-sm.compact
+        thead
+          tr
+            th(scope='col') URL
+            th(scope='col') Preview
+            th(scope='col') Markdown
+        tbody
+          each x in pkgdata
+            tr
+              td.font-monospace
+                a(target='_blank' href=x.badge) #{x.badge}
+              td
+                img(src=x.badge loading="lazy")
+              td
+                a.markdown-copy-link.text-decoration-none(href='#', data-name=x.Package, data-badge=x.badge, data-link=x.link)
+                  i.fa-brands.fa-markdown.fa-xl.grow-on-over
+
+block after_scripts
+  script(src='badges.js')
