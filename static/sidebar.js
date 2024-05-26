@@ -204,6 +204,21 @@ function activity_data(updates){
   });
 }
 
+function update_searchbox(){
+  $("#searchform").on('submit', function(e){
+    e.preventDefault();
+    var query = $("#searchform input").val().trim();
+    if(query){
+      window.location = `https://r-universe.dev/search/?q=${encodeURIComponent(query)}`;
+    }
+  });
+  $("#searchform input").on('focus', function(e){
+    if(!$(this).val()){
+      $(this).val(`universe:${universe} `);
+    }
+  })
+}
+
 /* Init global stuff */
 $(function(){
   var isprod = location.hostname.endsWith("r-universe.dev");
@@ -213,4 +228,5 @@ $(function(){
   load_universe_stats();
   load_maintainer_list();
   load_github_user_info();
+  update_searchbox();
 });

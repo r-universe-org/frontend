@@ -3,7 +3,7 @@ extends layout
 block content
   .row(data-masonry='{"percentPosition":true}')
     each x in pkgdata
-      .col-xxl-6
+      .col-lg-6
         .card.mt-4
           .card-body
             if x._pkglogo
@@ -14,19 +14,27 @@ block content
                 small.text-secondary  - #{x.Title}
               p.card-text.fst-italic #{x.Description}
             p.card-text.pt-2
-              small.text-muted.description-last-updated Last updated ??
-            p.card-text.description-topics
-            span.text-muted.badge.badge-light.description-github-stars.d-none.p-1.border
-              i.fas.fa-star.text-warning
-            span.text-muted.badge.badge-light.description-pkgscore.d-none.p-1.border
-              i.fas.fa-chart-line.text-primary
-            span.text-muted.badge.badge-light.description-dependencies.p-1.border.d-none
-              i.fas.fa-cube.text-danger
-            span.text-muted.badge.badge-light.description-dependents.p-1.border.d-none
-              i.fas.fa-cubes.text-success
-
-
-
+              small.text-muted.description-last-updated Last updated #{format_time_since(x._commit.time)}
+              if x._topics
+                p.card-text
+                  each topic in x._topics
+                    span.badge.badge-topic.me-1 #{topic}
+            if x._stars
+              span.text-muted.badge.badge-light.p-1.border.me-1
+                i.fas.fa-star.text-warning
+                |  #{format_count(x._stars)} stars
+            if x._score
+              span.text-muted.badge.badge-light.p-1.border.me-1
+                i.fas.fa-chart-line.text-primary
+                |  #{Math.pow(x._score-1, 2).toFixed(2)} score
+            if x._rundeps
+              span.text-muted.badge.badge-light.p-1.border.me-1
+                i.fas.fa-cube.text-danger
+                |  #{x._rundeps.length} dependencies
+            if x._usedby
+              span.text-muted.badge.badge-light.p-1.border.me-1
+                i.fas.fa-cubes.text-success
+                |  #{x._rundeps.length} dependents
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')

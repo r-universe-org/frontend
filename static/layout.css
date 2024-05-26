@@ -12,8 +12,13 @@
   --bs-body-bg: white;
 }
 
+.badge-topic {
+  background-color: #17a2b8;
+  padding: .25em .4em;
+}
+
 #searchform input {
-  color: var(--bs-secondary)
+  color: var(--bs-secondary);
 }
 
 #searchform input:focus{

@@ -180,7 +180,7 @@ block content
       if _topics
         p.card-text.package-details-topics.clearfix
           each topic in _topics
-            a.badge.text-bg-primary.me-1(href=`https://r-universe.dev/search?q=${topic.includes("-") ? `"${topic}"` : encodeURIComponent(topic)}`) #{topic}
+            a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=${topic.includes("-") ? `"${topic}"` : encodeURIComponent(topic)}`) #{topic}
       p.metric-icons
         if _exports
           a.text-muted.badge.text-bg-light.package-details-exports.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
@@ -189,7 +189,7 @@ block content
         if _stars
           a.text-muted.badge.text-bg-light.package-details-stars.p-1.me-1.border(target='_blank' href=`${_upstream}/stargazers`)
             i.fas.fa-star.text-warning
-            |  #{_stars < 1000 ? _stars : (_stars/1000).toFixed(1) + 'k'} stars
+            |  #{format_count(_stars)} stars
         if _score
           a.text-muted.badge.text-bg-light.package-details-pkgscore.p-1.me-1.border(target='_blank' href='https://github.com/r-universe-org/help#how-is-the-package-rank-score-calculated')
             i.fas.fa-chart-line.text-primary

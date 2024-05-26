@@ -23,12 +23,33 @@ function get_universe_data(fields){
   return get_json(apiurl)
 }
 
+function format_count(count){
+  return count < 1000 ? count : (count/1000).toFixed(1) + 'k';
+}
+
 function format_yymmdd(x){
   const date = new Date(x || NaN);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+function format_time_since(ts){
+  var date = new Date(ts*1000);
+  var now = new Date();
+  var diff_time = now.getTime() - date.getTime();
+  var diff_hours = Math.round(diff_time / (1000 * 3600));
+  var diff_days = Math.round(diff_hours / 24);
+  if(diff_hours < 24){
+    return diff_hours + " hours ago"
+  } else if(diff_days < 31){
+    return diff_days + " days ago";
+  } else if (diff_days < 365){
+    return Math.round(diff_days / 30) + " months ago";
+  } else {
+    return Math.round(diff_days / 365) + " years ago";
+  }
 }
 
 function is_ok(status){
@@ -60,10 +81,10 @@ router.get('/builds', function(req, res, next) {
     '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
   get_universe_data(fields).then(function(pkgdata){
     res.render('builds', {
+      format_yymmdd: format_yymmdd,
       title: `R packages by ${universe}`,
       all_ok: all_ok,
       retry_url: retry_url,
-      format_yymmdd: format_yymmdd,
       universe: universe,
       pkgdata: pkgdata
     });
@@ -71,10 +92,12 @@ router.get('/builds', function(req, res, next) {
 });
 
 router.get("/packages", function(req, res, next){
-  var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_maintainer', '_commit.time',
+  var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time',
     '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_sysdeps'];
   get_universe_data(fields).then(function(pkgdata){
     res.render('packages', {
+      format_count: format_count,
+      format_time_since: format_time_since,
       title: `R packages by ${universe}`,
       universe: universe,
       pkgdata: pkgdata

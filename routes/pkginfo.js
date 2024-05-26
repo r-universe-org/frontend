@@ -30,6 +30,10 @@ function sortfun(a,b){
   return a.r < b.r ? 1 : -1;
 }
 
+function format_count(count){
+  return count < 1000 ? count : (count/1000).toFixed(1) + 'k';
+}
+
 function group_binaries(x){
   var package = x.Package;
   var binaries = x._binaries || [];
@@ -177,6 +181,7 @@ function pretty_time_diff(ts){
 
 router.get('/:package', function(req, res, next) {
   return get_json(`https://cran.dev/${req.params.package}/json`).then(function(pkgdata){
+    pkgdata.format_count = format_count;
     pkgdata.universe = pkgdata._user;
     pkgdata.avatar_url = avatar_url;
     pkgdata.title = `${pkgdata.Package}: ${pkgdata.Title}`;
