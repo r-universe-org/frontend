@@ -13,7 +13,7 @@ html
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css')
     link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/prism.css')
     link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/manual.css')
-    link(rel='stylesheet' href='layout.css')
+    link(rel='stylesheet' href='/layout.css')
   body
     header.py-3.mb-3.border-bottom
       .container(style='max-width: 1440px')
@@ -54,7 +54,8 @@ html
                 a.dropdown-item(href='https://r-universe.dev/sysdeps/') System Libraries
 
     script
-      | document.querySelector(`a.nav-link[href='${location.pathname}']`).classList.add('fw-bold')
+      | var navlink = document.querySelector(`a.nav-link[href='${location.pathname}']`);
+      | if(navlink) navlink.classList.add('fw-bold')
     #content-container.container(style='max-width: 1440px')
       .row.el-element-overlay
         nav.col-xl-auto.d-none.d-xl-block
@@ -137,5 +138,5 @@ html
     block before_scripts
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/js/bootstrap.bundle.min.js')
-    script(src='sidebar.js')
+    script(src='/sidebar.js')
     block after_scripts

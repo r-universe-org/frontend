@@ -145,6 +145,20 @@ router.get("/contributors", function(req, res, next){
   });
 });
 
+router.get("/articles/:package/:vignette", function(req, res, next){
+  return get_json(`https://cran.dev/${req.params.package}/json`).then(function(pkgdata){
+    var article = pkgdata._vignettes && pkgdata._vignettes.find(x => x.filename == req.params.vignette);
+    if(article){
+      pkgdata.format_yymmdd = format_yymmdd;
+      pkgdata.article = article;
+      pkgdata.universe = universe;
+      res.render('article-iframe', pkgdata);
+    } else {
+      res.status(404).text(`Vignette ${req.params.vignette} not found in ${req.params.package}`)
+    }
+  }).catch(next);
+});
+
 router.get('/favicon.ico', function(req, res, next) {
   res.status(404).send("No favicon yet")
 });
