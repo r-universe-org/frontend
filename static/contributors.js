@@ -72,6 +72,9 @@ function make_contributor_chart(max = 20){
       });
     }
 
+    // remove spinner
+    $("#loadingstatus").remove();
+
     const ctx = document.getElementById('contributors-canvas');
     $(ctx).height(logins.length * (size + 10) + 50);
     ctx.onclick = function(e){
