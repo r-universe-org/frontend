@@ -42,24 +42,23 @@ function github_api(path){
 }
 
 function load_github_user_info(){
-  if(universe == 'bioc'){
-    universe = 'bioconductor' //bioc is the mirror or for bioconductor
-  }
-  $("#github-user-avatar").attr('src', avatar_url(universe, 400));
+  //bioc is the mirror or for bioconductor
+  var ghuser = universe == 'bioc' ? 'bioconductor' : universe;
+  $("#github-user-avatar").attr('src', avatar_url(ghuser, 400));
   $("#rss-feed").attr("href", server + '/feed.xml');
-  get_text(`https://r-universe.dev/avatars/${universe}.keys`).then(function(res){
+  get_text(`https://r-universe.dev/avatars/${ghuser}.keys`).then(function(res){
     if(res.length){
-      $("#github-user-keys").toggleClass("d-none").attr('href', `https://github.com/${universe}.keys`);
+      $("#github-user-keys").toggleClass("d-none").attr('href', `https://github.com/${ghuser}.keys`);
     }
   });
-  return github_api('/users/' + universe).then(function(user){
-    $("#github-user-name").text(user.name || universe);
+  return github_api('/users/' + ghuser).then(function(user){
+    $("#github-user-name").text(user.name || ghuser);
     if(user.name && !window.pkginfo){
       // use same name->title format as GitHub itself
       if(user.type === 'Organization'){
         $("head title").text(`R packages by ${user.name}`);
       } else {
-        $("head title").text(`R packages by ${universe} (${user.name})`);
+        $("head title").text(`R packages by ${ghuser} (${user.name})`);
       }
     }
     $("#github-user-bio").text(user.bio);

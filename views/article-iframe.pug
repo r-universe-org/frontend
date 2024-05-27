@@ -2,7 +2,7 @@ extends layout
 
 block content
   .pl-3.pt-1
-    small
+    p.text-end
       | Authored by:
       if _maintainer.login
         a.ms-1(href=`https://${_maintainer.login}.r-universe.dev`) #{_maintainer.name}
@@ -10,7 +10,9 @@ block content
         span _maintainer.name
       |  in
       a.ms-1(href=`https://${_user}.r-universe.dev/${Package}`) #{Package} #{Version}
-      | . Source:
+      | .
+      br
+      | Source:
       a.ms-1(href=`https://${_user}.r-universe.dev/${Package}/doc/${article.source}` target='_blank') #{article.source}
       | , Vignette:
       a.ms-1(href=`https://${_user}.r-universe.dev/${Package}/doc/${article.filename}` target='_blank') #{article.filename}
