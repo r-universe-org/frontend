@@ -18,9 +18,13 @@ function get_json(url){
   return get_url(url).then((res) => res.json());
 }
 
-function get_universe_data(fields){
-  var apiurl = `https://${universe}.r-universe.dev/api/packages?limit=2500&all=true&fields=${fields.join()}`;
+function get_universe_data(fields, all = true){
+  var apiurl = `https://${universe}.r-universe.dev/api/packages?fields=${fields.join()}&limit=2500${all ? '&all=true' : ''}`;
   return get_json(apiurl)
+}
+
+function sort_by_package(x,y){
+  return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
 }
 
 function format_count(count){
@@ -112,9 +116,7 @@ router.get("/badges", function(req, res, next){
     pkgdata.unshift({Package: ':total', _user: universe});
     pkgdata.unshift({Package: ':registry', _user: universe});
     pkgdata.unshift({Package: ':name', _user: universe});
-    pkgdata = pkgdata.sort(function(x,y) {
-      return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
-    }).map(function(x){
+    pkgdata = pkgdata.sort(sort_by_package).map(function(x){
       return Object.assign(x, {
         badge: `https://${x._user}.r-universe.dev/badges/${x.Package}`,
         link: `https://${x._user}.r-universe.dev/${x.Package[0] == ":" ? "" : x.Package}`
@@ -123,6 +125,16 @@ router.get("/badges", function(req, res, next){
     res.render('badges', {
       universe: universe,
       pkgdata: pkgdata
+    });
+  }).catch(next);
+});
+
+router.get("/apis", function(req, res, next){
+  var fields = ['_datasets'];
+  get_universe_data(fields, false).then(function(pkgdata){
+    res.render('apis', {
+      universe: universe,
+      pkgdata: pkgdata.sort(sort_by_package)
     });
   }).catch(next);
 });
