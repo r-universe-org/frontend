@@ -152,17 +152,21 @@ function make_contributor_chart(max = 20){
             }
           }
         },
+        layout: {
+          padding: {
+            right: 60
+          }
+        },
         scales: {
           y: {
             stacked: true,
-            position: 'right',
             ticks: {
-              beginAtZero: true,
+              beginAtZero: true
               //padding: 60
-              callback: function(value, index, ticks){
-                var whitespace = ' '.repeat(15);
-                return whitespace + logins[value];
-              }
+              //callback: function(value, index, ticks){
+              //  var whitespace = ' '.repeat(15);
+              //  return whitespace + logins[value];
+              //}
               /* Padding above has a weord bug that also adds padding to the top of the chart
                  Therefore we use the callback to add spaces before the label instead */
             }
