@@ -1,10 +1,10 @@
 extends layout
 
 block content
-  .card.m-2
+  .card.mb-4
+    h2.h5.card-title.card-header.text-center.text-dark Packages API
     .card-body
       .row.mb-3
-        h2.h5.card-title Packages API
         #api-packages-url.input-group
           input.form-control.bg-light(type='text' readonly='')
           a.btn.btn-primary(target='_blank') Open
@@ -12,14 +12,15 @@ block content
       .row.g-3.mb-3
         .col-md-6
           select#api-packages-package.form-control.form-select.form-select-sm
-            option(value='') All packages
+            option(value='') All packages (JSON format)
+            option(value='?stream=1') All packages (NDJSON stream)
             each x in pkgdata
               option #{x.Package}
 
-  .card.m-2
+  .card.mb-4
+    h2.h5.card-title.card-header.text-center.text-dark Datasets API
     .card-body
       .row.mb-3
-        h2.h5.card-title Datasets API
         #api-dataset-url.input-group
           input.form-control.bg-light(type='text' readonly='')
           a.btn.btn-primary(target='_blank') Download
@@ -40,10 +41,10 @@ block content
             option(value='rda') RData
             option rds
 
-  .card.m-2
+  .card.mb-4
+    h2.h5.card-title.card-header.text-center.text-dark Snapshot API
     .card-body
       .row.mb-3
-        h2.h5.card-title Snapshot API
         #api-snapshot-url.input-group
           input.form-control.bg-light(type='text' readonly='')
           a.btn.btn-primary(target='_blank') Download
