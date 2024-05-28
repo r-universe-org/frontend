@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'bioc'
+var universe = 'eddelbuettel'
 
 
 function get_url(url){
@@ -151,7 +151,7 @@ router.get("/articles/:package/:vignette", function(req, res, next){
     if(article){
       pkgdata.format_yymmdd = format_yymmdd;
       pkgdata.article = article;
-      pkgdata.universe = universe;
+      pkgdata.universe = pkgdata._user;
       res.render('article-iframe', pkgdata);
     } else {
       res.status(404).text(`Vignette ${req.params.vignette} not found in ${req.params.package}`)
