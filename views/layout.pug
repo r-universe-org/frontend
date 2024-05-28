@@ -4,7 +4,7 @@ html
     if title
       title #{title}
     else
-      title R packages by #{universe}
+      title.default-fallback-title R packages by #{universe}
     meta(charset='utf-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     link(rel='alternate' type='application/rss+xml' href='/feed.xml')
