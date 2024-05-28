@@ -334,6 +334,11 @@ block content
             |  rds
 
 
+block after_head
+  link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css')
+  link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/prism.css')
+  link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/manual.css')
+
 block before_scripts
   script
     | window.pkginfo=!{JSON.stringify({package: Package, bugtracker:_bugtracker, upstream:_upstream, releases: _releases, updates:_updates, contributions:_contributions})}
