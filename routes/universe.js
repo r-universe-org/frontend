@@ -18,6 +18,14 @@ function get_json(url){
   return get_url(url).then((res) => res.json());
 }
 
+function get_text(url){
+  return get_url(url).then((res) => res.text());
+}
+
+function get_ndjson(url){
+  return get_text(url).then(txt => txt.split('\n').filter(x => x.length).map(JSON.parse));
+}
+
 function get_universe_data(fields, all = true){
   var apiurl = `https://${universe}.r-universe.dev/api/packages?fields=${fields.join()}&limit=2500${all ? '&all=true' : ''}`;
   return get_json(apiurl)
@@ -142,6 +150,15 @@ router.get("/apis", function(req, res, next){
 router.get("/contributors", function(req, res, next){
   res.render('contributors', {
     universe: universe
+  });
+});
+
+router.get("/articles", function(req, res, next){
+  get_ndjson(`https://${universe}.r-universe.dev/stats/vignettes`).then(function(articles){
+    res.render('articles', {
+      universe: universe,
+      articles: articles
+    });
   });
 });
 
