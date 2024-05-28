@@ -20,6 +20,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'static')));
 
+// remove trailing slashes
+app.use((req, res, next) => {
+  if (req.path.slice(-1) === '/' && req.path.length > 1) {
+    const query = req.url.slice(req.path.length)
+    const safepath = req.path.slice(0, -1).replace(/\/+/g, '/')
+    res.redirect(301, safepath + query)
+  } else {
+    next()
+  }
+})
+
 app.use('/', universeRouter);
 app.use('/', pkginfoRouter);
 
