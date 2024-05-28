@@ -53,7 +53,7 @@ function load_github_user_info(){
   });
   return github_api('/users/' + ghuser).then(function(user){
     $("#github-user-name").text(user.name || ghuser);
-    if(user.name && !window.pkginfo){
+    if(user.name && $('title').text().startsWith('R packages')){
       // use same name->title format as GitHub itself
       if(user.type === 'Organization'){
         $("head title").text(`R packages by ${user.name}`);

@@ -2,8 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'eddelbuettel'
-
+var universe = 'ropensci'
 
 function get_url(url){
   return fetch(url).then((res) => {
@@ -47,8 +46,18 @@ function format_yymmdd(x){
   return `${year}-${month}-${day}`;
 }
 
-function format_time_since(ts){
-  var date = new Date(ts*1000);
+function parse_date(x){
+  if(typeof x === 'number'){
+    x = x*1000;
+  }
+  if(typeof x === 'string'){
+    x = x.replace(" ", "T");
+  }
+  return new Date(x)
+}
+
+function format_time_since(x){
+  var date = parse_date(x)
   var now = new Date();
   var diff_time = now.getTime() - date.getTime();
   var diff_hours = Math.round(diff_time / (1000 * 3600));
@@ -154,10 +163,11 @@ router.get("/contributors", function(req, res, next){
 });
 
 router.get("/articles", function(req, res, next){
-  get_ndjson(`https://${universe}.r-universe.dev/stats/vignettes`).then(function(articles){
+  get_ndjson(`https://${universe}.r-universe.dev/stats/vignettes?all=true`).then(function(articles){
     res.render('articles', {
       universe: universe,
-      articles: articles
+      format_time_since: format_time_since,
+      articles: articles.sort((x,y) => x.vignette.modified > y.vignette.modified ? -1 : 1)
     });
   });
 });
@@ -166,10 +176,16 @@ router.get("/articles/:package/:vignette", function(req, res, next){
   return get_json(`https://cran.dev/${req.params.package}/json`).then(function(pkgdata){
     var article = pkgdata._vignettes && pkgdata._vignettes.find(x => x.filename == req.params.vignette);
     if(article){
-      pkgdata.format_yymmdd = format_yymmdd;
-      pkgdata.article = article;
-      pkgdata.universe = pkgdata._user;
-      res.render('article-iframe', pkgdata);
+      //do not open pdf files in iframe
+      if(article.filename.endsWith("html")){
+        pkgdata.format_yymmdd = format_yymmdd;
+        pkgdata.article = article;
+        pkgdata.universe = pkgdata._user;
+        pkgdata.title = article.title;
+        res.render('article-iframe', pkgdata);
+      } else {
+        res.redirect(`https://${pkgdata._user}.r-universe.dev/${pkgdata.Package}/doc/${article.filename}`)
+      }
     } else {
       res.status(404).text(`Vignette ${req.params.vignette} not found in ${req.params.package}`)
     }
