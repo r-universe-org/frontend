@@ -9,6 +9,8 @@ block content
             if x._pkglogo
               img.package-details-logo.img-fluid.me-3.float-start(src=x._pkglogo loading="lazy" style='max-height: 80px; max-width: 80px;')
             a.text-decoration-none.text-reset(href=`https://${x._user}.r-universe.dev/${x.Package}`)
+              if x._user != universe
+                i.float-end.text-secondary.cross-universe-icon.mx-1.fas.fa-external-link-alt
               h2.h5.pb-1
                 span.text-dark #{x.Package}
                 small.text-secondary  - #{x.Title}

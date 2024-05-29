@@ -84,7 +84,15 @@ function update_retry_buttons(){
   });
 }
 
+function update_tooltips(){
+  $('.cross-universe-icon').each(function(){
+    var icon = $(this);
+    icon.tooltip({title: `Package from other universe (${icon.attr('data-universe')})`});
+  });
+}
+
 $(function(){
   update_retry_buttons();
+  update_tooltips();
   make_activity_chart();
 });

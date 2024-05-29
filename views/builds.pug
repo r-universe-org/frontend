@@ -30,6 +30,7 @@ block content
                   a(href=`/${row.Package}`) #{row._owner}/#{row.Package}
                 else
                   a(href=`https://${row._user}.r-universe.dev/${row.Package}`) #{row._user}/#{row.Package}
+                  small.text-secondary.cross-universe-icon.mx-1.fas.fa-external-link-alt(data-universe=row._user)
                 if row._registered === false
                   small.fw-medium.ms-1 (via remote)
                 if row.OS_type
