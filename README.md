@@ -11,3 +11,18 @@ npm start
 ```
 
 And that will start a webserver. Then go to `http://localhost:3000/jsonlite` (or any other package) to preview.
+
+
+## Endpoints
+
+Currently served URLs:
+
+```
+/builds
+/packages
+/contributors
+/apis
+/articles
+/articles/:pkg/:filename
+/:pkg
+```

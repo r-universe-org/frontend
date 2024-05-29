@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // A user to test with locally
-var universe = 'ropensci'
+var universe = 'r-forge'
 
 function get_url(url){
   return fetch(url).then((res) => {
@@ -85,6 +85,10 @@ function all_ok(pkg){
     is_ok(pkg._wasmbinary) && (is_ok(pkg._winbinary) || pkg.OS_type === 'unix')
 }
 
+function build_url(x){
+  return x._failure ? x._failure.buildurl : x._buildurl;
+}
+
 function retry_url(x){
   var retrytype = x._failure ? 'failure' : 'src';
   var retryversion = x._failure ? x._failure.version : x.Version;
@@ -106,6 +110,7 @@ router.get('/builds', function(req, res, next) {
     res.render('builds', {
       format_yymmdd: format_yymmdd,
       all_ok: all_ok,
+      build_url: build_url,
       retry_url: retry_url,
       universe: universe,
       pkgdata: pkgdata
