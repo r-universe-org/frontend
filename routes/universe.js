@@ -1,9 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-// A user to test with locally
-var universe = 'jeroen'
-
 function get_url(url){
   return fetch(url).then((res) => {
     if (res.ok) {
@@ -25,7 +22,7 @@ function get_ndjson(url){
   return get_text(url).then(txt => txt.split('\n').filter(x => x.length).map(JSON.parse));
 }
 
-function get_universe_data(fields, all = true){
+function get_universe_data(universe, fields, all = true){
   var apiurl = `https://${universe}.r-universe.dev/api/packages?fields=${fields.join()}&limit=2500${all ? '&all=true' : ''}`;
   return get_json(apiurl)
 }
@@ -97,22 +94,19 @@ function retry_url(x){
 
 /* Langing page (TODO) */
 router.get('/', function(req, res, next) {
-  res.render('index', {
-    universe: universe
-  });
+  res.render('index');
 });
 
 router.get('/builds', function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
     '_maintainer', '_upstream', '_registered', '_created', '_linuxdevel', '_winbinary',
     '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
-  get_universe_data(fields).then(function(pkgdata){
+  get_universe_data(res.locals.universe, fields).then(function(pkgdata){
     res.render('builds', {
       format_yymmdd: format_yymmdd,
       all_ok: all_ok,
       build_url: build_url,
       retry_url: retry_url,
-      universe: universe,
       pkgdata: pkgdata
     });
   }).catch(next);
@@ -121,19 +115,19 @@ router.get('/builds', function(req, res, next) {
 router.get("/packages", function(req, res, next){
   var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time',
     '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_sysdeps'];
-  get_universe_data(fields).then(function(pkgdata){
+  get_universe_data(res.locals.universe, fields).then(function(pkgdata){
     res.render('packages', {
       format_count: format_count,
       format_time_since: format_time_since,
-      universe: universe,
       pkgdata: pkgdata
     });
   }).catch(next);
 });
 
 router.get("/badges", function(req, res, next){
+  var universe = res.locals.universe;
   var fields = ['Package', '_user', '_registered'];
-  get_universe_data(fields).then(function(pkgdata){
+  get_universe_data(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered);
     pkgdata.unshift({Package: ':total', _user: universe});
     pkgdata.unshift({Package: ':registry', _user: universe});
@@ -145,7 +139,6 @@ router.get("/badges", function(req, res, next){
       });
     });
     res.render('badges', {
-      universe: universe,
       pkgdata: pkgdata
     });
   }).catch(next);
@@ -153,24 +146,20 @@ router.get("/badges", function(req, res, next){
 
 router.get("/apis", function(req, res, next){
   var fields = ['_datasets'];
-  get_universe_data(fields, false).then(function(pkgdata){
+  get_universe_data(res.locals.universe, fields, false).then(function(pkgdata){
     res.render('apis', {
-      universe: universe,
       pkgdata: pkgdata.sort(sort_by_package)
     });
   }).catch(next);
 });
 
 router.get("/contributors", function(req, res, next){
-  res.render('contributors', {
-    universe: universe
-  });
+  res.render('contributors', {});
 });
 
 router.get("/articles", function(req, res, next){
-  get_ndjson(`https://${universe}.r-universe.dev/stats/vignettes?all=true`).then(function(articles){
+  get_ndjson(`https://${res.locals.universe}.r-universe.dev/stats/vignettes?all=true`).then(function(articles){
     res.render('articles', {
-      universe: universe,
       format_time_since: format_time_since,
       articles: articles.sort((x,y) => x.vignette.modified > y.vignette.modified ? -1 : 1)
     });

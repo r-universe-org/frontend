@@ -31,12 +31,22 @@ app.use((req, res, next) => {
   }
 })
 
+app.use(function(req, res, next){
+  if(req.app.get('env') === 'production'){
+    req.universe = req.hostname.replace('.r-universe.dev', '');
+  } else if(process.env.UNIVERSE){
+    req.universe = process.env.UNIVERSE;
+  }
+  res.locals.universe = req.universe || 'ropensci';
+  next();
+})
+
 app.use('/', universeRouter);
 app.use('/', pkginfoRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  next(createError(404, `Page not found: ${req.path}`));
 });
 
 // error handler
