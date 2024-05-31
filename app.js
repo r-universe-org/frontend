@@ -31,6 +31,7 @@ app.use((req, res, next) => {
   }
 })
 
+// set pug globals for 'universe' and 'node_env'
 app.use(function(req, res, next){
   if(req.app.get('env') === 'production'){
     req.universe = req.hostname.replace('.r-universe.dev', '');
@@ -38,6 +39,7 @@ app.use(function(req, res, next){
     req.universe = process.env.UNIVERSE;
   }
   res.locals.universe = req.universe || 'ropensci';
+  res.locals.node_env = req.app.get('env');
   next();
 })
 

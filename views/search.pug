@@ -99,8 +99,9 @@ html
         .col-sm-9.col-lg-10
           input.form-control.form-control-sm.search-item-input(type='text' autocomplete='off')
 
-    script(src='https://r-universe.dev/matomo.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/js/bootstrap.bundle.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')
     script(src='/search.js')
+    if node_env == 'production'
+      script(src='https://r-universe.dev/matomo.js')
