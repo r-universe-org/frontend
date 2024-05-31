@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  .row(data-masonry='{"percentPosition":true}')
+  .row#package-card-container(data-masonry='{"percentPosition":true}')
     each x in pkgdata
       .col-lg-6
         .card.mt-4.package-description-card
@@ -40,3 +40,4 @@ block content
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')
+  script(src='packages.js')
