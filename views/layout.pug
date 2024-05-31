@@ -134,9 +134,6 @@ html
     script
       | window.universe="#{universe}"
     block before_scripts
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/js/bootstrap.bundle.min.js')
+    include includes/default-scripts.pug
     script(src='/sidebar.js')
-    if node_env == 'production'
-      script(src='https://r-universe.dev/matomo.js')
     block after_scripts
