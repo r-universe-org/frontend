@@ -123,6 +123,10 @@ a:hover {
   /*transform: scale(1.01);*/
 }
 
+.noanim.collapsing {
+  transition: none !important;
+}
+
 canvas {
   min-width: 100%;
   max-width: 100%;
