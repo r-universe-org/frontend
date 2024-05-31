@@ -118,7 +118,7 @@ function show_pkg_card(pkg, i){
   var item = $("#templatezone .package-description-item").clone();
   var maintainer = pkg.maintainer || {};
   if(maintainer.login) {
-    item.find('.package-maintainer').attr('href', `https://${maintainer.login}.r-universe.dev`);
+    item.find('img').attr('src', avatar_url(maintainer.login, 120));
   }
   item.find('.package-link').attr('href', `https://${user}.r-universe.dev/${pkg.Package}`);
   item.find('.package-name').text(pkg.Package);
@@ -141,8 +141,6 @@ function show_pkg_card(pkg, i){
   if(pkg.match){
     item.find('.description-score').removeClass('d-none').append(` ${pkg.match.toFixed(1)} match`);
   }
-  item.find('.package-image').attr('src', avatar_url(user, 140));
-  item.find('.package-org').toggleClass("d-none").append(a(`https://${user}.r-universe.dev`, user));
   item.appendTo('#search-results');
   var topics = pkg.topics || [];
   if(pkg.sysdeps){
