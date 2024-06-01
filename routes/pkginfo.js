@@ -1,24 +1,13 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const db = require("../src/db.js");
 
 function avatar_url(login, size = 120){
+  if(login == 'bioc') login = 'bioconductor';
   if(login.startsWith('gitlab-')) login = 'gitlab';
   if(login.startsWith('bitbucket-')) login = 'atlassian';
   login = login.replace('[bot]', '');
   return `https://r-universe.dev/avatars/${login}.png?size=${size}`;
-}
-
-function get_url(url){
-  return fetch(url).then((res) => {
-    if (res.ok) {
-      return res;
-    }
-    throw new Error(`HTTP ${res.status} for: ${url}`);
-  });
-}
-
-function get_json(url){
-  return get_url(url).then((res) => res.json());
 }
 
 function normalize_authors(str){
@@ -162,6 +151,12 @@ function problem_summary(src){
   }
 }
 
+//this also works if x was already a json ISO string
+function date_to_string(x){
+  var date = new Date(x);
+  return date.toDateString().substring(4);
+}
+
 function pretty_time_diff(ts){
   var date = new Date(ts*1000);
   var now = new Date();
@@ -180,12 +175,13 @@ function pretty_time_diff(ts){
 }
 
 router.get('/:package', function(req, res, next) {
-  return get_json(`https://cran.dev/${req.params.package}/json`).then(function(pkgdata){
+  return db.get_package_info(req.params.package, req.universe).then(function(pkgdata){
     pkgdata.format_count = format_count;
     pkgdata.universe = pkgdata._user;
     pkgdata.avatar_url = avatar_url;
     pkgdata.title = `${pkgdata.Package}: ${pkgdata.Title}`;
     pkgdata.Author = normalize_authors( pkgdata.Author);
+    pkgdata._created = date_to_string(pkgdata._created);
     pkgdata._grouped = group_binaries(pkgdata);
     pkgdata._bugtracker = guess_tracker_url(pkgdata);
     pkgdata._sysdeps = filter_sysdeps(pkgdata);

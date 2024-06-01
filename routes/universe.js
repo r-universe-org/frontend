@@ -1,31 +1,6 @@
-var express = require('express');
-var router = express.Router();
-
-function get_url(url){
-  return fetch(url).then((res) => {
-    if (res.ok) {
-      return res;
-    }
-    throw new Error(`HTTP ${res.status} for: ${url}`);
-  });
-}
-
-function get_json(url){
-  return get_url(url).then((res) => res.json());
-}
-
-function get_text(url){
-  return get_url(url).then((res) => res.text());
-}
-
-function get_ndjson(url){
-  return get_text(url).then(txt => txt.split('\n').filter(x => x.length).map(JSON.parse));
-}
-
-function get_universe_data(universe, fields, all = true){
-  var apiurl = `https://${universe}.r-universe.dev/api/packages?fields=${fields.join()}&limit=2500${all ? '&all=true' : ''}`;
-  return get_json(apiurl)
-}
+const express = require('express');
+const router = express.Router();
+const db = require("../src/db.js");
 
 function sort_by_package(x,y){
   return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
@@ -101,7 +76,7 @@ router.get('/builds', function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
     '_maintainer', '_upstream', '_registered', '_created', '_linuxdevel', '_winbinary',
     '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
-  get_universe_data(res.locals.universe, fields).then(function(pkgdata){
+  db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('builds', {
       format_yymmdd: format_yymmdd,
       all_ok: all_ok,
@@ -115,7 +90,7 @@ router.get('/builds', function(req, res, next) {
 router.get("/packages", function(req, res, next){
   var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time',
     '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_sysdeps'];
-  get_universe_data(res.locals.universe, fields).then(function(pkgdata){
+  db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('packages', {
       format_count: format_count,
       format_time_since: format_time_since,
@@ -127,7 +102,7 @@ router.get("/packages", function(req, res, next){
 router.get("/badges", function(req, res, next){
   var universe = res.locals.universe;
   var fields = ['Package', '_user', '_registered'];
-  get_universe_data(res.locals.universe, fields).then(function(pkgdata){
+  db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered);
     pkgdata.unshift({Package: ':total', _user: universe});
     pkgdata.unshift({Package: ':registry', _user: universe});
@@ -146,7 +121,7 @@ router.get("/badges", function(req, res, next){
 
 router.get("/apis", function(req, res, next){
   var fields = ['_datasets'];
-  get_universe_data(res.locals.universe, fields, false).then(function(pkgdata){
+  db.get_universe_packages(res.locals.universe, fields, false).then(function(pkgdata){
     res.render('apis', {
       pkgdata: pkgdata.sort(sort_by_package)
     });
@@ -158,16 +133,20 @@ router.get("/contributors", function(req, res, next){
 });
 
 router.get("/articles", function(req, res, next){
-  get_ndjson(`https://${res.locals.universe}.r-universe.dev/stats/vignettes?all=true`).then(function(articles){
+  db.get_universe_vignettes(res.locals.universe).then(function(articles){
+    articles = articles.map(function(x){
+      x.host = (x.user !== res.locals.universe) ? `https://${x.user}.r-universe.dev` : "";
+      return x;
+    }).sort((x,y) => x.vignette.modified > y.vignette.modified ? -1 : 1);
     res.render('articles', {
       format_time_since: format_time_since,
-      articles: articles.sort((x,y) => x.vignette.modified > y.vignette.modified ? -1 : 1)
+      articles: articles
     });
   });
 });
 
 router.get("/articles/:package/:vignette", function(req, res, next){
-  return get_json(`https://cran.dev/${req.params.package}/json`).then(function(pkgdata){
+  return db.get_package_info(req.params.package, req.universe).then(function(pkgdata){
     var article = pkgdata._vignettes && pkgdata._vignettes.find(x => x.filename == req.params.vignette);
     if(article){
       //do not open pdf files in iframe
@@ -189,7 +168,6 @@ router.get("/articles/:package/:vignette", function(req, res, next){
 router.get("/search", function(req, res, next){
   res.render("search");
 });
-
 
 router.get('/favicon.ico', function(req, res, next) {
   res.status(404).send("No favicon yet")

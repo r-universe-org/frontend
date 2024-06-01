@@ -251,9 +251,7 @@ block content
                   code.mx-1.detail-article-source #{article.source}
                   | using
                   code.mx-1.detail-article-engine #{article.engine}
-                  | on
-                  span.mx-1.detail-article-build #{_created.substring(0, 19).replace("T", " ")}
-                  | .
+                  span.detail-article-build on #{_created}.
               p.text-end
                 small.text-muted.article-modified.text-nowrap Last update: #{(article.modified || "??").substring(0, 10)}
                 br

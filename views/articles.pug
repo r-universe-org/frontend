@@ -3,7 +3,8 @@ extends layout
 block content
   .list-group
     for x in articles
-      a.list-group-item.list-group-item-action(href=`/articles/${x.package}/${x.vignette.filename}`)
+      if x.user == universe
+      a.list-group-item.list-group-item-action(href=`${x.host}/articles/${x.package}/${x.vignette.filename}`)
         .d-flex.w-100.justify-content-between
           h2.h5.mb-1 #{x.vignette.title}
           small.text-body-secondary Updated #{format_time_since(x.vignette.modified)}
