@@ -55,6 +55,7 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = err;
+  res.locals.mode = req.app.get('env')
 
   // render the error page
   res.status(err.status || 500);
