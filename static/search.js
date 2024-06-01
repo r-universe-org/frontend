@@ -117,16 +117,15 @@ function show_pkg_card(pkg, i){
   var user = pkg['_user'];
   var item = $("#templatezone .package-description-item").clone();
   var maintainer = pkg.maintainer || {};
-  if(maintainer.login) {
-    item.find('img').attr('src', avatar_url(maintainer.login, 120));
-  }
+  item.find('.img').attr('src', avatar_url(user, 120));
+  item.find('.package-org').text(user);
   item.find('.package-link').attr('href', `https://${user}.r-universe.dev/${pkg.Package}`);
   item.find('.package-name').text(pkg.Package);
-  item.find('.package-maintainer').text(maintainer.name);
   item.find('.package-title').text(pkg.Title);
+  item.find('.description-maintainer').text(`Maintained by ${maintainer.name}. `);
   item.find('.package-description').text(pkg.Description.replace('\n', ' '));
   if(pkg.updated){
-    item.find('.description-last-updated').text('Last updated ' + pretty_time_diff(pkg.updated));
+    item.find('.description-last-updated').text(`Last updated ${pretty_time_diff(pkg.updated)}.`);
   }
   if(pkg.stars){
     item.find('.description-stars').removeClass('d-none').append(` ${pkg.stars} stars`);
@@ -276,8 +275,9 @@ function load_blog_posts(){
 
 function avatar_url(login, size){
   // use generic avatars for gitlab/bitbucket
-  if(login.startsWith('gitlab-')) login = 'gitlab';
-  if(login.startsWith('bitbucket-')) login = 'atlassian';
+  if(login == 'bioc'){
+    login = 'bioconductor'
+  }
   login = login.replace('[bot]', '');
   return `https://r-universe.dev/avatars/${login}.png?size=${size}`;
 }

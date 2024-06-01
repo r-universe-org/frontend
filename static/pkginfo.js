@@ -194,7 +194,7 @@ function update_readme_html(){
 }
 
 function update_package_revdeps(){
-  var revdepdiv = $(".package-details-revdeps").empty();
+  var revdepdiv = $(".package-details-revdeps");
   return get_ndjson(`https://r-universe.dev/stats/usedbyorg?package=${package}`).then(function(revdeps){
     function make_link(pkg, owner){
       return $("<a>").text(pkg).addClass('text-dark').attr('href', `https://${owner}.r-universe.dev/${pkg}`);
@@ -221,7 +221,7 @@ function update_package_revdeps(){
         }).appendTo(revdepdiv);
       }
     } else {
-      revdepdiv.append($("<i>").text(`No packages in r-universe depending on '${package}' yet.`))
+      revdepdiv.append($("<p>").addClass("m-1").text(`No packages in r-universe depend on '${package}'.`))
     }
   });
 }

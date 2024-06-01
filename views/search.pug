@@ -68,8 +68,8 @@ html
         .card.mt-4.package-description-card
           .card-body
             .float-end.m-2(style="max-width: 140px;")
-              img.rounded-circle.img(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px; margin-left: 10px;')
-              p.pt-1.m-1.text-center.package-maintainer.text-secondary
+              img.img.border.border-secondary-subtle.rounded.p-1.mx-1(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px;')
+              p.pt-1.m-1.text-center.package-org.text-secondary
             a.package-link.text-decoration-none.text-reset
               h2.h5.pb-1
                 span.package-name.text-dark
@@ -77,7 +77,8 @@ html
                 small.ms-1.text-secondary.package-title
               p.card-text.package-description.fst-italic
             p.card-text.pt-2
-              small.text-muted.description-last-updated Last updated ??
+              small.text-muted.description-maintainer
+              small.text-muted.description-last-updated
             p.card-text.description-topics.d-none
             span.me-1.text-muted.badge.badge-light.description-score.d-none.p-1.border
               i.fas.fa-chart-bar.text-primary
