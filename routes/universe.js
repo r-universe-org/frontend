@@ -173,4 +173,8 @@ router.get('/favicon.ico', function(req, res, next) {
   res.status(404).send("No favicon yet")
 });
 
+router.get('/robots.txt', function(req, res, next) {
+  res.type('text/plain').send(`Sitemap: https://${res.locals.universe}.r-universe.dev/sitemap_index.xml\n`);
+});
+
 module.exports = router;
