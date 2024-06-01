@@ -54,12 +54,15 @@ function load_github_user_info(){
   return github_api('/users/' + ghuser).then(function(user){
     $("#github-user-name").text(user.name || ghuser);
 
-    // use same name->title format as GitHub itself
-    if(user.type === 'Organization'){
-      $("title.default-fallback-title").text(`R packages by ${user.name}`);
-    } else {
-      $("title.default-fallback-title").text(`R packages by ${ghuser} (${user.name})`);
+    if(user.name){
+      // use same name->title format as GitHub itself
+      if(user.type === 'Organization'){
+        $("title.default-fallback-title").text(`R packages by ${user.name}`);
+      } else {
+        $("title.default-fallback-title").text(`R packages by ${ghuser} (${user.name})`);
+      }
     }
+
     $("#github-user-bio").text(user.bio);
     if(user.company){
       $("#github-user-company").toggleClass("d-none").find('.content').text(user.company);
