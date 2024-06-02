@@ -1,12 +1,12 @@
 extends layout
 
 block content
-  .list-group
+  .list-group(style='font-size: 1rem;')
     for x in articles
       if x.user == universe
-      a.list-group-item.list-group-item-action(href=`${x.host}/articles/${x.package}/${x.vignette.filename}`)
-        .d-flex.w-100.justify-content-between
-          h2.h5.mb-1 #{x.vignette.title}
+      a.list-group-item.list-group-item-action.py-3.lh-sm(href=`${x.host}/articles/${x.package}/${x.vignette.filename}`)
+        .d-flex.w-100.align-items-center.justify-content-between
+          strong.mb-1 #{x.vignette.title}
           small.text-body-secondary Updated #{format_time_since(x.vignette.modified)}
-        p.mb-1.fst-italic #{x.vignette.author || x.maintainer.split("<")[0]}
+        p.mb-1.small #{x.vignette.author || x.maintainer.split("<")[0]}
         small.text-body-secondary Rendered from <code>#{x.vignette.source}</code> in <b>#{x.package} #{x.version}</b>.
