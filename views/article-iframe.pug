@@ -5,7 +5,9 @@ block content
     h1.title.text-center.display-6 #{article.title}
     p.text-end
       | Authored by:
-      if _maintainer.login
+      if article.author
+        span.ms-1 #{article.author}
+      else if _maintainer.login
         a.ms-1(href=`https://${_maintainer.login}.r-universe.dev`) #{_maintainer.name}
       else
         span.ms-1 #{_maintainer.name}
