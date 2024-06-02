@@ -1,5 +1,6 @@
 /* Database */
 const mongodb = require('mongodb');
+const createError = require('http-errors');
 const HOST = process.env.CRANLIKE_MONGODB_SERVER || '127.0.0.1';
 const PORT = process.env.CRANLIKE_MONGODB_PORT || 27017;
 const USER = process.env.CRANLIKE_MONGODB_USERNAME || 'root';
@@ -107,7 +108,7 @@ function build_projection(fields){
 function mongo_package_info(package, universe){
   return mongo_find({_user: universe, Package: package}).toArray().then(function(docs){
     if(!docs.length)
-      throw new Error(`Package ${package} not found in ${universe}`);
+      throw createError(404, `Package ${package} not found in ${universe}`)
     return group_package_data(docs);
   });
 }
@@ -132,6 +133,8 @@ function mongo_universe_packages(user, fields, all){
     {$limit : 2500}
   ]);
   return cursor.toArray().then(function(pkglist){
+    if(!pkglist.length)
+      throw createError(404, `No packages found in this universe: ${user}`)
     return pkglist.map(x => group_package_data(x.files));
   });
 }

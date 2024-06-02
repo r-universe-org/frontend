@@ -12,10 +12,13 @@ block content
       .row.g-3.mb-3
         .col-md-6
           select#api-packages-package.form-control.form-select.form-select-sm
-            option(value='') All packages (JSON format)
-            option(value='?stream=1') All packages (NDJSON stream)
+            option(value='') All packages in '#{universe}' (JSON format)
+            option(value='?stream=1') All packages '#{universe}' (NDJSON stream)
             each x in pkgdata
-              option #{x.Package}
+              if x._user === universe
+                option #{x.Package}
+              else
+                option(data-universe=x._user) #{x.Package}
 
   .card.mb-4#api-dataset-container
     h2.h5.card-title.card-header.text-center.text-dark Export datasets
@@ -31,7 +34,7 @@ block content
             each x in pkgdata
               if x._datasets
                 each data in x._datasets
-                  option(data-package=x.Package, data-name=data.name) #{x.Package}::#{data.name} (#{data.class[0]})
+                  option(data-universe=x._user data-package=x.Package, data-name=data.name) #{x.Package}::#{data.name} (#{data.class[0]})
         .col-md-6
           select#api-dataset-format.form-control.form-select.form-select-sm
             option csv
@@ -42,7 +45,7 @@ block content
             option rds
 
   .card.mb-4
-    h2.h5.card-title.card-header.text-center.text-dark Download snapshots
+    h2.h5.card-title.card-header.text-center.text-dark Download snapshot
     .card-body
       .row.mb-3
         #api-snapshot-url.input-group
@@ -81,7 +84,8 @@ block content
         fieldset.col-sm
           select#api-snapshot-packages.form-control(multiple='' size='10')
             each x in pkgdata
-              option #{x.Package}
+              if x._user === universe
+                option #{x.Package}
 
 block after_scripts
-  script(src='apis.js')
+  script(src='apis.js?nocache=2')

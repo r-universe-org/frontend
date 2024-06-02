@@ -2,7 +2,8 @@ function update_api_callbacks(){
 
   function update_packages_url(){
     var package = $('#api-packages-package').val();
-    var url = `https://${universe}.r-universe.dev/api/packages/${package}`;
+    var pkguniv = $('#api-packages-package option:selected').attr("data-universe") || universe;
+    var url = `https://${pkguniv}.r-universe.dev/api/packages/${package}`;
     $("#api-packages-url input").val(url);
     $("#api-packages-url a").attr('href', url);
   }
@@ -11,8 +12,9 @@ function update_api_callbacks(){
     var selected = $('#api-dataset-data').find(":selected");
     var name = selected.attr('data-name');
     var package = selected.attr('data-package');
+    var pkguniv = selected.attr('data-universe');
     var format = $('#api-dataset-format').val();
-    var url = `https://${universe}.r-universe.dev/${package}/data/${name}/${format}`;
+    var url = `https://${pkguniv}.r-universe.dev/${package}/data/${name}/${format}`;
     $("#api-dataset-url input").val(url);
     $("#api-dataset-url a").attr('href', url);
   }

@@ -121,7 +121,7 @@ router.get("/badges", function(req, res, next){
 
 router.get("/apis", function(req, res, next){
   var fields = ['_datasets'];
-  db.get_universe_packages(res.locals.universe, fields, false).then(function(pkgdata){
+  db.get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
     res.render('apis', {
       pkgdata: pkgdata.sort(sort_by_package)
     });
@@ -175,6 +175,10 @@ router.get('/favicon.ico', function(req, res, next) {
 
 router.get('/robots.txt', function(req, res, next) {
   res.type('text/plain').send(`Sitemap: https://${res.locals.universe}.r-universe.dev/sitemap_index.xml\n`);
+});
+
+router.get('/sitemaps?.*', function(req, res, next) {
+  res.redirect(301, '/sitemap_index.xml')
 });
 
 module.exports = router;
