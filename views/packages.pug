@@ -36,7 +36,7 @@ block content
             if x._usedby
               span.text-muted.badge.badge-light.p-1.border.me-1
                 i.fas.fa-cubes.text-success
-                |  #{x._rundeps.length} dependents
+                |  #{x._usedby} dependents
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')
