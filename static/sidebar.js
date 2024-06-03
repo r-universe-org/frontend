@@ -46,11 +46,13 @@ function load_github_user_info(){
   var ghuser = universe == 'bioc' ? 'bioconductor' : universe;
   $("#github-user-avatar").attr('src', avatar_url(ghuser, 400));
   $("#rss-feed").attr("href", server + '/feed.xml');
+  /*
   get_text(`https://r-universe.dev/avatars/${ghuser}.keys`).then(function(res){
     if(res.length){
       $("#github-user-keys").toggleClass("d-none").attr('href', `https://github.com/${ghuser}.keys`);
     }
   });
+  */
   return github_api('/users/' + ghuser).then(function(user){
     $("#github-user-name").text(user.name || ghuser);
 
@@ -114,6 +116,9 @@ function load_maintainer_list(){
     x.sort(order).slice(0,25).forEach(function(maintainer){
       if(maintainer.login == universe && maintainer.orcid){
         $("#github-user-orcid").toggleClass("d-none").attr('href', 'https://orcid.org/' + maintainer.orcid);
+      }
+      if(maintainer.login == universe && maintainer.mastodon){
+        $("#github-user-mastodon").toggleClass("d-none").attr('href', maintainer.mastodon);
       }
       if(maintainer.login == universe && maintainer.emails && maintainer.emails.length){
         $("#github-user-emails").toggleClass("d-none").find(".content").append(maintainer.emails.join("<br/>"));
