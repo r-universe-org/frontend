@@ -27,7 +27,7 @@ block content
         span.package-details-name.text-dark #{Package}
         | : 
         small.text-secondary.package-details-title #{Title}
-      p.card-text.package-details-description.fst-italic #{Description}
+      p.card-text.package-details-description.fst-italic !{description_to_html(Description)}
       p
         | Authors:
         span.card-text.text-dark.package-details-author.ms-1 #{Author}

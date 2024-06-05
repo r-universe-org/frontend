@@ -168,7 +168,11 @@ function get_package_info(package, universe){
     return mongo_package_info(package, universe);
   } else {
     console.warn(`Fetching ${package} info from API...`)
-    return get_json(`https://cran.dev/${package}/json`);
+    if(universe){
+      return get_json(`https:${universe}.r-universe.dev/api/packages/${package}`);
+    } else {
+      return get_json(`https://cran.dev/${package}/json`);
+    }
   }
 }
 

@@ -174,13 +174,22 @@ function pretty_time_diff(ts){
   }
 }
 
+function description_to_html(txt = ""){
+  var html = txt.replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;");
+  html = html.replaceAll(/&lt;DOI:\s*(\S+)&gt;/ig, '&lt;<a href="https://doi.org/$1" target="_blank">doi:$1</a>&gt;');
+  html = html.replaceAll(/&lt;ARXIV:\s*(\S+)&gt;/ig, '&lt;<a href="https://arxiv.org/abs/$1" target="_blank">arxiv:$1</a>&gt;');
+  html = html.replaceAll(/&lt;(https?:\S+)&gt;/ig, '&lt;<a href="$1" target="_blank">$1</a>&gt;');
+  return html;
+}
+
 router.get('/:package', function(req, res, next) {
   return db.get_package_info(req.params.package, req.universe).then(function(pkgdata){
     pkgdata.format_count = format_count;
     pkgdata.universe = pkgdata._user;
     pkgdata.avatar_url = avatar_url;
+    pkgdata.description_to_html = description_to_html;
     pkgdata.title = `${pkgdata.Package}: ${pkgdata.Title}`;
-    pkgdata.Author = normalize_authors( pkgdata.Author);
+    pkgdata.Author = normalize_authors(pkgdata.Author);
     pkgdata._created = date_to_string(pkgdata._created);
     pkgdata._grouped = group_binaries(pkgdata);
     pkgdata._bugtracker = guess_tracker_url(pkgdata);
