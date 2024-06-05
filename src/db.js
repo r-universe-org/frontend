@@ -108,7 +108,10 @@ function build_projection(fields){
 function mongo_package_info(package, universe){
   return mongo_find({_user: universe, Package: package}).toArray().then(function(docs){
     if(docs.length){
-      return group_package_data(docs);
+      var pkgdata = group_package_data(docs);
+      if(pkgdata._type === 'failure')
+        throw createError(404, `Package ${package} failed to build: ${pkgdata._buildurl}`)
+      return pkgdata;
     } else {
       // Try to find pkg elsewhere...
       var altquery = {
