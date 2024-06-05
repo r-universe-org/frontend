@@ -107,9 +107,25 @@ function build_projection(fields){
 
 function mongo_package_info(package, universe){
   return mongo_find({_user: universe, Package: package}).toArray().then(function(docs){
-    if(!docs.length)
-      throw createError(404, `Package ${package} not found in ${universe}`)
-    return group_package_data(docs);
+    if(docs.length){
+      return group_package_data(docs);
+    } else {
+      // Try to find pkg elsewhere...
+      var altquery = {
+        _type: 'src',
+        Package : {$regex: `^${package}$`, $options: 'i'},
+        '$or' : [{'_universes': universe}, {'_indexed': true}]
+      }
+      return mongo_find(altquery).next().then(function(alt){
+        if(alt){
+          throw createError(301, `Package has moved...`, {headers : {
+            location: `https://${alt._user}.r-universe.dev/${alt.Package}`
+          }});
+        } else {
+          throw createError(404, `Package ${package} not found in ${universe}`)
+        }
+      });
+    }
   });
 }
 

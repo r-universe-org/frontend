@@ -1,6 +1,6 @@
 {
   "name": "express-frontend",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "scripts": {
     "start": "node ./bin/www"
   },
