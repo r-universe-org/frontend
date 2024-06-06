@@ -170,7 +170,11 @@ router.get("/search", function(req, res, next){
 });
 
 router.get('/favicon.ico', function(req, res, next) {
-  res.status(404).send("No favicon yet")
+  res.status(404).send("No favicon yet");
+});
+
+router.get('/ads.txt', function(req, res, next) {
+  res.status(404).send("No thanks");
 });
 
 router.get('/robots.txt', function(req, res, next) {
