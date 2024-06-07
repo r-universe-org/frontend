@@ -20,6 +20,9 @@ function sortfun(a,b){
 }
 
 function format_count(count){
+  if(count > 1000000) {
+    return (count/1000000).toFixed(1) + 'M';
+  }
   return count < 1000 ? count : (count/1000).toFixed(1) + 'k';
 }
 
