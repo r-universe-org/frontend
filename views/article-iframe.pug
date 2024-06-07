@@ -2,7 +2,7 @@ extends layout
 
 block content
   .pl-3.pt-1
-    h1.title.text-center.display-6 #{article.title}
+    h1#article-title.title.text-center.display-6 #{article.title}
     p.text-end
       | Authored by:
       if article.author
@@ -29,10 +29,9 @@ block content
 
 block before_scripts
   script
-    | document.getElementById('viewerframe').onload=function(){document.getElementById('article-placeholder').remove()}
+    include includes/article-iframe-inline.js
 
 block after_scripts
   script(src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.1/iframeResizer.min.js")
   script
     | iFrameResize({ log: false, checkOrigin: false, warningTimeout: 0 }, '#viewerframe');
-
