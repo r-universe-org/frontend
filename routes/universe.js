@@ -92,7 +92,7 @@ router.get('/builds', function(req, res, next) {
 
 router.get("/packages", function(req, res, next){
   var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time',
-    '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_sysdeps'];
+    '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_sysdeps', '_registered'];
   db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('packages', {
       format_count: format_count,
