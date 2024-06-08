@@ -35,9 +35,9 @@ function avatar_url(login, size){
 }
 
 function github_api(path){
-  return get_json('https://api.github.com' + path).catch(function(err){
-    console.log("Failed to contact api.github.com. Trying proxy...")
-    return get_json('https://r-universe.dev/gh' + path);
+  return get_json('https://r-universe.dev/gh' + path).catch(function(err){
+    console.log("Failed to use GH proxy.")
+    return get_json('https://api.github.com' + path);
   });
 }
 
