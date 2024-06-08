@@ -22,7 +22,9 @@ block content
             tr
               td.text-nowrap #{format_yymmdd(row._commit.time*1000)}
               td
-                if row._type === 'failure'
+                if row._registered === false
+                  | #{row.Package} <small>(via remote)</small>
+                else if row._type === 'failure'
                   | #{row.Package}
                 else if row._user === universe && row._owner === universe
                   a(href=`/${row.Package}`) #{row.Package}
@@ -31,8 +33,6 @@ block content
                 else
                   a(href=`https://${row._user}.r-universe.dev/${row.Package}`) #{row._user}/#{row.Package}
                   small.text-secondary.cross-universe-icon.mx-1.fas.fa-external-link-alt(data-universe=row._user)
-                if row._registered === false
-                  small.fw-medium.ms-1 (via remote)
                 if row.OS_type
                   small.fw-medium.ms-1 (#{row.OS_type} only)
                 if row._failure

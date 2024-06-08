@@ -106,7 +106,7 @@ function build_projection(fields){
 }
 
 function mongo_package_info(package, universe){
-  return mongo_find({_user: universe, Package: package}).toArray().then(function(docs){
+  return mongo_find({_user: universe, Package: package, _registered: true}).toArray().then(function(docs){
     if(docs.length){
       var pkgdata = group_package_data(docs);
       if(pkgdata._type === 'failure')
@@ -117,7 +117,7 @@ function mongo_package_info(package, universe){
       var altquery = {
         _type: 'src',
         Package : {$regex: `^${package}$`, $options: 'i'},
-        '$or' : [{'_universes': universe}, {'_indexed': true}]
+        '$or' : [{'_universes': universe, _registered: true}, {'_indexed': true}]
       }
       return mongo_find(altquery).next().then(function(alt){
         if(alt){
