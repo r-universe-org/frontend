@@ -56,7 +56,7 @@ function all_ok(pkg){
   if(pkg._user == 'ropensci' && pkg._pkgdocs === 'failure'){
     return false;
   }
-  return is_ok(pkg._status) && is_ok(pkg._macbinary) && is_ok(pkg._linuxdevel) &&
+  return (!pkg._failure) && is_ok(pkg._status) && is_ok(pkg._macbinary) && is_ok(pkg._linuxdevel) &&
     is_ok(pkg._wasmbinary) && (is_ok(pkg._winbinary) || pkg.OS_type === 'unix')
 }
 
