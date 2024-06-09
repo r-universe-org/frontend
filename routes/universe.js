@@ -107,7 +107,8 @@ router.get("/badges", function(req, res, next){
   var fields = ['Package', '_user', '_registered'];
   db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered);
-    pkgdata.unshift({Package: ':total', _user: universe});
+    pkgdata.unshift({Package: ':articles', _user: universe});
+    pkgdata.unshift({Package: ':packages', _user: universe});
     pkgdata.unshift({Package: ':registry', _user: universe});
     pkgdata.unshift({Package: ':name', _user: universe});
     pkgdata = pkgdata.sort(sort_by_package).map(function(x){
