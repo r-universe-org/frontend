@@ -44,7 +44,7 @@ function github_api(path){
 function load_github_user_info(){
   //bioc is the mirror or for bioconductor
   var ghuser = universe == 'bioc' ? 'bioconductor' : universe;
-  $("#github-user-avatar").attr('src', avatar_url(ghuser, 400));
+  $("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
   $("#rss-feed").attr("href", server + '/feed.xml');
   /*
   get_text(`https://r-universe.dev/avatars/${ghuser}.keys`).then(function(res){
