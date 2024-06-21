@@ -45,7 +45,6 @@ function load_github_user_info(){
   //bioc is the mirror or for bioconductor
   var ghuser = universe == 'bioc' ? 'bioconductor' : universe;
   $("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
-  $("#rss-feed").attr("href", server + '/feed.xml');
   /*
   get_text(`https://r-universe.dev/avatars/${ghuser}.keys`).then(function(res){
     if(res.length){
@@ -225,10 +224,10 @@ function update_searchbox(){
   })
 }
 
-/* Init global stuff */
+/* Load sidebar and globals */
 $(function(){
-  var isprod = location.hostname.endsWith("r-universe.dev");
-  window.server = isprod ? "" : 'https://' + universe + '.r-universe.dev';
+  var isdev = window.location.hostname == 'localhost';
+  window.server = isdev ? 'https://' + universe + '.r-universe.dev' : "";
   $(".nocran").toggle(universe != 'cran');
   load_registry_status();
   load_universe_stats();
