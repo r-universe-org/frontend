@@ -139,9 +139,15 @@ function update_dataset_onclick(){
   });
 }
 
-function update_problems_tooltip(){
-  var status = $(".last-build-status a");
-  status.tooltip({title: status.attr("data-summary")});
+function enable_default_tooltips(){
+  $('[data-bs-toggle="tooltip"]').each(function(i){
+    var link = $(this);
+    var tooltip = bootstrap.Tooltip.getOrCreateInstance(link);
+    link.click(function(e){
+      link.blur();
+      tooltip.hide();
+    })
+  });
 }
 
 function update_citation_html(){
@@ -337,7 +343,7 @@ $(function(){
   update_open_issues();
   update_peer_review();
   update_dataset_onclick();
-  update_problems_tooltip();
+  enable_default_tooltips();
   update_citation_html();
   update_readme_html();
   update_commit_chart();

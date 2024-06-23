@@ -3,14 +3,11 @@ extends layout
 block content
   .row.card.details-card
     h1.h5.card-header.text-center Package: #{Package} #{Version}
-      span.package-details-header
       .float-end
         a.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}`)
           i.fab.fa-js-square.text-dark.grow-on-over
         a.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
           i.fab.fa-git-square.text-dark.grow-on-over
-        a.citation-link.text-decoration-none(target='_blank' href=`/${Package}/citation.cff`)
-          img.grow-on-over.img-rounded(src='https://r-universe.dev/avatars/citation-file-format.png?size=50' style='width: 25px; margin-top:-4px;')
     .card-body.col-12
       if _pkglogo
         img.package-details-logo.img-fluid.me-4.float-start(src=_pkglogo style='max-height: 140px; max-width: 200px;')
@@ -211,9 +208,9 @@ block content
         small.text-muted
           span.last-build-status
             if _problems
-              a.fa.fa-question-circle.text-danger(href=_buildurl data-summary=`Build/check failure for ${_problems.join(', ')}`)
+              a.fa.fa-question-circle.text-danger(href=_buildurl data-bs-toggle="tooltip" data-bs-title=`Build/check failure for ${_problems.join(', ')}`)
             else
-              a.fa.fa-check.text-success(href=_buildurl data-summary=`Articles and win/mac binaries OK`)
+              a.fa.fa-check.text-success(href=_buildurl data-bs-toggle="tooltip" data-bs-title=`Articles and win/mac binaries OK`)
           span.mx-1.package-details-updated Last updated #{_lastupdate}
           | from:
           a.ms-1.package-details-sha.text-secondary(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id}
@@ -264,8 +261,15 @@ block content
 
   if _assets.includes("extra/citation.html")
     #citation.package-details-citation.row.card.mt-4
-      a.plink.card-title.card-header.text-center.text-dark(href='#citation')
-        h2.h5.mb-0 Citation
+      h2.h5.card-title.card-header.text-center
+        a.text-dark.plink.mb-0(href='#citation') Citation
+        .float-end
+          a.text-decoration-none.ms-1(target='_blank' href=`/${Package}/citation.txt` data-bs-toggle="tooltip" data-bs-title="Raw citation text")
+            i.fa-regular.fa-file-lines.text-dark.grow-on-over
+          a.text-decoration-none.ms-1(target='_blank' href=`/${Package}/citation.json` data-bs-toggle="tooltip" data-bs-title="Citation JSON API")
+            i.fa-brands.fa-square-js.text-dark.grow-on-over
+          a.citation-link.text-decoration-none(target='_blank' href=`/${Package}/citation.cff` data-bs-toggle="tooltip" data-bs-title="Citation CFF API")
+            img.grow-on-over.img-rounded(src='https://r-universe.dev/avatars/citation-file-format.png?size=50' style='width: 25px; margin-top:-4px;')
       .package-citation-content.card-body
 
   if _owner != 'cran'
@@ -352,4 +356,4 @@ block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.1/chartjs-adapter-moment.min.js')
-  script(src='pkginfo.js')
+  script(src='pkginfo.js?nocache=1')
