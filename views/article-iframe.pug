@@ -12,20 +12,20 @@ block content
       else
         span.ms-1 #{_maintainer.name}
       |  in
-      a.ms-1(href=`https://${_user}.r-universe.dev/${Package}`) #{Package} #{Version}
+      a.ms-1(href=`/${Package}`) #{Package} #{Version}
       | .
       br
       | Source:
-      a.ms-1(href=`https://${_user}.r-universe.dev/${Package}/doc/${article.source}` target='_blank') #{article.source}
+      a.ms-1(href=`/${Package}/doc/${article.source}` target='_blank') #{article.source}
       | , Vignette:
-      a.ms-1(href=`https://${_user}.r-universe.dev/${Package}/doc/${article.filename}` target='_blank') #{article.filename}
+      a.ms-1(href=`/${Package}/doc/${article.filename}` target='_blank') #{article.filename}
       | . Last updated:
       code.ms-1 #{format_yymmdd(article.modified)}
       | .
     #article-placeholder.float-end
       span.spinner-grow.spinner-grow-sm(role='status')
       |  Loading article...
-    iframe#viewerframe(scrolling='no' name='viewerframe' src=`https://${_user}.r-universe.dev/${Package}/doc/${article.filename}`)
+    iframe#viewerframe(scrolling='no' name='viewerframe' src=`/${Package}/doc/${article.filename}`)
 
 block before_scripts
   script
