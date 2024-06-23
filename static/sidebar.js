@@ -42,8 +42,14 @@ function github_api(path){
 }
 
 function load_github_user_info(){
-  //bioc is the mirror or for bioconductor
-  var ghuser = universe == 'bioc' ? 'bioconductor' : universe;
+  var ghuser = universe;
+  if(universe === 'bioc'){
+    //bioc is the mirror or for bioconductor
+    ghuser = 'bioconductor';
+  }
+  if(universe === 'r-multiverse-production'){
+    ghuser = 'r-multiverse';
+  }
   $("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
   /*
   get_text(`https://r-universe.dev/avatars/${ghuser}.keys`).then(function(res){
