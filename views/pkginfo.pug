@@ -4,10 +4,10 @@ block content
   .row.card.details-card
     h1.h5.card-header.text-center Package: #{Package} #{Version}
       .float-end
-        a.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}`)
-          i.fab.fa-js-square.text-dark.grow-on-over
-        a.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
-          i.fab.fa-git-square.text-dark.grow-on-over
+        a.ms-2.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
+          i.fa-solid.fa-code-branch.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`Upstream git source`)
+        a.ms-2.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}`)
+          i.fa-solid.fa-gear.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`This page as API`)
     .card-body.col-12
       if _pkglogo
         img.package-details-logo.img-fluid.me-4.float-start(src=_pkglogo style='max-height: 140px; max-width: 200px;')
@@ -356,4 +356,4 @@ block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.1/chartjs-adapter-moment.min.js')
-  script(src='pkginfo.js?nocache=1')
+  script(src='pkginfo.js?nocache=2')
