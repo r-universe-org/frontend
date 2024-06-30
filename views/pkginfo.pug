@@ -199,9 +199,13 @@ block content
           a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}`)
             i.fas.fa-cubes.text-success
             |  #{_usedby} dependents
+        if _mentions
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://papers.ecosyste.ms/projects/${_owner == 'bioc' ? 'bioconductor' : 'cran'}/${Package}`)
+            i.fa-solid.fa-flask.text-primary
+            |  #{format_count(_mentions)} mentions
         if _crandownloads
           a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://cranlogs.r-pkg.org`)
-            i.fas.fa-download.text-primary
+            i.fas.fa-download.text-success-emphasis
             |  #{format_count(_crandownloads)} downloads
 
       p.card-text
