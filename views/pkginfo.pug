@@ -180,27 +180,27 @@ block content
             a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=${topic.includes("-") ? `"${topic}"` : encodeURIComponent(topic)}`) #{topic}
       p.metric-icons
         if _exports
-          a.text-muted.badge.text-bg-light.package-details-exports.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
             i.fas.fa-shapes.text-dark
             |  #{_exports.length} exports
         if _stars
-          a.text-muted.badge.text-bg-light.package-details-stars.p-1.me-1.border(target='_blank' href=`${_upstream}/stargazers`)
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`${_upstream}/stargazers`)
             i.fas.fa-star.text-warning
             |  #{format_count(_stars)} stars
         if _score
-          a.text-muted.badge.text-bg-light.package-details-pkgscore.p-1.me-1.border(target='_blank' href='https://github.com/r-universe-org/help#how-is-the-package-rank-score-calculated')
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href='https://github.com/r-universe-org/help#how-is-the-package-rank-score-calculated')
             i.fas.fa-chart-line.text-primary
             |  #{Math.pow(_score-1, 2).toFixed(2)} score
         if _rundeps
-          a.text-muted.badge.text-bg-light.package-details-dependencies.p-1.me-1.border(data-bs-toggle='collapse' href='#dependslist')
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#dependslist')
             i.fas.fa-cube.text-danger
             |  #{_rundeps.length} dependencies
         if _usedby
-          a.text-muted.badge.text-bg-light.package-details-dependents.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}`)
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}`)
             i.fas.fa-cubes.text-success
             |  #{_usedby} dependents
         if _crandownloads
-          a.text-muted.badge.text-bg-light.package-details-dependents.p-1.me-1.border(target='_blank' href=`https://cranlogs.r-pkg.org`)
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://cranlogs.r-pkg.org`)
             i.fas.fa-download.text-primary
             |  #{format_count(_crandownloads)} downloads
 
