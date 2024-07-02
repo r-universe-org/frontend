@@ -82,6 +82,7 @@ router.get('/builds', function(req, res, next) {
   db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('builds', {
       format_yymmdd: format_yymmdd,
+      format_time_since: format_time_since,
       all_ok: all_ok,
       build_url: build_url,
       retry_url: retry_url,

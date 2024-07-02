@@ -16,7 +16,7 @@ block content
               th#thdocs(scope='col') Docs
             th(scope='col') Src
             th.text-nowrap(scope='col') Binaries
-            th.d-none.d-xl-table-cell.text-nowrap(scope='col') Last build
+            th.d-none.d-xl-table-cell.text-nowrap(scope='col') Last checked
         tbody#packages-table-body
           each row in pkgdata
             tr
@@ -100,7 +100,7 @@ block content
 
                   if !all_ok(row)
                     a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=build_url(row) data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row.Version}`)
-              td.text-nowrap.d-none.d-xl-table-cell #{format_yymmdd(row._created)}
+              td.text-nowrap.d-none.d-xl-table-cell.text-secondary #{format_time_since(row._created)}
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js')
