@@ -13,9 +13,9 @@ html
     block after_head
     link(rel='stylesheet' href='/layout.css')
   body
-    header.py-2.mb-3.border-bottom.bg-body-tertiary
+    header.mb-3.border-bottom.bg-body-tertiary
       .container(style='max-width: 1440px')
-        .dropdown.float-end.my-2
+        .dropdown.float-end.py-2.my-2
           a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown')
             img#mainlogo(src='https://r-universe.dev/runiverse.svg', width=110)
           ul.dropdown-menu.text-small
@@ -33,10 +33,10 @@ html
               a.dropdown-item(href='https://r-universe.dev/sysdeps/') System Libraries
 
         nav.navbar.navbar-expand-sm
-          button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
-            span.navbar-toggler-icon
-            span.ms-2.navbar-brand #{universe}
-          .collapse.navbar-collapse.float-start#navbarNav
+          a.navbar-toggler.float-start(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+            img.rounded.me-2(src=`https://r-universe.dev/avatars/${universe}.png?size=40` style="height:40px;")
+            span.navbar-brand.mx-1 #{universe}
+          .collapse.navbar-collapse.py-2.float-start#navbarNav
             ul.navbar-nav.me-lg-auto.mb-0.justify-content-center
               li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
