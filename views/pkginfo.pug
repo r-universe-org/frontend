@@ -10,7 +10,7 @@ block content
           i.fa-solid.fa-gear.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`This page as API`)
     .card-body.col-12
       if _pkglogo
-        img.package-details-logo.img-fluid.me-4.float-start(src=_pkglogo style='max-height: 140px; max-width: 200px;')
+        img.d-none.d-sm-block.package-details-logo.img-fluid.me-4.float-start(src=_pkglogo style='max-height: 140px; max-width: 200px;')
       .float-end.package-details-maintainer.text-center.ms-4
         if _user !== _maintainer.login
           if _maintainer.login
@@ -28,7 +28,7 @@ block content
       p
         | Authors:
         span.card-text.text-dark.package-details-author.ms-1 #{Author}
-      p.d-table
+      p.text-nowrap.overflow-x-hidden
         a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
         a.package-details-source(href=`/src/contrib/${Package}_${Version}.tar.gz`) #{Package}_#{Version}.tar.gz
         br
@@ -217,7 +217,7 @@ block content
               a.fa.fa-check.text-success(href=_buildurl data-bs-toggle="tooltip" data-bs-title=`Articles and win/mac binaries OK`)
           span.mx-1.package-details-updated Last updated #{_lastupdate}
           | from:
-          a.ms-1.package-details-sha.text-secondary(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id}
+          a.ms-1.package-details-sha.text-secondary(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id.substring(0,10)}
           if RemoteRef && RemoteRef !== "HEAD"
             span.package-details-remoteref  (via #{RemoteRef})
       if _exports
