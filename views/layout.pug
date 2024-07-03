@@ -14,10 +14,28 @@ html
     link(rel='stylesheet' href='/layout.css')
   body
     header.py-2.mb-3.border-bottom.bg-body-tertiary
-      nav.navbar.navbar-expand-sm
-        .container(style='max-width: 1440px')
+      .container(style='max-width: 1440px')
+        .dropdown.float-end.my-2
+          a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown')
+            img#mainlogo(src='https://r-universe.dev/runiverse.svg', width=110)
+          ul.dropdown-menu.text-small
+            li
+              a.dropdown-item(href='https://ropensci.org/r-universe/') About
+            li
+              a.dropdown-item(href='https://docs.r-universe.dev/') Documentation
+            li
+              hr.dropdown-divider
+            li
+              a.dropdown-item(href='https://r-universe.dev/organizations/') Organizations
+            li
+              a.dropdown-item(href='https://r-universe.dev/maintainers/') Maintainers
+            li
+              a.dropdown-item(href='https://r-universe.dev/sysdeps/') System Libraries
+
+        nav.navbar.navbar-expand-sm
           button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
             span.navbar-toggler-icon
+            span.ms-2.navbar-brand #{universe}
           .collapse.navbar-collapse.float-start#navbarNav
             ul.navbar-nav.me-lg-auto.mb-0.justify-content-center
               li.nav-item
@@ -37,22 +55,7 @@ html
             form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search')
               input.form-control(type='text' placeholder=`universe:${universe} .....`)
               button.btn.btn-outline-secondary(type='submit') Search
-          .dropdown
-            a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown')
-              img#mainlogo(src='https://r-universe.dev/runiverse.svg', width=100)
-            ul.dropdown-menu.text-small
-              li
-                a.dropdown-item(href='https://ropensci.org/r-universe/') About
-              li
-                a.dropdown-item(href='https://docs.r-universe.dev/') Documentation
-              li
-                hr.dropdown-divider
-              li
-                a.dropdown-item(href='https://r-universe.dev/organizations/') Organizations
-              li
-                a.dropdown-item(href='https://r-universe.dev/maintainers/') Maintainers
-              li
-                a.dropdown-item(href='https://r-universe.dev/sysdeps/') System Libraries
+
 
     script
       | var navlink = document.querySelector(`a.nav-link[href='${location.pathname}']`);
