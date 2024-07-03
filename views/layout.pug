@@ -13,29 +13,32 @@ html
     block after_head
     link(rel='stylesheet' href='/layout.css')
   body
-    header.py-3.mb-3.border-bottom
-      .container(style='max-width: 1440px')
-        .d-flex.flex-wrap.align-items-center.justify-content-center.justify-content-lg-start
-          ul.nav.col-12.col-lg-auto.me-lg-auto.mb-2.justify-content-center.mb-md-0
-            li
-              a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
-            li
-              a.nav-link.px-2.link-body-emphasis(href='/packages') Packages
-            li
-              a.nav-link.px-2.link-body-emphasis(href='/articles') Articles
-            li
-              a.nav-link.px-2.link-body-emphasis(href='/contributors') Contribution
-            li
-              a.nav-link.px-2.link-body-emphasis(href='/badges') Badges
-            li
-              a.nav-link.px-2.link-body-emphasis(href='/apis') API
-            li
-              a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
-          form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search')
-            input.form-control(type='text' placeholder=`universe:${universe} .....`)
-            button.btn.btn-outline-secondary(type='submit') Search
-          .dropdown.text-end.d-none.d-xl-block
-            a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown' aria-expanded='false')
+    header.py-2.mb-3.border-bottom.bg-body-tertiary
+      nav.navbar.navbar-expand-sm
+        .container(style='max-width: 1440px')
+          button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+            span.navbar-toggler-icon
+          .collapse.navbar-collapse.float-start#navbarNav
+            ul.navbar-nav.me-lg-auto.mb-0.justify-content-center
+              li.nav-item
+                a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
+              li.nav-item
+                a.nav-link.px-2.link-body-emphasis(href='/packages') Packages
+              li.nav-item
+                a.nav-link.px-2.link-body-emphasis(href='/articles') Articles
+              li.nav-item
+                a.nav-link.px-2.link-body-emphasis(href='/contributors') Contribution
+              li.nav-item
+                a.nav-link.px-2.link-body-emphasis(href='/badges') Badges
+              li.nav-item
+                a.nav-link.px-2.link-body-emphasis(href='/apis') API
+              li.nav-item
+                a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
+            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search')
+              input.form-control(type='text' placeholder=`universe:${universe} .....`)
+              button.btn.btn-outline-secondary(type='submit') Search
+          .dropdown
+            a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown')
               img#mainlogo(src='https://r-universe.dev/runiverse.svg', width=100)
             ul.dropdown-menu.text-small
               li
