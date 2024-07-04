@@ -138,3 +138,11 @@ canvas {
   min-width: 100%;
   height: 1000px;
 }
+
+p.overflow-x-invisible {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+p.overflow-x-invisible::-webkit-scrollbar {
+  display: none;
+}
