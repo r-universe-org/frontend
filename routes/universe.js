@@ -165,7 +165,7 @@ router.get("/articles/:package/:vignette", function(req, res, next){
         res.redirect(`https://${pkgdata._user}.r-universe.dev/${pkgdata.Package}/doc/${article.filename}`)
       }
     } else {
-      res.status(404).text(`Vignette ${req.params.vignette} not found in ${req.params.package}`)
+      res.status(404).send(`Vignette ${req.params.vignette} not found in ${req.params.package}`)
     }
   }).catch(next);
 });
