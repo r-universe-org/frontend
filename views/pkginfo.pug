@@ -258,7 +258,7 @@ block content
                   | using
                   code.mx-1.detail-article-engine #{article.engine}
                   span.detail-article-build on #{_created}.
-              p.text-end
+              p.text-end.d-none.d-sm-block
                 small.text-muted.article-modified.text-nowrap Last update: #{(article.modified || "??").substring(0, 10)}
                 br
                 small.text-muted.article-created.text-nowrap Started: #{(article.created || "??").substring(0, 10)}
