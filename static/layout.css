@@ -139,10 +139,14 @@ canvas {
   height: 1000px;
 }
 
-p.overflow-x-invisible {
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-p.overflow-x-invisible::-webkit-scrollbar {
-  display: none;
+/* Using nowrap for large screens breaks the layout, see pkg mapscanner */
+@media (max-width: 575px) {
+  p.overflow-x-invisible {
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  p.overflow-x-invisible::-webkit-scrollbar {
+    display: none;
+  }
 }
