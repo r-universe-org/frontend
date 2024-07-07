@@ -37,6 +37,7 @@ app.use(function(req, res, next){
     req.universe = process.env.UNIVERSE;
   } else if(req.app.get('env') === 'production'){
     req.universe = req.hostname.replace('.r-universe.dev', '');
+    res.locals.vhost = req.headers['r-universe-vhost'];
   }
   res.locals.universe = req.universe || 'ropensci';
   res.locals.node_env = req.app.get('env');

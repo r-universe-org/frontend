@@ -101,15 +101,13 @@ block content
                     span.package-details-gist-name #{Package}
                     span.pl-pds &apos;
                   | ,
-                  span.pl-v repos
+                  span.pl-v  repos
                   span.pl-k  =
                   span.nocran
                     |  c(
                     span.pl-s
                       span.pl-pds &apos;
-                      | https://
-                      span.title-universe-name #{universe}
-                      | .r-universe.dev
+                      span.universe-vhost-url https://#{vhost || `${universe}.r-universe.dev`}
                       span.pl-pds &apos;
                     | ,
                   span.pl-s
@@ -360,4 +358,4 @@ block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.1/chartjs-adapter-moment.min.js')
-  script(src='pkginfo.js?nocache=2')
+  script(src='pkginfo.js?nocache=3')
