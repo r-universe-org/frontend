@@ -216,7 +216,9 @@ block content
           | from:
           a.ms-1.package-details-sha.text-secondary(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id.substring(0,10)}
           if RemoteRef && RemoteRef !== "HEAD"
-            span.package-details-remoteref  (via #{RemoteRef})
+            span.package-details-remoteref  (on
+              a(target='_blank' href=`${_upstream}/tree/${RemoteRef}`)  #{RemoteRef}
+              | )
       if _exports
         p#exportlist.card-text.clearfix.noanim.collapse
           b Exports:
