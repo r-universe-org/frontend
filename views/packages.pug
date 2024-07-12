@@ -3,7 +3,7 @@ extends layout
 block content
   .row#package-card-container(data-masonry='{"percentPosition":true}')
     each x in pkgdata
-      if x._registered !== false
+      if x._registered !== false && x._type !== 'failure'
         .col-lg-6
           .card.mt-4.package-description-card
             .card-body
