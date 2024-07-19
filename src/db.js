@@ -113,11 +113,12 @@ function mongo_package_info(package, universe){
         throw createError(404, `Package ${package} failed to build: ${pkgdata._buildurl}`)
       return pkgdata;
     } else {
-      // Try to find pkg elsewhere...
+      // Try to find pkg elsewhere (nb regex search is slow)
       var altquery = {
         _type: 'src',
         Package : {$regex: `^${package}$`, $options: 'i'},
-        '$or' : [{'_universes': universe, _registered: true}, {'_indexed': true}]
+        _universes: universe,
+        _registered: true
       }
       return mongo_find(altquery).next().then(function(alt){
         if(alt){
