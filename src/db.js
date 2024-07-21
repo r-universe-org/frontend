@@ -113,10 +113,10 @@ function mongo_package_info(package, universe){
         throw createError(404, `Package ${package} failed to build: ${pkgdata._buildurl}`)
       return pkgdata;
     } else {
-      // Try to find pkg elsewhere (nb regex search is slow)
+      // Try to find case insensitive or other universes
       var altquery = {
         _type: 'src',
-        Package : {$regex: `^${package}$`, $options: 'i'},
+        _nocasepkg: package.toLowerCase(),
         _universes: universe,
         _registered: true
       }

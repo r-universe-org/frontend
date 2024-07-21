@@ -230,7 +230,7 @@ block content
           b Dependencies:
           span.labels
             each dep in _rundeps
-              a.badge.text-bg-danger.rounded-pill.ms-1(href=`https://r-universe.dev/search?q=package:${dep}`) #{dep}
+              a.badge.text-bg-danger.rounded-pill.ms-1(href=`https://cran.dev/${dep}`) #{dep}
     .package-details-article-list.list-group.pe-0
       if _status === 'failure'
         .vignette-failure-alert.alert.alert-warning.m-0(role='alert')
