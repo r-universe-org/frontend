@@ -6,6 +6,10 @@ function sort_by_package(x,y){
   return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
 }
 
+function sort_by_score(x,y){
+  return x._score > y._score ? -1 : 1
+}
+
 function format_count(count){
   if(count > 1000000) {
     return (count/1000000).toFixed(1) + 'M';
@@ -98,7 +102,7 @@ router.get("/packages", function(req, res, next){
     res.render('packages', {
       format_count: format_count,
       format_time_since: format_time_since,
-      pkgdata: pkgdata
+      pkgdata: pkgdata.sort(sort_by_score)
     });
   }).catch(next);
 });
