@@ -1,0 +1,39 @@
+extends layout
+
+block content
+  .row
+    .col.p-0
+      ol.list-group.list-group-numbered
+        each pkg in pkgdata
+          if pkg._datasets
+            - var prefix = pkg._user == universe ? "" : `https://${pkg._user}.r-universe.dev`
+            each x in pkg._datasets
+              li.list-group-item.list-group-item-action.d-flex.justify-content-between.align-items-start
+                .ms-2.me-auto
+                  .fw-bold #{pkg.Package}::#{x.name}
+                  i #{x.title}
+                .div
+                  .text-nowrap
+                    if x.table
+                      a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/csv`)
+                        |  csv
+                        span.mx-1 |
+                    if x.table && x.class && x.class.includes('data.frame')
+                      a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/xlsx`)
+                        |  xlsx
+                        span.mx-1 |
+                    if x.tojson
+                      a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/json`)
+                        |  json
+                        span.mx-1 |
+                    if x.tojson & x.class && x.class.includes('data.frame')
+                      a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/ndjson`)
+                        |  ndjson
+                        span.mx-1 |
+                    a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/rda`)
+                      |  rda
+                      span.mx-1 |
+                    a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/rds`)
+                      |  rds
+                  div.text-secondary.text-end [#{x.class[0]}]
+

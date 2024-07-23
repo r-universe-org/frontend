@@ -129,10 +129,19 @@ router.get("/badges", function(req, res, next){
 });
 
 router.get("/apis", function(req, res, next){
-  var fields = ['_datasets'];
+  var fields = ['_datasets', '_registered'];
   db.get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
     res.render('apis', {
-      pkgdata: pkgdata.sort(sort_by_package)
+      pkgdata: pkgdata.filter(x => x._registered).sort(sort_by_package)
+    });
+  }).catch(next);
+});
+
+router.get("/datasets", function(req, res, next){
+  var fields = ['_datasets', '_registered'];
+  db.get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
+    res.render('datasets', {
+      pkgdata: pkgdata.filter(x => x._registered).sort(sort_by_package)
     });
   }).catch(next);
 });
