@@ -12,13 +12,13 @@ block content
                 .ms-2.me-auto
                   .fw-bold #{pkg.Package}::#{x.name}
                   i #{x.title}
-                .div
+                .align-middle.text-end
                   .text-nowrap
                     if x.table
                       a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/csv`)
                         |  csv
                         span.mx-1 |
-                    if x.table && x.class && x.class.includes('data.frame')
+                    if x.table && Array.isArray(x.class) && x.class.includes('data.frame')
                       a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/xlsx`)
                         |  xlsx
                         span.mx-1 |
@@ -26,7 +26,7 @@ block content
                       a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/json`)
                         |  json
                         span.mx-1 |
-                    if x.tojson & x.class && x.class.includes('data.frame')
+                    if x.tojson && Array.isArray(x.class) && x.class.includes('data.frame')
                       a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/ndjson`)
                         |  ndjson
                         span.mx-1 |
@@ -35,5 +35,7 @@ block content
                       span.mx-1 |
                     a(target='_blank' type='button' href=`${prefix}/${pkg.Package}/data/${x.name}/rds`)
                       |  rds
-                  div.text-secondary.text-end [#{x.class[0]}]
-
+                  .text-secondary.text-end.small #{x.class[0]}
+                    if x.rows
+                      span.mx-1 |
+                      | #{x.rows} x #{x.fields.length}
