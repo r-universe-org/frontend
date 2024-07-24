@@ -168,13 +168,14 @@ function load_registry_status(){
 
 function load_universe_stats(){
   return get_json(`${server}/stats/summary?all=true`).then(function(stats){
-    $("#github-user-packages .content").text(stats.packages + ' packages');
-    $("#github-user-articles .content").text(stats.articles + ' articles');
-    $("#github-user-datasets .content").text(stats.datasets + ' datasets');
-    $("#github-user-contributors .content").text(stats.contributors + ' contributors');
-  })
+    for (const [key, value] of Object.entries(stats)) {
+      $(`#github-user-${key} .content`).text(`${value || 0} ${key}`);
+      if(!value){
+        $(`a[href="/${key}"]`).addClass("disabled").removeClass("text-dark").addClass("text-secondary");
+      }
+    }
+  });
 }
-
 
 Date.prototype.getWeek = function() {
   var date = new Date(this.getTime());

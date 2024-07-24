@@ -100,16 +100,16 @@ html
                   span.content.d-inline-flex
                 li#github-user-packages.list-group-item.border-light-subtle
                   span.fa.fa-box-open.fa-fw.me-3.d-inline-flex
-                  a.content.d-inline-flex.text-dark(href='/packages')
+                  a.nav-link.content.d-inline-flex.text-dark(href='/packages')
                 li#github-user-articles.list-group-item.border-light-subtle
                   span.fa.fa-file-alt.fa-fw.me-3.d-inline-flex
-                  a.content.d-inline-flex.text-dark(href='/articles')
+                  a.nav-link.content.d-inline-flex.text-dark(href='/articles')
                 li#github-user-datasets.list-group-item.border-light-subtle
                   span.fa.fa-database.fa-fw.me-3.d-inline-flex
-                  a.content.d-inline-flex.text-dark(href='/datasets')
+                  a.nav-link.content.d-inline-flex.text-dark(href='/datasets')
                 li#github-user-contributors.list-group-item.border-light-subtle
                   span.fa.fa-user-astronaut.fa-fw.me-3.d-inline-flex
-                  a.content.d-inline-flex.text-dark(href='/contributors')
+                  a.nav-link.content.d-inline-flex.text-dark(href='/contributors')
                 li#github-user-followers.d-none.list-group-item.border-light-subtle
                   span.fa.fa-user-friends.fa-fw.me-3.d-inline-flex
                   span.content.d-inline-flex
@@ -143,5 +143,5 @@ html
       | window.universe="#{universe}"
     block before_scripts
     include includes/default-scripts.pug
-    script(src='/sidebar.js')
+    script(src='/sidebar.js?nocache=2')
     block after_scripts
