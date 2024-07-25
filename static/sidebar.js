@@ -47,7 +47,7 @@ function load_github_user_info(){
     //bioc is the mirror or for bioconductor
     ghuser = 'bioconductor';
   }
-  if(universe === 'r-multiverse-production'){
+  if(universe === 'r-multiverse-staging'){
     ghuser = 'r-multiverse';
   }
   $("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
