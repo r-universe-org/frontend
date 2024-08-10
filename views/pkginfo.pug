@@ -200,6 +200,10 @@ block content
           a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://papers.ecosyste.ms/projects/${_owner == 'bioc' ? 'bioconductor' : 'cran'}/${Package}`)
             i.fa-solid.fa-flask.text-primary
             |  #{format_count(_mentions)} mentions
+        if _searchresults
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code`)
+            i.fa-solid.fa-code
+            |  #{format_count(_searchresults)} scripts
         if _crandownloads
           a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://cranlogs.r-pkg.org`)
             i.fas.fa-download.text-success-emphasis
