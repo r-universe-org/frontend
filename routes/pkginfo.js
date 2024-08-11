@@ -186,6 +186,9 @@ function description_to_html(txt = ""){
 }
 
 router.get('/:package', function(req, res, next) {
+  if(req.params.package.startsWith("_")){
+    return next();
+  }
   return db.get_package_info(req.params.package, req.universe).then(function(pkgdata){
     pkgdata.format_count = format_count;
     pkgdata.universe = pkgdata._user;

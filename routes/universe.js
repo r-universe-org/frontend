@@ -183,10 +183,6 @@ router.get("/articles/:package/:vignette", function(req, res, next){
   }).catch(next);
 });
 
-router.get("/search", function(req, res, next){
-  res.render("search");
-});
-
 router.get('/favicon.ico', function(req, res, next) {
   res.status(404).send("No favicon yet");
 });

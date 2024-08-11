@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+var globalRouter = require('./routes/global');
 var universeRouter = require('./routes/universe');
 var pkginfoRouter = require('./routes/pkginfo');
 
@@ -44,6 +45,7 @@ app.use(function(req, res, next){
   next();
 })
 
+app.use('/', globalRouter);
 app.use('/', universeRouter);
 app.use('/', pkginfoRouter);
 
