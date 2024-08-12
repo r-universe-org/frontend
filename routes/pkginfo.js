@@ -26,6 +26,22 @@ function format_count(count){
   return count < 1000 ? count : (count/1000).toFixed(1) + 'k';
 }
 
+function summarize_checks(pkgdata){
+  var results = pkgdata._status.match('suc') ? {OK:1} : {ERROR:1};
+  pkgdata._binaries.filter(x => x.check).forEach(function(bin){
+    if(!results[bin.check]){
+      results[bin.check] = 1
+    } else {
+      results[bin.check]++;
+    }
+  });
+  var out = [];
+  for (const [key, value] of Object.entries(results)) {
+    out.push(`${key}: ${value}`)
+  }
+  return out.join(" ");
+}
+
 function group_binaries(x){
   var package = x.Package;
   var binaries = x._binaries || [];
@@ -194,6 +210,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata.universe = pkgdata._user;
     pkgdata.avatar_url = avatar_url;
     pkgdata.description_to_html = description_to_html;
+    pkgdata.date_to_string = date_to_string;
     pkgdata.title = `${pkgdata.Package}: ${pkgdata.Title}`;
     pkgdata.Author = normalize_authors(pkgdata.Author);
     pkgdata._created = date_to_string(pkgdata._created);
@@ -205,6 +222,8 @@ router.get('/:package', function(req, res, next) {
     pkgdata._lastupdate = pretty_time_diff(pkgdata._commit.time);
     pkgdata._releases = filter_releases(pkgdata);
     pkgdata._contributions = filter_contributions(pkgdata);
+    pkgdata._checks = pkgdata._binaries.filter(x => x.check).sort((x,y) => `${x.r}${x.os}` < `${y.r}${y.os}` ? 1 : -1);
+    pkgdata._checksummary = summarize_checks(pkgdata);
     res.render('pkginfo', pkgdata);
   }).catch(next);
 });
