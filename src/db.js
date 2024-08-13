@@ -216,7 +216,17 @@ function get_universe_packages(universe, fields, all = true){
   }
 }
 
+function get_organizations(){
+  if(production){
+    return mongo_all_universes()
+  } else {
+    console.warn(`Fetching universes data from API...`);
+    return get_json(`https://r-universe.dev/api/universes?organization=1`);
+  }
+}
+
 module.exports = {
+  get_organizations: get_organizations,
   get_package_info: get_package_info,
   get_universe_packages: get_universe_packages,
   get_universe_vignettes: get_universe_vignettes
