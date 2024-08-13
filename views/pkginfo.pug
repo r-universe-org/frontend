@@ -126,38 +126,6 @@ block content
         u
           a.peerreview-link.text-dark.mx-1(target='_blank' href='#')
         span.peerreview-status
-      p.mb-2.package-check-results Checks:
-        a.ms-1.small.text-dark(data-bs-toggle='collapse' href='#checktable')
-          u #{_checksummary}
-      table#checktable.noanim.collapse.table.table-sm.table-bordered.border-primary-subtle(style="max-width: 400px")
-        thead
-          tr
-            th Target
-            th Result
-            th Date
-        tbody
-          tr
-            td Doc / Vignettes
-            td
-              a(target="_blank" href=_buildurl)
-                if _status.match('suc')
-                  span.text-dark OK
-                else
-                  span.text-danger FAIL
-            td #{date_to_string(_created)}
-          each bin in _checks
-            tr
-              td R-#{bin.r.substring(0,3)}-#{bin.os}#{bin.arch ? `-${bin.arch}` : '' }
-              td
-                a(target="_blank" href=bin.buildurl)
-                  if bin.check == 'ERROR'
-                    span.text-danger #{bin.check}
-                  else if bin.check == 'WARNING'
-                    span.text-warning #{bin.check}
-                  else
-                    span.text-dark #{bin.check}
-              td #{date_to_string(bin.date)}
-
 
       if _bugtracker
         p.mb-2.package-details-issues
@@ -242,20 +210,55 @@ block content
             i.fas.fa-download.text-success-emphasis
             |  #{format_count(_crandownloads)} downloads
 
-      p.card-text
-        small.text-muted
-          span.last-build-status
-            if _problems
-              a.fa.fa-question-circle.text-danger(href=_buildurl data-bs-toggle="tooltip" data-bs-title=`Build/check failure for ${_problems.join(', ')}`)
-            else
-              a.fa.fa-check.text-success(href=_buildurl data-bs-toggle="tooltip" data-bs-title=`Articles and win/mac binaries OK`)
+      p
+        small.text-dark
           span.mx-1.package-details-updated Last updated #{_lastupdate}
           | from:
-          a.ms-1.package-details-sha.text-secondary(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id.substring(0,10)}
+          a.ms-1.package-details-sha.link-underline-dark.fw-bold(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id.substring(0,10)}
           if RemoteRef && RemoteRef !== "HEAD"
             span.package-details-remoteref  (on
               a(target='_blank' href=`${_upstream}/tree/${RemoteRef}`)  #{RemoteRef}
               | )
+
+          | . Checks:
+          if _checksummary.includes('ERROR')
+            a.ms-1.link-underline-dark.text-danger.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
+          else if _checksummary.includes('WARNING')
+            a.ms-1.link-underline-dark.text-warning.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
+          else
+            a.ms-1.link-underline-dark.text-success.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
+      table#checktable.noanim.collapse.table.table-sm.table-bordered.border-primary-subtle(style="max-width: 400px")
+        thead
+          tr
+            th Target
+            th Result
+            th Date
+        tbody
+          tr
+            td Doc / Vignettes
+            td
+              a(target="_blank" href=_buildurl)
+                if _status.match('suc')
+                  span.text-dark OK
+                else
+                  span.text-danger FAIL
+            td #{date_to_string(_created)}
+          each bin in _checks
+            tr
+              td R-#{bin.r.substring(0,3)}-#{bin.os}#{bin.arch ? `-${bin.arch}` : '' }
+              td
+                a(target="_blank" href=bin.buildurl)
+                  if bin.check == 'ERROR'
+                    span.text-danger #{bin.check}
+                  else if bin.check == 'WARNING'
+                    span.text-warning #{bin.check}
+                  else
+                    span.text-dark #{bin.check}
+              td #{date_to_string(bin.date)}
+
+
+
+
       if _exports
         p#exportlist.card-text.clearfix.noanim.collapse
           b Exports:
