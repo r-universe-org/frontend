@@ -221,7 +221,9 @@ function get_organizations(){
     return mongo_all_universes()
   } else {
     console.warn(`Fetching universes data from API...`);
-    return get_json(`https://r-universe.dev/api/universes?organization=1`);
+    return get_json(`https://r-universe.dev/api/universes?organization=1&skipcran=1`).then(function(orgs){
+      return orgs.sort((x,y) => x.indexed > y.indexed ? -1 : 1);
+    })
   }
 }
 
