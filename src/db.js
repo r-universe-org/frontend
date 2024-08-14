@@ -216,18 +216,26 @@ function get_universe_packages(universe, fields, all = true){
   }
 }
 
+function get_repositories(){
+  if(production){
+    return mongo_all_universes()
+  } else {
+    console.warn(`Fetching universes data from API...`);
+    return get_json(`https://r-universe.dev/api/universes`);
+  }
+}
+
 function get_organizations(){
   if(production){
     return mongo_all_universes()
   } else {
     console.warn(`Fetching universes data from API...`);
-    return get_json(`https://r-universe.dev/api/universes?organization=1&skipcran=1`).then(function(orgs){
-      return orgs.sort((x,y) => x.indexed > y.indexed ? -1 : 1);
-    })
+    return get_json(`https://r-universe.dev/api/universes?type=organization&skipcran=1`);
   }
 }
 
 module.exports = {
+  get_repositories: get_repositories,
   get_organizations: get_organizations,
   get_package_info: get_package_info,
   get_universe_packages: get_universe_packages,

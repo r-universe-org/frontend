@@ -1,0 +1,36 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
+
+    title R-universe - Organizations
+
+  body
+    #content-container.container(style='max-width: 1440px')
+      table.table.table-bordered 
+        thead
+          tr
+            th universe
+            th packages
+            th indexed
+            th maintainers
+            th type
+            th name
+            th updated
+        tbody
+          each x in repos
+            tr
+              td 
+                a(href=`https://${x.universe}.r-universe.dev`) #{x.universe}
+              td #{x.packages}
+              td #{x.indexed}
+              td #{x.maintainers}
+              td #{x.type}
+              td #{x.name}
+              td.text-nowrap #{format_yymmdd(x.updated*1000)}
+
+  include includes/default-scripts.pug
+  script(src='https://cdn.datatables.net/2.1.3/js/dataTables.min.js')
+  script(src="/repositories.js")
