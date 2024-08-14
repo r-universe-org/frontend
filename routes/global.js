@@ -10,6 +10,10 @@ router.get("/_global/search", function(req, res, next){
   res.render("search");
 });
 
+router.get("/_global/activity", function(req, res, next){
+  res.render("activity");
+});
+
 router.get("/_global/organizations", function(req, res, next){
   db.get_organizations().then(function(orgs){
     res.render('organizations', {orgs: orgs});
