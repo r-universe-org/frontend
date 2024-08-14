@@ -52,16 +52,15 @@ function objectToArray(obj){
 
 function activity_data(updates){
   const now = new Date();
-  const weeks = Array(53).fill(0).map((_, i) => new Date(now - i*604800000).yyyymm()).reverse();
-  return weeks.map(function(weekval){
-    var out = {
-      year : weekval.split('-')[0],
-      week : parseInt(weekval.split('-')[1])
-    };
-    var rec = updates.find(x => x.week == weekval);
+  const weeks = Array(53).fill(0).map((_, i) => new Date(now - i*604800000)).reverse();
+  return weeks.map(function(date){
+    var out = {date: date};
+    var rec = updates.find(x => x.week == `${date.yyyymm()}`);
     if(rec){
       out.total = rec.total;
-      out.packages = sort_packages(objectToArray(rec.packages)).map(x => x.package);
+      if(rec.packages){
+        out.packages = Object.keys(rec.packages);
+      }
     }
     return out;
   });
@@ -74,7 +73,7 @@ function make_activity_chart(universe){
     const myChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: data.map(x => x.week),
+        labels: data.map(x => x.date),
         datasets: [{
           label: 'updates',
           data: data.map(x => x.total),
@@ -84,32 +83,19 @@ function make_activity_chart(universe){
         }]
       },
       options: {
+        animation: false,
         responsive: true,
         maintainAspectRatio: false,
-        animation: false,
         plugins : {
           legend: false,
           title: {
-            display: true,
-            text: "Weekly package updates"
+            display: false,
           },
           tooltip: {
+            animation: false,
             callbacks: {
               title: function(items){
-                const item = items[0];
-                const weekdata = data[item.dataIndex];
-                return weekdata.year + ' week ' + weekdata.week;
-              },
-              label: function(item) {
-                let packages = data[item.dataIndex].packages;
-                let len = packages.length;
-                if(len > 5){
-                  return ` Updates in ${packages.slice(0,4).join(', ')} and ${packages.length-4} other packages`;
-                } else if(len > 1) {
-                  return ` Updates in ${packages.slice(0,len-1).join(', ')} and ${packages[len-1]}`;
-                } else {
-                  return ` Updates in ${packages[0]}`;
-                }
+                return `Week ${data[items[0].dataIndex].date.getWeek()}`
               }
             }
           }
@@ -117,6 +103,20 @@ function make_activity_chart(universe){
         layout: {
           padding: 20
         },
+        scales: {
+          x: {
+              type: 'time',
+              time: {
+                  unit: 'month'
+              }
+          },
+          y : {
+            title: {
+              display: true,
+              text: 'Weekly updates'
+            }
+          }
+        }
       }
     });
   });
