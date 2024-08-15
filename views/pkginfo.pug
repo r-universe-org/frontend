@@ -227,6 +227,7 @@ block content
             a.ms-1.link-underline-dark.text-warning.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
           else
             a.ms-1.link-underline-dark.text-success.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
+          | . Indexed: #{_indexed ? 'yes' : 'no'}.
       table#checktable.noanim.collapse.table.table-sm.table-bordered.border-primary-subtle(style="max-width: 400px")
         thead
           tr
