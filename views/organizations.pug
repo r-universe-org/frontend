@@ -1,28 +1,19 @@
-doctype html
-html
-  head
-    meta(charset='utf-8')
-    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
-    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
-    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
-    link(rel='stylesheet' href='/layout.css')
-    title R-universe - Organizations
+extends global
 
-  body
-    #content-container.container(style='max-width: 1440px' data-masonry='{"percentPosition":true}')
-      .card-group.card-rows
-        each x in orgs
-          .col-xl-2.col-lg-3.col-md-4.col-6
-            a.card.m-2.package-description-card(href=`https://${x.universe}.r-universe.dev`).text-decoration-none
-              img.p-2.avatar.card-img-top(src=`https://r-universe.dev/avatars/${x.universe}.png?size=214` loading='lazy')
-              .card-body
-                h5 #{x.universe}
-                p.card-text #{x.bio || x.name}
-              .card-footer.text-center
-                small.text-body-secondary #{x.packages} packages | #{x.maintainers} maintainers
+block content
+  #content-container.container(style='max-width: 1440px' data-masonry='{"percentPosition":true}')
+    .card-group.card-rows
+      each x in orgs
+        .col-xl-2.col-lg-3.col-md-4.col-6
+          a.card.m-2.package-description-card(href=`https://${x.universe}.r-universe.dev`).text-decoration-none
+            img.p-2.avatar.card-img-top(src=`https://r-universe.dev/avatars/${x.universe}.png?size=214` loading='lazy')
+            .card-body
+              h5 #{x.universe}
+              p.card-text #{x.bio || x.name}
+            .card-footer.text-center
+              small.text-body-secondary #{x.packages} packages | #{x.maintainers} maintainers
 
 
-
-    include includes/default-scripts.pug
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')
-    script(src='/organizations.js')
+block after_scripts
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')
+  script(src='/organizations.js')
