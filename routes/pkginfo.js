@@ -222,6 +222,9 @@ router.get('/:package', function(req, res, next) {
     pkgdata._lastupdate = pretty_time_diff(pkgdata._commit.time);
     pkgdata._releases = filter_releases(pkgdata);
     pkgdata._contributions = filter_contributions(pkgdata);
+    pkgdata._universe_type = pkgdata._userbio.type;
+    pkgdata._universe_name = pkgdata._userbio.name;
+    pkgdata._universe_bio = pkgdata._userbio.description;
     pkgdata._checks = pkgdata._binaries.filter(x => x.check).sort((x,y) => `${x.r}${x.os}` < `${y.r}${y.os}` ? 1 : -1);
     pkgdata._checksummary = summarize_checks(pkgdata);
     res.render('pkginfo', pkgdata);

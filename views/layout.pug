@@ -68,17 +68,17 @@ html
           div(style='width:280px;')
             .sidebar-metadata
               a(href='/')
-                img#github-user-avatar.rounded.card-img-top.rounded-circle.p-3(src=`https://r-universe.dev/avatars/${universe}.png?size=248` style='min-height: 262px;')
+                img#github-user-avatar.rounded.card-img-top.p-3(src=`https://r-universe.dev/avatars/${universe}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
               .card-body
                 h5.card-title
-                  span#github-user-name
+                  span#github-user-name #{_universe_name}
                   a#github-user-mastodon.float-end.d-none.grow-on-over(target='_blank')
                     span.fa-brands.fa-mastodon.fa-fw.me-1(style="color: #6364FF;")
                   a#github-user-twitter.float-end.d-none.grow-on-over(target='_blank')
                     span.fa-brands.fa-square-x-twitter.fa-fw.me-1
                   a#github-user-orcid.float-end.d-none.grow-on-over(target='_blank')
                     span.fa-brands.fa-orcid.fa-fw.me-1.text-success
-                p#github-user-bio.card-text
+                p#github-user-bio.card-text #{_universe_bio}
               ul.list-group.list-group-flush.pb-2.sidebar-user-details
                 li#github-user-universe-row.list-group-item.border-light-subtle.text-truncate
                   span.fa.fa-satellite-dish.fa-fw.me-3
