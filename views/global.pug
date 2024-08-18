@@ -8,15 +8,47 @@ html
     link(rel='stylesheet' href='/layout.css')
     title R-universe - Organizations
 
-  body
-    header.mb-3.border-bottom.bg-body-tertiary
-      .container(style='max-width: 1440px')
-        nav.navbar
-          form#searchform.mx-auto.d-none.d-md-flex.input-group.col-auto(role='search')
-            input.form-control(type='search' placeholder=`search for a package, author, keyword, ...`)
-            button.btn.btn-outline-secondary(type='submit') Search
-          a.m-2.d-block(href='#' data-bs-toggle='dropdown')
-            img#mainlogo(src='https://r-universe.dev/runiverse.svg', width=110)
+  body.d-flex.flex-nowrap
+    #global-sidebar.d-flex.flex-column.flex-shrink-0.text-bg-dark
+      img.logo-img.menu-collapsed.img.img-fluid(src="/logo-icon.svg" style="filter: invert(100%)")
+      img.logo-img.menu-expanded.img.img-fluid.p-1(src="/logo-big.svg")
+      hr
+      ul.nav.nav-pills.flex-column.mb-auto
+        li.nav-item
+          a.nav-link.active(href='#' aria-current='page')
+            i.fa-solid.fa-house.me-2
+            span.menu-expanded Search
+        li
+          a.nav-link.text-white(href='#')
+            i.fa-solid.fa-house.me-2
+            span.menu-expanded Organizations
+        li
+          a.nav-link.text-white(href='#')
+            i.fa-solid.fa-house.me-2
+            span.menu-expanded Repositories
+        li
+          a.nav-link.text-white(href='#')
+            i.fa-solid.fa-house.me-2
+            span.menu-expanded Libraries
+
+
+      hr
+      .dropdown
+        a.d-flex.align-items-center.text-white.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown' aria-expanded='false')
+          img.rounded-circle.me-2(src='https://github.com/mdo.png' alt='' width='32' height='32')
+          strong mdo
+        ul.dropdown-menu.dropdown-menu-dark.text-small.shadow
+          li
+            a.dropdown-item(href='#') New project...
+          li
+            a.dropdown-item(href='#') Settings
+          li
+            a.dropdown-item(href='#') Profile
+          li
+            hr.dropdown-divider
+          li
+            a.dropdown-item(href='#') Sign out
+
 
     main.col.mx-sm-2
       block content

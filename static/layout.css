@@ -150,3 +150,30 @@ canvas {
     display: none;
   }
 }
+
+.logo-img{
+  height: 70px
+}
+
+#global-sidebar {
+  width: 60px;
+  padding: 15px 5px 15px 5px;
+}
+
+#global-sidebar:hover{
+  width: 240px;
+  margin-right: -180px;
+  z-index: 9;
+}
+
+#global-sidebar .menu-expanded {
+  display: none;
+}
+
+#global-sidebar:hover .menu-expanded {
+  display: unset;
+}
+
+#global-sidebar:hover .menu-collapsed {
+  display: none;
+}
