@@ -211,8 +211,8 @@ function get_universe_packages(universe, fields, all = true){
     return mongo_universe_packages(universe, fields, all)
   } else {
     console.warn(`Fetching ${universe} packages from API...`)
-    var apiurl = `https://${universe}.r-universe.dev/api/packages?fields=${fields.join()}&limit=2500${all ? '&all=true' : ''}`;
-    return get_json(apiurl)
+    var apiurl = `https://${universe}.r-universe.dev/api/packages?stream=1&fields=${fields.join()}&limit=2500${all ? '&all=true' : ''}`;
+    return get_ndjson(apiurl)
   }
 }
 
@@ -221,7 +221,16 @@ function get_repositories(){
     return mongo_all_universes()
   } else {
     console.warn(`Fetching universes data from API...`);
-    return get_json(`https://r-universe.dev/api/universes`);
+    return get_ndjson(`https://r-universe.dev/api/universes?stream=1`);
+  }
+}
+
+function get_scores(){
+  if(production){
+    return mongo_all_scores()
+  } else {
+    console.warn(`Fetching scores data from API...`);
+    return get_ndjson(`https://r-universe.dev/api/scores?stream=1`);
   }
 }
 
@@ -230,11 +239,12 @@ function get_organizations(){
     return mongo_all_universes()
   } else {
     console.warn(`Fetching universes data from API...`);
-    return get_json(`https://r-universe.dev/api/universes?type=organization&skipcran=1`);
+    return get_ndjson(`https://r-universe.dev/api/universes?type=organization&skipcran=1&stream=1`);
   }
 }
 
 module.exports = {
+  get_scores: get_scores,
   get_repositories: get_repositories,
   get_organizations: get_organizations,
   get_package_info: get_package_info,

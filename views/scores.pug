@@ -1,0 +1,37 @@
+extends global
+
+block content
+  #content-container.container(style='max-width: 1440px')
+    table.table.table-bordered.d-none
+      thead
+        tr
+          th package
+          th score
+          th stars
+          th downloads
+          th scripts
+          th dependents
+          th contributors
+          th vignettes
+          th datasets
+          th releases
+          th commits/year
+      tbody
+        each x in packages
+          tr
+            td
+              a(href=`https://${x.universe}.r-universe.dev/${x.package}`) #{x.package}
+            td #{Math.pow(x.score-1, 2).toFixed(2)}
+            td #{x.stars}
+            td #{x.downloads}
+            td #{x.scripts}
+            td #{x.dependents}
+            td #{x.contributors}
+            td #{x.vignettes}
+            td #{x.datasets}
+            td #{x.releases}
+            td #{x.commits}
+
+block after_scripts
+  script(src='https://cdn.datatables.net/2.1.3/js/dataTables.min.js')
+  script(src="/scores.js")

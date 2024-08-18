@@ -1,13 +1,11 @@
 $(function(){
   var num = {type: 'num', searchable: false};
-  var date = {searchable: false};
-  var comment = {orderable: false};
   new DataTable('table', {
     searching: true,
     paging: true,
     pageLength: 200,
     lengthChange: false,
-    columns: [null, num, num, num, comment, comment, date],
+    columns: [null, num, num, num, num, num, num, num, num, num, num],
     order: [],
     language: { search: "Filter: "},
     initComplete: function () {

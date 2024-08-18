@@ -34,6 +34,12 @@ router.get("/_global/repositories", function(req, res, next){
   });
 });
 
+router.get("/_global/scores", function(req, res, next){
+  db.get_scores().then(function(packages){
+    res.render('scores', {packages: packages});
+  });
+});
+
 router.get("/_global/galaxy", function(req, res, next){
   db.get_organizations().then(function(orgs){
     res.render('galaxy', {rnd: rnd, orgs: orgs.slice(0, 250)});
