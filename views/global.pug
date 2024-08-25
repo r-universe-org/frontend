@@ -11,7 +11,7 @@ html
     title R-universe - Organizations
 
   body.d-flex.flex-nowrap
-    #global-sidebar.d-flex.flex-column.flex-shrink-0.text-bg-dark
+    #global-sidebar.d-flex.flex-column.flex-shrink-0.text-bg-dark.fixed-top.vh-100
       ul.nav.nav-pills.nav-flush.flex-column.mb-auto
         li.nav-item.text-center.menu-logo
         li.nav-item
@@ -35,6 +35,10 @@ html
             i.bi.bi-people.pe-none.px-2
             span.menu-expanded Activity
         li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./sysdeps')
+            i.bi.bi-gear.pe-none.px-2
+            span.menu-expanded System libs
+        li.nav-item
           a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./galaxy')
             i.bi.bi-rocket-takeoff.pe-none.px-2
             span.menu-expanded Galaxy
@@ -44,7 +48,7 @@ html
             span.menu-expanded Docs
 
 
-    main.col.mx-sm-2.min-vh-100
+    main.col.min-vh-100.vw-100
       block content
 
     block before_scripts

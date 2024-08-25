@@ -1,5 +1,6 @@
 main {
   font-size: .875rem;
+  margin-left: 72px;
 }
 
 .menu-logo {
@@ -22,8 +23,6 @@ main {
 
 #global-sidebar:hover{
   width: 250px;
-  margin-right: -178px;
-  z-index: 9;
 }
 
 #global-sidebar .menu-expanded {
@@ -40,12 +39,12 @@ main {
   filter: unset;
 }
 
-#search-container a {
+a {
   color: #3b71ca;
   text-decoration: none;
 }
 
-#search-container a:hover {
+a:hover {
   text-decoration: underline;
 }
 

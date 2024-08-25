@@ -14,6 +14,12 @@ function format_yymmdd(x){
   return `${year}-${month}-${day}`;
 }
 
+function cleanup_sysdep_desc(str){
+  if(!str) return "";
+  var str = str.charAt(0).toUpperCase() + str.slice(1);
+  return str.replace(/\(.*\)$/, '').replace('SASL -', 'SASL').replace(/[-,]+ .*(shared|runtime|binary|library|legacy|precision|quantum).*$/i, '');
+}
+
 router.get("/_global/search", function(req, res, next){
   res.render("search");
 });
@@ -44,6 +50,16 @@ router.get("/_global/repositories", function(req, res, next){
 router.get("/_global/scores", function(req, res, next){
   db.get_scores().then(function(packages){
     res.render('scores', {packages: packages});
+  });
+});
+
+router.get("/_global/sysdeps", function(req, res, next){
+  db.get_sysdeps().then(function(sysdeps){
+    sysdeps = sysdeps.filter(x => x.library && x.library !== 'c++');
+    sysdeps.forEach(function(x){
+      x.description = cleanup_desc(x.description);
+    })
+    res.render('sysdeps', {sysdeps: sysdeps});
   });
 });
 

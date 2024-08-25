@@ -243,8 +243,18 @@ function get_organizations(){
   }
 }
 
+function get_sysdeps(){
+  if(production){
+    return mongo_all_sysdeps()
+  } else {
+    console.warn(`Fetching sysdeps data from API...`);
+    return get_ndjson(`https://r-universe.dev/stats/sysdeps?all=1`);
+  }
+}
+
 module.exports = {
   get_scores: get_scores,
+  get_sysdeps : get_sysdeps,
   get_repositories: get_repositories,
   get_organizations: get_organizations,
   get_package_info: get_package_info,
