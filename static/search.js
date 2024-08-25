@@ -167,12 +167,14 @@ function get_query(){
 function update_results(){
   var q = $("#search-input").val();
   $("title").text(`R-universe search: ${q}`)
-  if(!q){
+  if(q.length < 2){
     $('#search-results').empty();
+    $('#search-results-comment').empty();
     $('#results-placeholder').show();
     $('svg').show('fast', () => $('#search-input').focus());
+    msnry.layout();
+    return;
   }
-  if(q.length < 2) return;
   $('#search-results').empty();
   $('#results-placeholder').hide();
   $('svg').hide('fast');

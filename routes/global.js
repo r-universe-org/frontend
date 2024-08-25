@@ -18,6 +18,10 @@ router.get("/_global/search", function(req, res, next){
   res.render("search");
 });
 
+router.get("/_global/searchold", function(req, res, next){
+  res.render("searchold");
+});
+
 router.get("/_global/activity", function(req, res, next){
   res.render("activity");
 });

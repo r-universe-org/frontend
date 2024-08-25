@@ -4,53 +4,47 @@ html
     meta(charset='utf-8')
     meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
-    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
-    link(rel='stylesheet' href='/layout.css')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css')
+    block after_head
+    link(rel='stylesheet' href='/global.css')
+
     title R-universe - Organizations
 
   body.d-flex.flex-nowrap
     #global-sidebar.d-flex.flex-column.flex-shrink-0.text-bg-dark
-      img.logo-img.menu-collapsed.img.img-fluid(src="/logo-icon.svg" style="filter: invert(100%)")
-      img.logo-img.menu-expanded.img.img-fluid.p-1(src="/logo-big.svg")
-      hr
-      ul.nav.nav-pills.flex-column.mb-auto
+      ul.nav.nav-pills.nav-flush.flex-column.mb-auto
+        li.nav-item.text-center.menu-logo
         li.nav-item
-          a.nav-link.active(href='#' aria-current='page')
-            i.fa-solid.fa-house.me-2
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='/')
+            i.bi.bi-house-door.pe-none.px-2
+            span.menu-expanded Home
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./search')
+            i.bi.bi-speedometer2.pe-none.px-2
             span.menu-expanded Search
-        li
-          a.nav-link.text-white(href='#')
-            i.fa-solid.fa-house.me-2
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./organizations')
+            i.bi.bi-table.pe-none.px-2
             span.menu-expanded Organizations
-        li
-          a.nav-link.text-white(href='#')
-            i.fa-solid.fa-house.me-2
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./repositories')
+            i.bi.bi-grid.pe-none.px-2
             span.menu-expanded Repositories
-        li
-          a.nav-link.text-white(href='#')
-            i.fa-solid.fa-house.me-2
-            span.menu-expanded Libraries
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./scores')
+            i.bi.bi-people.pe-none.px-2
+            span.menu-expanded Scores
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./galaxy')
+            i.bi.bi-people.pe-none.px-2
+            span.menu-expanded Galaxy
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./docs')
+            i.bi.bi-people.pe-none.px-2
+            span.menu-expanded Docs
 
 
-      hr
-      .dropdown
-        a.d-flex.align-items-center.text-white.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown' aria-expanded='false')
-          img.rounded-circle.me-2(src='https://github.com/mdo.png' alt='' width='32' height='32')
-          strong mdo
-        ul.dropdown-menu.dropdown-menu-dark.text-small.shadow
-          li
-            a.dropdown-item(href='#') New project...
-          li
-            a.dropdown-item(href='#') Settings
-          li
-            a.dropdown-item(href='#') Profile
-          li
-            hr.dropdown-divider
-          li
-            a.dropdown-item(href='#') Sign out
-
-
-    main.col.mx-sm-2
+    main.col.mx-sm-2.min-vh-100
       block content
 
     block before_scripts
