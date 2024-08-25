@@ -57,7 +57,7 @@ router.get("/_global/sysdeps", function(req, res, next){
   db.get_sysdeps().then(function(sysdeps){
     sysdeps = sysdeps.filter(x => x.library && x.library !== 'c++');
     sysdeps.forEach(function(x){
-      x.description = cleanup_desc(x.description);
+      x.description = cleanup_sysdep_desc(x.description);
     })
     res.render('sysdeps', {sysdeps: sysdeps});
   });
