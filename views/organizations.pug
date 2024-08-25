@@ -1,12 +1,12 @@
 extends global
 
 block content
-  #content-container.container(style='max-width: 1440px' data-masonry='{"percentPosition":true}')
+  #content-container.container(style='max-width: 1600px' data-masonry='{"percentPosition":true}')
     .card-group.card-rows
       each x in orgs
         .col-xl-2.col-lg-3.col-md-4.col-6
           a.card.m-2.package-description-card(href=`https://${x.universe}.r-universe.dev`).text-decoration-none
-            img.p-2.avatar.card-img-top(src=`https://r-universe.dev/avatars/${x.universe}.png?size=214` loading='lazy')
+            img.p-2.avatar.card-img-top(src=`${x.avatar}` loading='lazy')
             .card-body
               h5 #{x.universe}
               p.card-text #{x.bio || x.name}

@@ -28,6 +28,9 @@ router.get("/_global/activity", function(req, res, next){
 
 router.get("/_global/organizations", function(req, res, next){
   db.get_organizations().then(function(orgs){
+    orgs.forEach(function(x){
+      x.avatar = x.uuid ? `https://avatars.githubusercontent.com/u/${x.uuid}` : `https://r-universe.dev/avatars/${x.universe}.png`;
+    });
     res.render('organizations', {orgs: orgs});
   }).catch(next);
 });
