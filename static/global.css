@@ -21,8 +21,8 @@ main {
 }
 
 #global-sidebar:hover{
-  width: 260px;
-  margin-right: -188px;
+  width: 250px;
+  margin-right: -178px;
   z-index: 9;
 }
 
@@ -32,6 +32,7 @@ main {
 
 #global-sidebar:hover .menu-expanded {
   display: unset;
+  padding-left: 10px;
 }
 
 #global-sidebar:hover .menu-logo{
