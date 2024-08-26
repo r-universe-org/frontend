@@ -2,16 +2,16 @@ extends global
 
 block content
   #content-container.container-fluid
-    table.table.table-bordered.d-none
+    table.table.d-none
       thead
-        tr
-          th universe
-          th packages
-          th indexed
-          th maintainers
-          th type
-          th name
-          th updated
+        tr.border-bottom.border-dark
+          th Universe
+          th Packages
+          th Indexed
+          th Maintainers
+          th Type
+          th Name
+          th Updated
       tbody
         each x in repos
           tr

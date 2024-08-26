@@ -252,6 +252,15 @@ function get_sysdeps(){
   }
 }
 
+function get_builds(){
+  if(production){
+    return mongo_all_builds()
+  } else {
+    console.warn(`Fetching builds data from API...`);
+    return get_ndjson(`https://r-universe.dev/stats/builds`);
+  }
+}
+
 module.exports = {
   get_scores: get_scores,
   get_sysdeps : get_sysdeps,
