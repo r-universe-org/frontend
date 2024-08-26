@@ -105,7 +105,8 @@ router.get("/_global/sysdeps", function(req, res, next){
     sysdeps = sysdeps.filter(x => x.library && x.library !== 'c++');
     sysdeps.forEach(function(x){
       x.description = cleanup_sysdep_desc(x.description);
-    })
+      x.usedby = x.usedby.sort((a,b) => a.package.toLowerCase() < b.package.toLowerCase() ? -1 : 1);
+    });
     res.render('global/sysdeps', {sysdeps: sysdeps});
   });
 });
