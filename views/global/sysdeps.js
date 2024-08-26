@@ -10,5 +10,4 @@ $(function(){
       $('div.dt-search input').removeClass('dt-input').addClass('m-2')
     }
   });
-  $("table")
 });

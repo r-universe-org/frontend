@@ -257,12 +257,13 @@ function get_builds(){
     return mongo_all_builds()
   } else {
     console.warn(`Fetching builds data from API...`);
-    return get_ndjson(`https://r-universe.dev/stats/builds`);
+    return get_ndjson(`https://r-universe.dev/stats/builds?limit=1000`);
   }
 }
 
 module.exports = {
   get_scores: get_scores,
+  get_builds : get_builds,
   get_sysdeps : get_sysdeps,
   get_repositories: get_repositories,
   get_organizations: get_organizations,
