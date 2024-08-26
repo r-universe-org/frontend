@@ -15,7 +15,7 @@ block content
       tbody
         each x in packages
           tr
-            td #{x.date}
+            td.text-nowrap #{x.date}
             td
               a.text-secondary(href=`https://${x.user}.r-universe.dev`) #{x.user}
             td
