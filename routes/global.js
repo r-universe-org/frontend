@@ -61,7 +61,6 @@ router.get("/_global/builds", function(req, res, next){
     packages.forEach(function(x){
       var checks = x.runs.filter(run => run.check && run.built.Platform !== 'x86_64-apple-darwin20');
       x.check_icon_html = function(version, type){
-        console.log("Looking for: ", version, type)
         var bin = checks.find(run => run.built.R.startsWith(version) && run.type == type);
         if(bin){
           return `<i class="fa-fw fab ${os_icon(bin.type)} ${check_to_color(bin.check)}"></i>`
