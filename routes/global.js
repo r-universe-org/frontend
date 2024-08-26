@@ -21,15 +21,15 @@ function cleanup_sysdep_desc(str){
 }
 
 router.get("/_global/search", function(req, res, next){
-  res.render("search");
-});
-
-router.get("/_global/searchold", function(req, res, next){
-  res.render("searchold");
+  res.render("global/search");
 });
 
 router.get("/_global/activity", function(req, res, next){
-  res.render("activity");
+  res.render("global/activity");
+});
+
+router.get("/_global/builds", function(req, res, next){
+  res.render("global/builds");
 });
 
 router.get("/_global/organizations", function(req, res, next){
@@ -37,19 +37,19 @@ router.get("/_global/organizations", function(req, res, next){
     orgs.forEach(function(x){
       x.avatar = x.uuid ? `https://avatars.githubusercontent.com/u/${x.uuid}` : `https://r-universe.dev/avatars/${x.universe}.png`;
     });
-    res.render('organizations', {orgs: orgs});
+    res.render('global/organizations', {orgs: orgs});
   }).catch(next);
 });
 
 router.get("/_global/repositories", function(req, res, next){
   db.get_repositories().then(function(repos){
-    res.render('repositories', {repos: repos, format_yymmdd: format_yymmdd});
+    res.render('global/repositories', {repos: repos, format_yymmdd: format_yymmdd});
   });
 });
 
 router.get("/_global/scores", function(req, res, next){
   db.get_scores().then(function(packages){
-    res.render('scores', {packages: packages});
+    res.render('global/scores', {packages: packages});
   });
 });
 
@@ -59,13 +59,13 @@ router.get("/_global/sysdeps", function(req, res, next){
     sysdeps.forEach(function(x){
       x.description = cleanup_sysdep_desc(x.description);
     })
-    res.render('sysdeps', {sysdeps: sysdeps});
+    res.render('global/sysdeps', {sysdeps: sysdeps});
   });
 });
 
 router.get("/_global/galaxy", function(req, res, next){
   db.get_organizations().then(function(orgs){
-    res.render('galaxy', {rnd: rnd, orgs: orgs.slice(0, 250)});
+    res.render('global/galaxy', {rnd: rnd, orgs: orgs.slice(0, 250)});
   }).catch(next);
 });
 
