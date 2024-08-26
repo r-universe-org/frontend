@@ -93,7 +93,9 @@ block content
         input.form-control.form-control-sm.search-item-input(type='search' autocomplete='off')
 
 block after_scripts
-  script(src='/search.js')
+  script
+    include search.js
+
 
 block after_head
   link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
