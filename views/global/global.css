@@ -13,7 +13,7 @@ main {
 }
 
 .menu-logo {
-  background-image: url("/logo-icon.svg");
+  background-image: url("https://r-universe.dev/static/logo-icon.svg");
   background-repeat: no-repeat;
   background-size: 60%;
   background-position: center;
@@ -44,7 +44,7 @@ main {
 }
 
 #global-sidebar:hover .menu-logo{
-  background-image: url("/logo-big.svg");
+  background-image: url("https://r-universe.dev/static/logo-big.svg");
   filter: unset;
 }
 

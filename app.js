@@ -19,8 +19,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'static')));
-app.use('/_global', express.static(path.join(__dirname, 'static')))
+app.use(express.static(path.join(__dirname, 'static'))); //TODO: remove?
+app.use('/_global/static', express.static(path.join(__dirname, 'static')))
 
 // remove trailing slashes
 app.use((req, res, next) => {

@@ -1,0 +1,270 @@
+/* Some parts are based on bs4_book, but TOC menu is custom */
+img {
+  max-width: 100%;
+}
+
+body {
+  margin-top: 1rem;
+}
+
+/* Headings -------------------------------------------- */
+h1.title { font-size: 2.5rem; }
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.1rem; }
+h5 { font-size: 1rem; }
+
+h1, h2, h3, h4, h5 {
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+
+/* Tables ---------------------------------------------- */
+
+.inline-table {
+  overflow-x: auto;
+}
+
+table.kable_wrapper td {
+  vertical-align: top;
+}
+
+/* Code ------------------------------------------------ */
+
+pre {
+  position: relative;
+  overflow: auto;
+  border: 1px solid #eee;
+  padding: 0.5rem;
+  background-image: linear-gradient(160deg,#f8f8f8 0,#f1f1f1 100%);
+}
+
+/* Expand <pre> background color into margins. Disable on xs because iframe <main> does not have margin */
+@media (min-width: 576px) {
+  pre {
+    margin: 0 -0.5rem 1rem -0.5rem;
+  }
+}
+
+/* Make background span full width on mobile
+@media (max-width: 767.98px) {
+  .section > .sourceCode > pre {
+    margin: 0 -1rem 1rem -1rem;
+    padding: 0.5rem 1rem;
+    width: 100vw;
+  }
+}
+*/
+
+code {
+  background-color: #f8f8f8;
+}
+
+pre code {
+  background-color: transparent;
+  word-break: normal; /* force wide blocks to scroll, not wrap */
+  word-wrap: normal;
+}
+
+pre, code {
+  border-radius: 0.2rem;
+  color: #212529; /* match text colour */
+}
+code a:any-link {
+  color: inherit; /* use colour from syntax highlighting */
+  text-decoration: underline;
+  text-decoration-color: #ccc;
+}
+
+pre .copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+pre .copy button {
+  background-color: #fff;
+  font-size: 80%;
+  padding: 4px 6px;
+}
+
+/* https://github.com/rstudio/distill/blob/master/inst/rmarkdown/templates/distill_article/resources/a11y.theme + https://gist.github.com/hadley/f53b6e92df20994fdabe6562d284728a */
+code span.ot {color:#007faa}
+code span.at {color:#7d9029}
+code span.ss {color:#bb6688}
+code span.an {color:#545454;}
+code span.fu {color:#4254A7}
+code span.st {color:#008000}
+code span.cf {color:#007faa;}
+code span.op {color:#696969}
+code span.er {color:#ff0000;}
+code span.bn {color:#a1024a}
+code span.al {color:#ff0000;}
+code span.va {color:#19177c}
+code span.bu {}
+code span.ex {}
+code span.pp {color:#bc7a00}
+code span.in {color:#545454;}
+code span.vs {color:#008000}
+code span.wa {color:#545454; font-style: italic}
+code span.do {color:#ba2121; font-style: italic}
+code span.im {}
+code span.ch {color:#008000}
+code span.dt {color:#aa5d00}
+code span.fl {color:#a1024a}
+code span.co {color:#545454}
+code span.cv {color:#545454; font-style: italic}
+code span.cn {color:#d91e18}
+code span.sc {color:#008000}
+code span.dv {color:#a1024a}
+code span.kw {color:#007faa;}
+
+/* Misc typography ---------------------------------------------- */
+
+a {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+blockquote {
+  border-left: 0.5rem solid #eee;
+  padding-left: 0.5rem;
+  margin-left: -0.5rem;
+}
+
+body {
+  line-height: 1.6;
+}
+
+.smallcaps {
+  font-variant: small-caps;
+}
+
+.rmdnote, .rmdcaution, .rmdimportant, .rmdtip, .rmdwarning {
+  margin: 1rem calc(-2px - 0.5em);
+  padding: 1rem;
+  border: 2px solid #eee;
+}
+
+.rmdnote > *:last-child, .rmdcaution > *:last-child, .rmdimportant > *:last-child, .rmdtip > *:last-child, .rmdwarning > *:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+  .rmdnote, .rmdcaution, .rmdimportant, .rmdtip, .rmdwarning {
+    margin: 1rem -1rem;
+    border-width: 4px;
+  }
+}
+
+.rmdnote {
+  border-color: var(--primary);
+}
+.rmdimportant {
+  border-color: var(--success);
+}
+.rmdcaution {
+  border-color: var(--danger);
+}
+.rmdwarning {
+  border-color: var(--warning);
+}
+.rmdtip {
+  border-color: var(--info);
+}
+
+main ul {
+ list-style-type: square;
+}
+main ol, main ul {
+  padding-left: 25px;
+  margin-bottom: 0;
+}
+main li {
+  margin-bottom: 0.5rem;
+}
+main ol > li:first-child, main ul > li:first-child {
+  margin-top: 0.5rem;
+}
+
+.navbar {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+}
+
+.bd-navbar {
+    background-color: #563d7c;
+}
+
+.bd-navbar .navbar-nav .nav-link {
+    padding-right: .65rem;
+    padding-left: .65rem;
+    color: #cbbde2;
+}
+
+.bd-navbar .navbar-nav .nav-link.active,
+.bd-navbar .navbar-nav .nav-link:hover {
+    color: #fff;
+    background-color: transparent;
+}
+
+.bd-navbar .navbar-nav .nav-link.active {
+    font-weight: 600;
+}
+
+.bd-toc {
+    font-size: .875rem;
+    top: 3rem;
+    right: 0;
+    position: fixed;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    height: calc(100vh - 4rem);
+    overflow-y: auto;
+}
+
+.section-nav {
+    padding-left: 0;
+    border-left: 1px solid #eee;
+}
+
+.section-nav ul {
+    padding-left: 1rem;
+}
+
+.toc-entry {
+    margin-left: -15px;
+    display: block;
+}
+
+.toc-entry a {
+    display: block;
+    padding: .125rem 1.5rem;
+    color: #77757a;
+}
+
+.toc-entry a:hover {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.toc-entry ul {
+    list-style: none;
+}
+
+/* remove padding within iframe */
+@media (max-width: 767px) {
+  #topcontainer.container-fluid {
+    padding: 0;
+  }
+}
+
+/* For new front-end: hide title within iframe */
+#topcontainer.article-in-iframe h1.title{
+  display: none;
+}
+
+/* Legacy version of the above */
+#topcontainer.container-fluid h1.title{
+  display: none;
+}
