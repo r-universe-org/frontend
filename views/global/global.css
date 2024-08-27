@@ -3,6 +3,15 @@ main {
   padding-left: 80px;
 }
 
+@media only screen and (max-width: 1199px) {
+  main {
+    padding-left: unset;
+  }
+  #global-sidebar {
+    display: none;
+  }
+}
+
 .menu-logo {
   background-image: url("/logo-icon.svg");
   background-repeat: no-repeat;
