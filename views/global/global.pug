@@ -48,10 +48,13 @@ html
             i.bi.bi-rocket-takeoff.pe-none.px-2
             span.menu-expanded Galaxy
         li.nav-item
-          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='https://docs.r-universe.dev')
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='https://docs.r-universe.dev' target='_blank')
             i.bi.bi-info-circle.pe-none.px-2
             span.menu-expanded Docs
 
+    script
+      | var navlink = document.querySelector(`a.nav-link[href='${location.pathname.replace(/.*\//, './')}']`);
+      | if(navlink) navlink.classList.add('active')
 
     main.col.vw-100
       block content
