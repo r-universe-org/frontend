@@ -10,9 +10,8 @@ img#runiverselogo(src='https://r-universe.dev/runiverse.svg')
 svg(viewbox='0 0 800 600' preserveaspectratio='xMinYMid slice')
   g#stars
     each x in orgs
-      if x.universe != 'cran'
-        a(href=`https://${x.universe}.r-universe.dev` data-bs-toggle="tooltip" data-bs-title=x.universe)
-          circle(cx=`${rnd(100)}%`, cy=`${rnd(100)}%`, r=Math.sqrt(Math.sqrt(x.indexed)), style=`animationDelay: ${rnd(100)/10}s`)
+      a(href=`https://${x.universe}.r-universe.dev` data-bs-toggle="tooltip" data-bs-title=x.universe)
+        circle(cx=`${rnd(100)}%`, cy=`${rnd(100)}%`, r=Math.sqrt(Math.sqrt(x.indexed)), style=`animationDelay: ${rnd(100)/10}s`)
 
   g#comets
     line(x1='1185' y1='-15' x2='77.5' y2='1092.5')
