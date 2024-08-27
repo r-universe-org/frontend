@@ -1,25 +1,25 @@
 extends global
 
 block content
-  #content-container.container(style='max-width: 1440px')
-    table.table.table-bordered.d-none
+  #content-container.container-fluid
+    table.table.d-none
       thead
-        tr
-          th package
-          th score
-          th stars
-          th downloads
-          th scripts
-          th dependents
-          th contributors
-          th vignettes
-          th datasets
-          th releases
-          th commits/year
+        tr.border-bottom.border-dark
+          th Package
+          th Score
+          th Stars
+          th Downloads
+          th Scripts
+          th Dependents
+          th Contributors
+          th Vignettes
+          th Datasets
+          th Releases
+          th Commits/year
       tbody
         each x in packages
           tr
-            td
+            th
               a(href=`https://${x.universe}.r-universe.dev/${x.package}`) #{x.package}
             td #{Math.pow(x.score-1, 2).toFixed(2)}
             td #{x.stars}
@@ -34,4 +34,5 @@ block content
 
 block after_scripts
   script(src='https://cdn.datatables.net/2.1.3/js/dataTables.min.js')
-  script(src="/scores.js")
+  script
+    include scores.js

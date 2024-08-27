@@ -1,0 +1,64 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css')
+    block after_head
+    style
+      include global.css
+
+    title R-universe - Organizations
+
+  body
+    #global-sidebar.text-bg-dark.fixed-top.vh-100
+      ul.nav.nav-pills.nav-flush.flex-column.mb-auto
+        li.nav-item.text-center.menu-logo
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./search')
+            i.bi.bi-house-door.pe-none.px-2
+            span.menu-expanded Search
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./organizations')
+            i.bi.bi-globe-americas.pe-none.px-2
+            span.menu-expanded Community
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./repositories')
+            i.bi.bi-grid.pe-none.px-2
+            span.menu-expanded Repositories
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./scores')
+            i.bi.bi-boxes.pe-none.px-2
+            span.menu-expanded Scoreboard
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./builds')
+            i.bi.bi-arrow-clockwise.pe-none.px-2
+            span.menu-expanded Recent Builds
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./sysdeps')
+            i.bi.bi-gear.pe-none.px-2
+            span.menu-expanded System libs
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./activity')
+            i.bi.bi-people.pe-none.px-2
+            span.menu-expanded Activity
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='./galaxy')
+            i.bi.bi-rocket-takeoff.pe-none.px-2
+            span.menu-expanded Galaxy
+        li.nav-item
+          a.nav-link.py-3.border-bottom.rounded-0.text-white(href='https://docs.r-universe.dev' target='_blank')
+            i.bi.bi-info-circle.pe-none.px-2
+            span.menu-expanded Docs
+
+    script
+      | var navlink = document.querySelector(`a.nav-link[href='${location.pathname.replace(/.*\//, './')}']`);
+      | if(navlink) navlink.classList.add('active')
+
+    main.col.vw-100
+      block content
+
+    block before_scripts
+    include ../includes/default-scripts.pug
+    block after_scripts
