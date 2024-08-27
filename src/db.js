@@ -184,6 +184,128 @@ function mongo_universe_vignettes(user){
   return cursor.toArray();
 }
 
+function mongo_all_universes(organizations_only){
+  var query = {_type: 'src', _registered: true};
+  if(organizations_only){
+    query['_userbio.type'] = 'organization';
+    query['_user'] = {$ne: 'cran'};
+  }
+  var cursor = mongo_aggregate([
+    {$match: query},
+    {$sort:{ _id: -1}},
+    {$group: {
+      _id : '$_user',
+      updated: { $max: '$_commit.time'},
+      packages: { $sum: 1 },
+      indexed: { $sum: { $toInt: '$_indexed' }},
+      name: { $first: '$_userbio.name'},
+      type: { $first: '$_userbio.type'},
+      uuid: { $first: '$_userbio.uuid'},
+      bio: { $first: '$_userbio.description'},
+      emails: { $addToSet: '$_maintainer.email'}
+    }},
+    {$project: {_id: 0, universe: '$_id', packages: 1, updated: 1, type: 1, uuid: 1,
+      indexed:1, name: 1, type: 1, bio: 1, maintainers: { $size: '$emails' },
+    }},
+    {$sort:{ indexed: -1}}
+  ]);
+  return cursor.toArray();
+}
+
+function mongo_all_scores(){
+  function array_size(key){
+    return {$cond: [{ $isArray: key }, {$size: key}, 0 ]};
+  }
+  var query = {_type: 'src', _indexed: true};
+  var projection = {
+    _id: 0,
+    package: '$Package',
+    universe: "$_user",
+    score: '$_score',
+    stars: "$_stars",
+    downloads: "$_downloads.count",
+    scripts: "$_searchresults",
+    dependents: '$_usedby',
+    commits: {$sum: '$_updates.n'},
+    contributors: array_size({$objectToArray: '$_contributions'}),
+    datasets: array_size('$_datasets'),
+    vignettes: array_size('$_vignettes'),
+    releases: array_size('$_releases')
+  }
+  var cursor = mongo_find(query).sort({_score: -1}).project(projection);
+  return cursor.toArray();
+}
+
+function mongo_all_sysdeps(distro){
+  var query = {_type: 'src', '_sysdeps': {$exists: true}};
+  if(distro){
+    query['_distro'] = distro;
+  }
+  var cursor = mongo_aggregate([
+    {$match: query},
+    {$unwind: '$_sysdeps'},
+    {$group: {
+      _id : '$_sysdeps.name',
+      packages: { $addToSet: '$_sysdeps.package'},
+      headers: { $addToSet: '$_sysdeps.headers'},
+      version: { $first: '$_sysdeps.version'},
+      homepage: { $addToSet: '$_sysdeps.homepage'},
+      description: { $addToSet: '$_sysdeps.description'},
+      distro : { $addToSet: '$_distro'},
+      usedby : { $addToSet: {owner: '$_owner', package:'$Package'}}
+    }},
+    {$project: {_id: 0, library: '$_id', packages: 1, headers: 1, version: 1, usedby: 1,
+      homepage: { '$first' : '$homepage'}, description: { '$first' : '$description'}, distro:{ '$first' : '$distro'}}},
+    {$sort:{ library: 1}}
+  ]);
+  return cursor.toArray();
+}
+
+function days_ago(n){
+  var now = new Date();
+  return now.getTime()/1000 - (n*60*60*24);
+}
+
+function mongo_recent_builds(days = 7){
+  var query = {'_commit.time' : {'$gt': days_ago(days)}};
+  var cursor = mongo_aggregate([
+    {$match: query},
+    {$group : {
+      _id : { user: '$_user', package: '$Package', commit: '$_commit.id'},
+      version: { $first : "$Version" },
+      maintainer: { $first : "$_maintainer.name" },
+      maintainerlogin: { $first : "$_maintainer.login" },
+      timestamp: { $first : "$_commit.time" },
+      upstream: { $first : "$_upstream" },
+      registered: { $first: "$_registered" },
+      os_restriction: { $addToSet: '$OS_type'},
+      macbinary: { $addToSet : '$_macbinary' },
+      winbinary: { $addToSet : '$_winbinary' },
+      runs : { $addToSet:
+        { type: "$_type", built: '$Built', date:'$_published', url: '$_buildurl', status: '$_status', distro: '$_distro', check: '$_check'}
+      }
+    }},
+    {$sort : {"timestamp" : -1}},
+    {$project: {
+      _id: 0,
+      user: '$_id.user',
+      package: '$_id.package',
+      commit: '$_id.commit',
+      maintainer: 1,
+      maintainerlogin: 1,
+      version: 1,
+      timestamp: 1,
+      registered: 1,
+      runs: 1,
+      upstream: 1,
+      macbinary: { $first: "$macbinary" },
+      winbinary: { $first: "$winbinary" },
+      os_restriction:{ $first: "$os_restriction" }
+    }}
+  ]);
+  return cursor.toArray();
+}
+
 function get_package_info(package, universe){
   if(production){
     return mongo_package_info(package, universe);
@@ -236,7 +358,7 @@ function get_scores(){
 
 function get_organizations(){
   if(production){
-    return mongo_all_universes()
+    return mongo_all_universes(true);
   } else {
     console.warn(`Fetching universes data from API...`);
     return get_ndjson(`https://r-universe.dev/api/universes?type=organization&skipcran=1&stream=1`);
@@ -254,7 +376,7 @@ function get_sysdeps(){
 
 function get_builds(){
   if(production){
-    return mongo_all_builds()
+    return mongo_recent_builds()
   } else {
     console.warn(`Fetching builds data from API...`);
     return get_ndjson(`https://r-universe.dev/stats/builds?limit=1000`);
