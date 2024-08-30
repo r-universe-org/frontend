@@ -3,8 +3,8 @@ extends global
 block content
   #content-container.container-fluid(style='max-width: 1600px' data-masonry='{"percentPosition":true}')
     .card-group.card-rows
-      each x in orgs
-        .col-xl-2.col-lg-3.col-md-4.col-6
+      each x, i in orgs
+        .col-xl-2.col-lg-3.col-md-4.col-6.organization-card(class=(i > 36 && 'd-none'))
           a.card.m-2.package-description-card(href=`https://${x.universe}.r-universe.dev`).text-decoration-none
             img.p-2.avatar.card-img-top(src=`${x.avatar}` loading='lazy')
             .card-body
@@ -12,7 +12,8 @@ block content
               p.card-text #{x.bio || x.name}
             .card-footer.text-center
               small.text-body-secondary #{x.packages} packages | #{x.maintainers} maintainers
-
+      .col-12.scrollbottom#scrollbottom1(style="height:500px")
+      .col-12.scrollbottom#scrollbottom2(style="height:1000px")
 
 block after_scripts
   script
