@@ -20,6 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'static'))); //TODO: remove?
+app.use('/_global/favicon.ico', express.static(path.join(__dirname, 'static/favicon.ico')))
 app.use('/_global/static', express.static(path.join(__dirname, 'static')))
 
 // remove trailing slashes
