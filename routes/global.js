@@ -99,6 +99,12 @@ router.get("/_global/articles", function(req, res, next){
   });
 });
 
+router.get("/_global/datasets", function(req, res, next){
+  db.get_datasets().then(function(datasets){
+    res.render('global/datasets', {datasets: datasets});
+  });
+});
+
 router.get("/_global/scores", function(req, res, next){
   db.get_scores().then(function(packages){
     res.render('global/scores', {packages: packages});

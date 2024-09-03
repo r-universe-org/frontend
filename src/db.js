@@ -286,6 +286,31 @@ function mongo_all_articles(){
   return cursor.toArray();
 }
 
+function mongo_all_datasets(){
+  var cursor = mongo_aggregate([
+    {$match: {_type: 'src', _indexed: true, '_datasets' : {$exists: true}}},
+    {$sort:{ _id: -1}},
+    {$project: {
+      _id: 0,
+      universe: '$_user',
+      package: '$Package',
+      dataset: '$_datasets'
+    }},
+    {$unwind: '$dataset'},
+    {$project: {
+      _id: 0,
+      universe: 1,
+      package: 1,
+      name: '$dataset.name',
+      title: '$dataset.title',
+      class: {$first: '$dataset.class'},
+      rows: '$dataset.rows',
+      fields: {$size: '$dataset.fields'}
+    }}
+  ]);
+  return cursor.toArray();
+}
+
 function days_ago(n){
   var now = new Date();
   return now.getTime()/1000 - (n*60*60*24);
@@ -417,10 +442,20 @@ function get_articles(){
   }
 }
 
+function get_datasets(){
+  if(production){
+    return mongo_all_datasets()
+  } else {
+    console.warn(`Fetching datasets from API...`);
+    return get_ndjson(`http://localhost:3000/:any/api/datasets?stream=1`);
+  }
+}
+
 module.exports = {
   get_scores: get_scores,
   get_builds : get_builds,
   get_articles: get_articles,
+  get_datasets: get_datasets,
   get_sysdeps : get_sysdeps,
   get_repositories: get_repositories,
   get_organizations: get_organizations,
