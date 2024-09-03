@@ -9,7 +9,10 @@ html
     style
       include global.css
 
-    title R-universe - Organizations
+    if title
+      title #{title}
+    else
+      title.default-fallback-title R-universe: explore and discover R packages!
 
   body
     #global-sidebar.text-bg-dark.fixed-top.vh-100

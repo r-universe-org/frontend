@@ -49,11 +49,15 @@ function os_icon(type){
 }
 
 router.get("/_global/search", function(req, res, next){
-  res.render("global/search");
+  res.render("global/search", {
+    title: "R-universe - browse and search R packages"
+  });
 });
 
 router.get("/_global/activity", function(req, res, next){
-  res.render("global/activity");
+  res.render("global/activity", {
+    title: "R-universe - leaderboard"
+  });
 });
 
 router.get("/_global/builds", function(req, res, next){
@@ -74,7 +78,10 @@ router.get("/_global/builds", function(req, res, next){
       x.src = x.runs.find(run => run.type == 'src') || {};
       x.failure = x.runs.find(run => run.type == 'failure');
     });
-    res.render('global/builds', {packages: packages});
+    res.render('global/builds', {
+      title: "R-universe - recent builds",
+      packages: packages
+    });
   }).catch(next);
 });
 
@@ -83,31 +90,48 @@ router.get("/_global/organizations", function(req, res, next){
     orgs.forEach(function(x){
       x.avatar = x.uuid ? `https://avatars.githubusercontent.com/u/${x.uuid}` : `https://r-universe.dev/avatars/${x.universe}.png`;
     });
-    res.render('global/organizations', {orgs: orgs});
+    res.render('global/organizations', {
+      title: "R-universe - community",
+      orgs: orgs
+    });
   }).catch(next);
 });
 
 router.get("/_global/repositories", function(req, res, next){
   db.get_repositories().then(function(repos){
-    res.render('global/repositories', {repos: repos, format_yymmdd: format_yymmdd});
+    res.render('global/repositories', {
+      title: "R-universe - browse repositories",
+      repos: repos,
+      format_yymmdd: format_yymmdd
+    });
   });
 });
 
 router.get("/_global/articles", function(req, res, next){
   db.get_articles().then(function(articles){
-    res.render('global/articles', {articles: articles, format_yymmdd: format_yymmdd});
+    res.render('global/articles', {
+      title: "R-universe - browse articles",
+      articles: articles,
+      format_yymmdd: format_yymmdd
+    });
   });
 });
 
 router.get("/_global/datasets", function(req, res, next){
   db.get_datasets().then(function(datasets){
-    res.render('global/datasets', {datasets: datasets});
+    res.render('global/datasets', {
+      title: "R-universe - browse datasets",
+      datasets: datasets
+    });
   });
 });
 
 router.get("/_global/scores", function(req, res, next){
   db.get_scores().then(function(packages){
-    res.render('global/scores', {packages: packages});
+    res.render('global/scores', {
+      title: "R-universe - top packages",
+      packages: packages
+    });
   });
 });
 
@@ -118,7 +142,10 @@ router.get("/_global/sysdeps", function(req, res, next){
       x.description = cleanup_sysdep_desc(x.description);
       x.usedby = x.usedby.sort((a,b) => a.package.toLowerCase() < b.package.toLowerCase() ? -1 : 1);
     });
-    res.render('global/sysdeps', {sysdeps: sysdeps});
+    res.render('global/sysdeps', {
+      title: "R-universe - system libraries",
+      sysdeps: sysdeps
+    });
   });
 });
 
