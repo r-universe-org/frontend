@@ -7,7 +7,7 @@ block content
         a.ms-2.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
           i.fa-solid.fa-code-branch.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`Upstream git source`)
         a.ms-2.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}`)
-          i.fa-solid.fa-gear.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`This page as API`)
+          i.fa-solid.fa-plug.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`This page as API`)
     .card-body.col-12
       if _pkglogo
         img.d-none.d-sm-block.package-details-logo.img-fluid.me-4.float-start(src=_pkglogo style='max-height: 140px; max-width: 200px;')
@@ -70,7 +70,7 @@ block content
         a.px-1.package-details-htmlmanual(target='_blank' href=`/${Package}/doc/manual.html`) #{Package}.html
         | &#x2728;
         br
-        a.fa.fa-file-code.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
+        a.fa.fa-plug.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
         a.package-details-json(href=`/api/packages/${Package}`) #{Package}/json
         |  (API)
         br
