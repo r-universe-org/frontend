@@ -21,6 +21,14 @@ main {
   height: 80px;
 }
 
+#global-sidebar .nav-item:hover {
+  background-color: #0d6efd;
+}
+
+#global-sidebar a {
+  text-decoration: none;
+}
+
 #global-sidebar {
   width: 72px;
   box-shadow: 10px 0 10px -2px #888;
