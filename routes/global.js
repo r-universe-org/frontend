@@ -93,6 +93,12 @@ router.get("/_global/repositories", function(req, res, next){
   });
 });
 
+router.get("/_global/articles", function(req, res, next){
+  db.get_articles().then(function(articles){
+    res.render('global/articles', {articles: articles, format_yymmdd: format_yymmdd});
+  });
+});
+
 router.get("/_global/scores", function(req, res, next){
   db.get_scores().then(function(packages){
     res.render('global/scores', {packages: packages});

@@ -261,6 +261,31 @@ function mongo_all_sysdeps(distro){
   return cursor.toArray();
 }
 
+function mongo_all_articles(){
+  var cursor = mongo_aggregate([
+    {$match: {_type: 'src', _indexed: true, '_vignettes' : {$exists: true}}},
+    {$project: {
+      _id: 0,
+      universe: '$_user',
+      package: '$Package',
+      maintainer: '$_maintainer.name',
+      vignette: '$_vignettes'
+    }},
+    {$unwind: '$vignette'},
+    {$project: {
+      _id: 0,
+      universe: 1,
+      package: 1,
+      title: '$vignette.title',
+      filename: '$vignette.filename',
+      author: { $ifNull: [ '$vignette.author', '$maintainer' ]},
+      updated: '$vignette.modified'
+    }},
+    {$sort:{ updated: -1}},
+  ]);
+  return cursor.toArray();
+}
+
 function days_ago(n){
   var now = new Date();
   return now.getTime()/1000 - (n*60*60*24);
@@ -383,9 +408,19 @@ function get_builds(){
   }
 }
 
+function get_articles(){
+  if(production){
+    return mongo_all_articles()
+  } else {
+    console.warn(`Fetching articles data from API...`);
+    return get_ndjson(`https://r-universe.dev/api/articles?stream=1`);
+  }
+}
+
 module.exports = {
   get_scores: get_scores,
   get_builds : get_builds,
+  get_articles: get_articles,
   get_sysdeps : get_sysdeps,
   get_repositories: get_repositories,
   get_organizations: get_organizations,
