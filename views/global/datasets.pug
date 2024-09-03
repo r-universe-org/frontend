@@ -1,0 +1,28 @@
+extends global
+
+block content
+  #content-container.container-fluid
+    table.table.d-none
+      thead
+        tr.border-bottom.border-dark
+          th Name
+          th Package
+          th Title
+          th Class
+          th Rows
+          th Fields
+      tbody
+        each x in datasets
+          tr
+            td #{x.name}
+            td
+              a(href=`https://${x.universe}.r-universe.dev/${x.package}#datasets`) #{x.package}
+            td.w-50 #{x.title}
+            td.text-nowrap #{x.class}
+            td #{x.rows || ""}
+            td #{x.fields || ""}
+
+block after_scripts
+  script(src='https://cdn.datatables.net/2.1.3/js/dataTables.min.js')
+  script
+    include datasets.js

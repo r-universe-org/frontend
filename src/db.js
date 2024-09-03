@@ -98,6 +98,14 @@ function days_ago(n){
   return now.getTime()/1000 - (n*60*60*24);
 }
 
+function array_size(key){
+  return {$cond: [{ $isArray: key }, {$size: key}, 0 ]};
+}
+
+function array_first(key){
+  return {$cond: [{ $isArray: key }, {$first: key}, null ]};
+}
+
 function build_projection(fields){
   var projection = {Package:1, _type:1, _user:1, _indexed: 1, _id:0};
   fields.forEach(function (f) {
@@ -213,9 +221,6 @@ function mongo_all_universes(organizations_only){
 }
 
 function mongo_all_scores(){
-  function array_size(key){
-    return {$cond: [{ $isArray: key }, {$size: key}, 0 ]};
-  }
   var query = {_type: 'src', _indexed: true};
   var projection = {
     _id: 0,
@@ -303,9 +308,9 @@ function mongo_all_datasets(){
       package: 1,
       name: '$dataset.name',
       title: '$dataset.title',
-      class: {$first: '$dataset.class'},
       rows: '$dataset.rows',
-      fields: {$size: '$dataset.fields'}
+      class: array_first('$dataset.class'),
+      fields: array_size('$dataset.fields')
     }}
   ]);
   return cursor.toArray();
@@ -447,7 +452,7 @@ function get_datasets(){
     return mongo_all_datasets()
   } else {
     console.warn(`Fetching datasets from API...`);
-    return get_ndjson(`http://localhost:3000/:any/api/datasets?stream=1`);
+    return get_ndjson(`https://r-universe.dev/api/datasets?stream=1`);
   }
 }
 
