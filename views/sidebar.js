@@ -28,10 +28,17 @@ function get_ndjson(url){
 }
 
 function avatar_url(login, size){
+  if(size){
+    var param = `?size=${size}`;
+  }
+  if(typeof login === 'number'){
+    return `https://avatars.githubusercontent.com/u/${login}${param}`;
+  }
+  if(login == 'bioc') login = 'bioconductor';
   if(login.startsWith('gitlab-')) login = 'gitlab';
   if(login.startsWith('bitbucket-')) login = 'atlassian';
   login = login.replace('[bot]', '');
-  return `https://r-universe.dev/avatars/${login}.png?size=${size}`;
+  return `https://r-universe.dev/avatars/${login}.png${param}`;
 }
 
 function github_api(path){
@@ -51,7 +58,7 @@ function load_github_user_info(){
     ghuser = 'r-multiverse';
   }
   $(".navbar img").attr('src', $(".navbar img").attr('src').replace(`/${universe}.png`, `/${ghuser}.png`));
-  $("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
+  //$("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
   /*
   get_text(`https://r-universe.dev/avatars/${ghuser}.keys`).then(function(res){
     if(res.length){
@@ -99,7 +106,7 @@ function add_maintainer_icon(maintainer){
   item.find('.maintainer-name').text(maintainer.name)
   if(maintainer.login){
     item.attr('href', 'https://' + maintainer.login + '.r-universe.dev');
-    item.find('.maintainer-avatar').attr('src', avatar_url(maintainer.login, 140));
+    item.find('.maintainer-avatar').attr('src', avatar_url(maintainer.uuid || maintainer.login, 140));
   } else {
     item.attr('target', '_blank').attr('href', 'https://github.com/r-universe-org/help#how-to-link-a-maintainer-email-addresses-to-a-username-on-r-universe');
     item.find('.maintainer-avatar').tooltip({title: `<${maintainer.emails}> not associated with any GitHub account.`});

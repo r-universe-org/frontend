@@ -2,12 +2,18 @@ const express = require('express');
 const router = express.Router();
 const db = require("../src/db.js");
 
-function avatar_url(login, size = 120){
+function avatar_url(login, size){
+  if(size){
+    var param = `?size=${size}`;
+  }
+  if(typeof login === 'number'){
+    return `https://avatars.githubusercontent.com/u/${login}${param}`;
+  }
   if(login == 'bioc') login = 'bioconductor';
   if(login.startsWith('gitlab-')) login = 'gitlab';
   if(login.startsWith('bitbucket-')) login = 'atlassian';
   login = login.replace('[bot]', '');
-  return `https://r-universe.dev/avatars/${login}.png?size=${size}`;
+  return `https://r-universe.dev/avatars/${login}.png${param}`;
 }
 
 function normalize_authors(str){
