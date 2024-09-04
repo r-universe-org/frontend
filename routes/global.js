@@ -126,9 +126,9 @@ router.get("/_global/datasets", function(req, res, next){
   });
 });
 
-router.get("/_global/scores", function(req, res, next){
+router.get("/_global/packages", function(req, res, next){
   db.get_scores().then(function(packages){
-    res.render('global/scores', {
+    res.render('global/packages', {
       title: "R-universe - top packages",
       packages: packages
     });
