@@ -228,7 +228,7 @@ function load_all_topics(){
 
 function organization_card(x){
   var item = $("#templatezone .organization-item").clone();
-  item.find('.card-img-top').attr('src', avatar_url(x.universe, 224));
+  item.find('.card-img-top').attr('src', avatar_url(x.uuid || x.universe, 224));
   item.find('.card-text').text(x.universe);
   item.find('.card').attr('href', `https://${x.universe}.r-universe.dev`);
   return item;
@@ -240,8 +240,8 @@ function load_organizations(){
   var pinned = ['ropensci', 'bioc', 'tidyverse', 'r-spatial', 'pharmaverse', 'vimc',
               'lcbc-uio', 'rstudio', 'ropengov', 'r-lib', 'stan-dev', 'carpentries'];
   //for maintainers use: 'https://r-universe.dev/stats/maintainers?limit=100'
-  get_ndjson('https://r-universe.dev/stats/universes?organization=1').then(function(data){
-    data = data.filter(x => x.packages.length > 3).sort((x,y) => pinned.includes(x.universe) ? -1 : 1);
+  get_ndjson('https://r-universe.dev/api/universes?type=organization&skipcran=1&limit=96&stream=1').then(function(data){
+    data = data.sort((x,y) => pinned.includes(x.universe) ? -1 : 1);
     for(let i = 0; i < pages; i++) {
       var slide = $("#templatezone .carousel-item").clone();
       var row = slide.find('.maintainer-row');
@@ -276,13 +276,19 @@ function load_blog_posts(){
 }
 
 function avatar_url(login, size){
-  // use generic avatars for gitlab/bitbucket
-  if(login == 'bioc'){
-    login = 'bioconductor'
+  if(size){
+    var param = `?size=${size}`;
   }
+  if(typeof login === 'number'){
+    return `https://avatars.githubusercontent.com/u/${login}${param}`;
+  }
+  if(login == 'bioc') login = 'bioconductor';
+  if(login.startsWith('gitlab-')) login = 'gitlab';
+  if(login.startsWith('bitbucket-')) login = 'atlassian';
   login = login.replace('[bot]', '');
-  return `https://r-universe.dev/avatars/${login}.png?size=${size}`;
+  return `https://r-universe.dev/avatars/${login}.png${param}`;
 }
+
 
 function debounce(func, timeout = 300){
   let timer;
