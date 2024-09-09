@@ -117,7 +117,7 @@ function show_pkg_card(pkg, i){
   var user = pkg['_user'];
   var item = $("#templatezone .package-description-item").clone();
   var maintainer = pkg.maintainer || {};
-  item.find('.img').attr('src', avatar_url(user, 120));
+  item.find('.img').attr('src', avatar_url(pkg._uuid || user, 120));
   item.find('.package-org').text(user);
   item.find('.package-link').attr('href', `https://${user}.r-universe.dev/${pkg.Package}`);
   item.find('.package-name').text(pkg.Package);
