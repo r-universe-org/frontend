@@ -22,6 +22,15 @@ UNIVERSE=tidyverse npm start
 
 This will mimic `localhost` to be `tidyverse.r-universe.dev`.
 
+### Global pages
+
+The global (meta) r-universe pages are under `/_global/` for example:
+
+ - `http://localhost:3000/_global/search`  -> https://r-universe.dev/search
+ - `http://localhost:3000/_global/organizations` -> https://r-universe.dev/organizations
+
+This is not perfect because some of the links assume the root domain, but good enough to hack on the pages.
+
 ## Endpoints
 
 Currently served URLs:
