@@ -9,6 +9,7 @@
     "debug": "^4.3.4",
     "express": "^4.19.2",
     "http-errors": "*",
+    "intro.js": "^7.2.0",
     "mongodb": "^6.7.0",
     "morgan": "^1.10.0",
     "pug": "^3.0.2"
