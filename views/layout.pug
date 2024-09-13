@@ -23,7 +23,7 @@ html
       .container(style='max-width: 1440px')
         .dropdown.float-end.py-2.my-2
           a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown')
-            img#mainlogo(src='https://r-universe.dev/static/logo-big.svg', width=110)
+            img#mainlogo(src='https://r-universe.dev/static/logo-big.svg', width=110, data-intro='Hello step one!' data-title='Welcome!' data-set='1')
           ul.dropdown-menu.text-small
             li
               a.dropdown-item(href='https://ropensci.org/r-universe/') About
@@ -60,7 +60,7 @@ html
                 a.nav-link.px-2.link-body-emphasis(href='/apis') API
               li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
-            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search')
+            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search' data-intro='Hello step two!' data-title='There is search!' data-set='1')
               input.form-control(type='search' placeholder=`universe:${universe} .....`)
               button.btn.btn-outline-secondary(type='submit') Search
 
