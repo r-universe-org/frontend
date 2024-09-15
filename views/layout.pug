@@ -66,8 +66,7 @@ html
 
 
     script
-      | var navlink = document.querySelector(`a.nav-link[href='/${location.pathname.split("/")[1]}']`);
-      | if(navlink) navlink.classList.add('fw-bold')
+      include navbar.js
     #content-container.container(style='max-width: 1440px')
       .row.el-element-overlay
         nav.col-xl-auto.d-none.d-xl-block
