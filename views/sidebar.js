@@ -174,7 +174,7 @@ function load_universe_stats(){
     for (const [key, value] of Object.entries(stats)) {
       $(`#github-user-${key} .content`).text(`${value || 0} ${key}`);
       if(!value){
-        $(`a[href="/${key}"]`).addClass("disabled").removeClass("text-dark").addClass("text-secondary");
+        $('a[href="/' + key + '"]').addClass("disabled").removeClass("text-dark").addClass("text-secondary");
       }
     }
   });
