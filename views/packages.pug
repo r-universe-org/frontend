@@ -5,7 +5,7 @@ block content
     each x in pkgdata
       if x._registered !== false && x._type !== 'failure'
         .col-lg-6
-          .card.mt-4.package-description-card(data-title='Basic info about the package' data-intro='Including installation instructions.')
+          .card.mt-4.package-description-card
             .card-body
               if x._pkglogo
                 img.package-details-logo.img-fluid.me-3.float-start(src=x._pkglogo loading="lazy" style='max-height: 80px; max-width: 80px;')

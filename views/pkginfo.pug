@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  .row.card.details-card
+  .row.card.details-card(data-title='Basic info about the package' data-intro='Including installation instructions.')
     h1.h5.card-header.text-center Package: #{Package} #{Version}
       .float-end
         a.ms-2.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
@@ -27,7 +27,7 @@ block content
       p
         | Authors:
         span.card-text.text-dark.package-details-author.ms-1 #{Author}
-      p.d-sm-table.overflow-x-invisible
+      p.d-sm-table.overflow-x-invisible(data-title='Binaries' data-intro='As well as links to PDF and HTML versions of the manual.')
         a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
         a.package-details-source(href=`/src/contrib/${Package}_${Version}.tar.gz`) #{Package}_#{Version}.tar.gz
         br
@@ -82,7 +82,7 @@ block content
       #install.row.card.m-0.mb-3.py-1.d-none.d-md-block
         // <link rel="stylesheet" href="https://github.githubassets.com/assets/gist-embed-c77408be8058.css">
         link(rel='stylesheet' href='https://r-universe.dev/static/gist-embed.css')
-        .gist.ps-0
+        .gist.ps-0(data-title='How to install the package' data-intro='Copy this to your R console... or your package README.')
           button#copy-code-button.float-end.btn.btn-outline-dark.far.fa-copy.p-2.m-1(type='button')
           table
             tbody
@@ -128,7 +128,7 @@ block content
         span.peerreview-status
 
       if _bugtracker
-        p.mb-2.package-details-issues
+        p.mb-2.package-details-issues(data-title='Issue tracker' data-intro='Where to interact with developers of this package.')
           | Bug tracker:
           u
             a.ms-1.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
@@ -202,7 +202,7 @@ block content
             i.fa-solid.fa-flask.text-primary
             |  #{format_count(_mentions)} mentions
         if _searchresults
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code`)
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='A proxy of usage' data-info='Based on GitHub code search')
             i.fa-solid.fa-code
             |  #{format_count(_searchresults)} scripts
         if _downloads && _downloads.count > 0
