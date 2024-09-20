@@ -45,8 +45,6 @@ html
           .collapse.navbar-collapse.py-2.float-start#navbarNav
             ul.navbar-nav.me-lg-auto.mb-0.justify-content-center(data-title='Other resources in the universe' data-intro='<ul><li>Builds: recent activity</li><li>Packages: explore more</li><li>Articles: all long-form documentation</li><li>Datasets: all data</li><li>Contribution: humans of this universe</li><li>API: programmatic access to the data</li><li>Feed: subscribe to updates of this universe</li></ul>' data-step="2")
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='javascript:introJs().setOptions({showProgress: true,showBullets: false,nextLabel:"Next (or press Enter)",tooltipPosition:"auto"}).start();', data-title='It seems you are navigating R-universe!' data-intro='Would you like help? You can also read the <a href="https://docs.r-universe.org">docs</a>.' data-step="1") Website Tour
-              li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
               li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href='/packages') Packages
@@ -62,6 +60,9 @@ html
                 a.nav-link.px-2.link-body-emphasis(href='/apis') API
               li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
+              if _enable_tour
+                li.nav-item
+                  a.nav-link.px-2.link-body-emphasis(href='javascript:introJs().setOptions({showProgress: true,showBullets: false,nextLabel:"Next (or press Enter)",tooltipPosition:"auto"}).start();', data-title='It seems you are navigating R-universe!' data-intro='Would you like help? You can also read the <a href="https://docs.r-universe.org">docs</a>.' data-step="1") Website Tour
 
             form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search', data-intro='Find another page to admire' data-title='This is the search bar')
               input.form-control(type='search' placeholder=`universe:${universe} .....`)
