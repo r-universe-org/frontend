@@ -317,8 +317,8 @@ block content
       .package-citation-content.card-body
 
   if _owner != 'cran'
-    #development.row.card.mt-4(data-title='Development activity over time' data-intro='Including contributors')
-      a.plink.card-title.card-header.text-center.text-dark(href='#development')
+    #development.row.card.mt-4
+      a.plink.card-title.card-header.text-center.text-dark(href='#development' data-title='Development activity over time' data-intro='Including contributors')
         h2.h5.mb-0 Development and contributors
       .card-body.col-12
         .p-0.d-none.d-md-block
@@ -329,8 +329,8 @@ block content
               a.me-1.package-details-contributor.text-decoration-none(href=`https://${login}.r-universe.dev/contributors`)
                 img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
 
-  #readme.package-details-readme.row.card.mt-4(data-title='All the documentation of the package' data-intro='Do not miss the one page manual!')
-    a.plink.card-title.card-header.text-center.text-dark(href='#readme')
+  #readme.package-details-readme.row.card.mt-4
+    a.plink.card-title.card-header.text-center.text-dark(href='#readme' data-title='All the documentation of the package' data-intro='Do not miss the one page manual!')
       h2.h5.mb-0 Readme and manuals
     .card-body
       if _assets.includes("extra/readme.html") || _assets.includes("readme.html")
@@ -352,8 +352,8 @@ block content
                 td
                   | #{Array.isArray(page.topics) && page.topics.join(" ")}
 
-  #users.row.card.mt-4(data-title='Reverse dependencies' data-intro='Those packages trust this package.')
-    a.plink.card-title.card-header.text-center.text-dark(href='#users')
+  #users.row.card.mt-4
+    a.plink.card-title.card-header.text-center.text-dark(href='#users' data-title='Reverse dependencies' data-intro='Those packages trust this package.' data-position="left")
       h2.h5.mb-0 Usage by other packages (reverse dependencies)
     ul.list-group.list-group-flush.package-details-revdeps
 
