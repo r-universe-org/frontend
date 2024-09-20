@@ -173,10 +173,10 @@ block content
           i
             | This package does not link to any Github/Gitlab/R-forge repository. No issue tracker or development information is available.
       if _topics
-        p.card-text.package-details-topics.clearfix
+        p.card-text.package-details-topics.clearfix(data-title='Tags' data-intro='Topics of this package')
           each topic in _topics
             a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=${topic.includes("-") ? `"${topic}"` : encodeURIComponent(topic)}`) #{topic}
-      p.metric-icons
+      p.metric-icons(data-title='Metrics' data-intro='Useful numbers to assess the package')
         if _exports
           a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
             i.fas.fa-shapes.text-dark
@@ -202,7 +202,7 @@ block content
             i.fa-solid.fa-flask.text-primary
             |  #{format_count(_mentions)} mentions
         if _searchresults
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='A proxy of usage' data-info='Based on GitHub code search')
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='A proxy of usage' data-intro='Based on GitHub code search')
             i.fa-solid.fa-code
             |  #{format_count(_searchresults)} scripts
         if _downloads && _downloads.count > 0
@@ -304,7 +304,7 @@ block content
                 small.text-muted.article-created.text-nowrap Started: #{(article.created || "??").substring(0, 10)}
 
   if _assets.includes("extra/citation.html")
-    #citation.package-details-citation.row.card.mt-4(data-title='How to cite this package' data-info='How and why <a href="https://ropensci.org/blog/2021/11/16/how-to-cite-r-and-r-packages/">cite packages.</a>')
+    #citation.package-details-citation.row.card.mt-4(data-title='How to cite this package' data-intro='How and why <a href="https://ropensci.org/blog/2021/11/16/how-to-cite-r-and-r-packages/">cite packages.</a>')
       h2.h5.card-title.card-header.text-center
         a.text-dark.plink.mb-0(href='#citation') Citation
         .float-end
@@ -317,8 +317,8 @@ block content
       .package-citation-content.card-body
 
   if _owner != 'cran'
-    #development.row.card.mt-4
-      a.plink.card-title.card-header.text-center.text-dark(href='#development' data-title='Development activity over time' data-info='Including contributors')
+    #development.row.card.mt-4(data-title='Development activity over time' data-intro='Including contributors')
+      a.plink.card-title.card-header.text-center.text-dark(href='#development')
         h2.h5.mb-0 Development and contributors
       .card-body.col-12
         .p-0.d-none.d-md-block
@@ -329,8 +329,8 @@ block content
               a.me-1.package-details-contributor.text-decoration-none(href=`https://${login}.r-universe.dev/contributors`)
                 img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
 
-  #readme.package-details-readme.row.card.mt-4
-    a.plink.card-title.card-header.text-center.text-dark(href='#readme' data-title='All the documentation of the package' data-info='Do not miss the one page manual!')
+  #readme.package-details-readme.row.card.mt-4(data-title='All the documentation of the package' data-intro='Do not miss the one page manual!')
+    a.plink.card-title.card-header.text-center.text-dark(href='#readme')
       h2.h5.mb-0 Readme and manuals
     .card-body
       if _assets.includes("extra/readme.html") || _assets.includes("readme.html")
@@ -352,8 +352,8 @@ block content
                 td
                   | #{Array.isArray(page.topics) && page.topics.join(" ")}
 
-  #users.row.card.mt-4
-    a.plink.card-title.card-header.text-center.text-dark(href='#users' data-title='Reverse dependencies' data-info='Those packages trust this package.')
+  #users.row.card.mt-4(data-title='Reverse dependencies' data-intro='Those packages trust this package.')
+    a.plink.card-title.card-header.text-center.text-dark(href='#users')
       h2.h5.mb-0 Usage by other packages (reverse dependencies)
     ul.list-group.list-group-flush.package-details-revdeps
 

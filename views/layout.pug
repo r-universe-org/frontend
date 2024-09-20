@@ -22,8 +22,8 @@ html
     header.mb-3.border-bottom.bg-body-tertiary
       .container(style='max-width: 1440px')
         .dropdown.float-end.py-2.my-2
-          a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown')
-            img#mainlogo(src='https://r-universe.dev/static/logo-big.svg', width=110, data-title='More info on R-universe' data-intro='What the project is, our docs, etc.' data-step=10000)
+          a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown' data-title='More info on R-universe' data-intro='What the project is, our docs, etc.' data-step=10000)
+            img#mainlogo(src='https://r-universe.dev/static/logo-big.svg', width=110)
           ul.dropdown-menu.text-small
             li
               a.dropdown-item(href='https://ropensci.org/r-universe/') About
@@ -43,25 +43,25 @@ html
             img.rounded.me-2(src=`https://r-universe.dev/avatars/${universe}.png?size=40` style="height:40px;")
             span.navbar-brand.mx-1 #{universe}
           .collapse.navbar-collapse.py-2.float-start#navbarNav
-            ul.navbar-nav.me-lg-auto.mb-0.justify-content-center
+            ul.navbar-nav.me-lg-auto.mb-0.justify-content-center(data-title='Other resources in the universe' data-intro='<ul><li>Builds: recent activity</li><li>Packages: explore more</li><li>Articles: all long-form documentation</li><li>Datasets: all data</li><li>Contribution: humans of this universe</li><li>API: programmatic access to the data</li><li>Feed: subscribe to updates of this universe</li></ul>' data-step="2")
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='It seems you are navigating R-universe!' data-intro='Would you like help? You can also read the <a href="https://docs.r-universe.org">docs</a>.') Website Tour
+                a.nav-link.px-2.link-body-emphasis(href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='It seems you are navigating R-universe!' data-intro='Would you like help? You can also read the <a href="https://docs.r-universe.org">docs</a>.' data-step="1") Website Tour
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/builds', data-title='Dashboard of package builds' data-intro='You can see recent activity in this universe.') Builds
+                a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/packages', data-title='Other packages of the same universe' data-intro='Explore more.') Packages
+                a.nav-link.px-2.link-body-emphasis(href='/packages') Packages
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/articles', data-title='All articles in this universe' data-intro='Another way to explore documentation.') Articles
+                a.nav-link.px-2.link-body-emphasis(href='/articles') Articles
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/datasets', data-title='All datasets in this universe' data-intro='Find interesting data to analyse.') Datasets
+                a.nav-link.px-2.link-body-emphasis(href='/datasets') Datasets
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/contributors', data-title='All contributors in this universe' data-intro='Software is built by humans!') Contribution
+                a.nav-link.px-2.link-body-emphasis(href='/contributors') Contribution
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/badges', data-title='Get badges for your package' data-intro='For maintainers of packages in this universe.') Badges
+                a.nav-link.px-2.link-body-emphasis(href='/badges') Badges
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/apis', data-title='Programmatic access to data' data-intro='The same data as this website but in your console.') API
+                a.nav-link.px-2.link-body-emphasis(href='/apis') API
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank', data-title='RSS feed' data-intro='Subscribe to updates.') Feed
+                a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
 
             form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search', data-intro='Find another page to admire' data-title='This is the search bar')
               input.form-control(type='search' placeholder=`universe:${universe} .....`)
@@ -74,7 +74,7 @@ html
       .row.el-element-overlay
         nav.col-xl-auto.d-none.d-xl-block
           div(style='width:280px;')
-            .sidebar-metadata
+            .sidebar-metadata(data-title='Metadata on the universe' data-intro='Some numbers' data-step="99")
               a(href='/')
                 img#github-user-avatar.rounded.card-img-top.p-3(src=`https://r-universe.dev/avatars/${universe}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
               .card-body
