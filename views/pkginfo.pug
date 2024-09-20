@@ -304,7 +304,7 @@ block content
                 small.text-muted.article-created.text-nowrap Started: #{(article.created || "??").substring(0, 10)}
 
   if _assets.includes("extra/citation.html")
-    #citation.package-details-citation.row.card.mt-4
+    #citation.package-details-citation.row.card.mt-4(data-title='How to cite this package' data-info='How and why <a href="https://ropensci.org/blog/2021/11/16/how-to-cite-r-and-r-packages/">cite packages.</a>')
       h2.h5.card-title.card-header.text-center
         a.text-dark.plink.mb-0(href='#citation') Citation
         .float-end
@@ -318,7 +318,7 @@ block content
 
   if _owner != 'cran'
     #development.row.card.mt-4
-      a.plink.card-title.card-header.text-center.text-dark(href='#development')
+      a.plink.card-title.card-header.text-center.text-dark(href='#development' data-title='Development activity over time' data-info='Including contributors')
         h2.h5.mb-0 Development and contributors
       .card-body.col-12
         .p-0.d-none.d-md-block
@@ -330,7 +330,7 @@ block content
                 img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
 
   #readme.package-details-readme.row.card.mt-4
-    a.plink.card-title.card-header.text-center.text-dark(href='#readme')
+    a.plink.card-title.card-header.text-center.text-dark(href='#readme' data-title='All the documentation of the package' data-info='Do not miss the one page manual!')
       h2.h5.mb-0 Readme and manuals
     .card-body
       if _assets.includes("extra/readme.html") || _assets.includes("readme.html")
@@ -353,7 +353,7 @@ block content
                   | #{Array.isArray(page.topics) && page.topics.join(" ")}
 
   #users.row.card.mt-4
-    a.plink.card-title.card-header.text-center.text-dark(href='#users')
+    a.plink.card-title.card-header.text-center.text-dark(href='#users' data-title='Reverse dependencies' data-info='Those packages trust this package.')
       h2.h5.mb-0 Usage by other packages (reverse dependencies)
     ul.list-group.list-group-flush.package-details-revdeps
 
