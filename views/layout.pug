@@ -23,7 +23,7 @@ html
       .container(style='max-width: 1440px')
         .dropdown.float-end.py-2.my-2
           a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown')
-            img#mainlogo(src='https://r-universe.dev/static/logo-big.svg', width=110, data-intro='Hello step one!' data-title='Welcome!' data-set='1')
+            img#mainlogo(src='https://r-universe.dev/static/logo-big.svg', width=110, data-title='More info on R-universe' data-intro='What the project is, our docs, etc.')
           ul.dropdown-menu.text-small
             li
               a.dropdown-item(href='https://ropensci.org/r-universe/') About
@@ -45,22 +45,25 @@ html
           .collapse.navbar-collapse.py-2.float-start#navbarNav
             ul.navbar-nav.me-lg-auto.mb-0.justify-content-center
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
+                a.nav-link.px-2.link-body-emphasis(href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='It seems you are navigating R-universe!' data-intro='Would you like help? You can also read the <a href="https://docs.r-universe.org">docs</a>.') Website Tour
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/packages') Packages
+                a.nav-link.px-2.link-body-emphasis(href='/builds', data-title='Dashboard of package builds' data-intro='You can see recent activity in this universe.') Builds
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/articles') Articles
+                a.nav-link.px-2.link-body-emphasis(href='/packages', data-title='Other packages of the same universe' data-intro='Explore more.') Packages
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/datasets') Datasets
+                a.nav-link.px-2.link-body-emphasis(href='/articles', data-title='All articles in this universe' data-intro='Another way to explore documentation.') Articles
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/contributors') Contribution
+                a.nav-link.px-2.link-body-emphasis(href='/datasets', data-title='All datasets in this universe' data-intro='Find interesting data to analyse.') Datasets
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/badges') Badges
+                a.nav-link.px-2.link-body-emphasis(href='/contributors', data-title='All contributors in this universe' data-intro='Software is built by humans!') Contribution
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href='/apis') API
+                a.nav-link.px-2.link-body-emphasis(href='/badges', data-title='Get badges for your package' data-intro='For maintainers of packages in this universe.') Badges
               li.nav-item
-                a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
-            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search' data-intro='Hello step two!' data-title='There is search!' data-set='1')
+                a.nav-link.px-2.link-body-emphasis(href='/apis', data-title='Programmatic access to data' data-intro='The same data as this website but in your console.') API
+              li.nav-item
+                a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank', data-title='RSS feed' data-intro='Subscribe to updates.') Feed
+
+            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search', data-intro='Find another page to admire' data-title='This is the search bar')
               input.form-control(type='search' placeholder=`universe:${universe} .....`)
               button.btn.btn-outline-secondary(type='submit') Search
 
