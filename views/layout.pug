@@ -14,6 +14,7 @@ html
     link(rel='alternate' type='application/rss+xml' href='/feed.xml')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css')
     block after_head
     style
       include layout.css
@@ -21,7 +22,7 @@ html
     header.mb-3.border-bottom.bg-body-tertiary
       .container(style='max-width: 1440px')
         .dropdown.float-end.py-2.my-2
-          a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown')
+          a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown' data-title='About R-universe' data-intro='About R-universe, more documentation, and links to other universes and resources.' data-step=1005)
             img#mainlogo(src='https://r-universe.dev/static/logo-big.svg', width=110)
           ul.dropdown-menu.text-small
             li
@@ -31,18 +32,31 @@ html
             li
               hr.dropdown-divider
             li
-              a.dropdown-item(href='https://r-universe.dev/organizations/') Organizations
+              a.dropdown-item(href='https://r-universe.dev/organizations/') More Universes
             li
-              a.dropdown-item(href='https://r-universe.dev/maintainers/') Maintainers
+              a.dropdown-item(href='https://r-universe.dev/builds/') Recent Updates
             li
-              a.dropdown-item(href='https://r-universe.dev/sysdeps/') System Libraries
+              a.dropdown-item(href='https://r-universe.dev/activity/') Leader board
+            li
+              hr.dropdown-divider
+            li
+              a.dropdown-item(href='https://r-universe.dev/repositories/') All repositories
+            li
+              a.dropdown-item(href='https://r-universe.dev/packages/') All packages
+            li
+              a.dropdown-item(href='https://r-universe.dev/articles/') All articles
+            li
+              a.dropdown-item(href='https://r-universe.dev/datasets/') All datasets
+            li
+              a.dropdown-item(href='https://r-universe.dev/sysdeps/') All system Libraries
+
 
         nav.navbar.navbar-expand-sm
           a.navbar-toggler.float-start(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
             img.rounded.me-2(src=`https://r-universe.dev/avatars/${universe}.png?size=40` style="height:40px;")
             span.navbar-brand.mx-1 #{universe}
           .collapse.navbar-collapse.py-2.float-start#navbarNav
-            ul.navbar-nav.me-lg-auto.mb-0.justify-content-center
+            ul.navbar-nav.me-lg-auto.mb-0.justify-content-center(data-title='Tabs to other content in this universe' data-intro='<ul><li>Builds: recent updates</li><li>Packages: browse other packages</li><li>Articles: all vignettes</li><li>Datasets: download datasets</li><li>Contribution: people doing the work</li><li>API: programmatic endpoints</li><li>Feed: RSS update</li></ul>' data-step=1003)
               li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
               li.nav-item
@@ -59,7 +73,12 @@ html
                 a.nav-link.px-2.link-body-emphasis(href='/apis') API
               li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
-            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search')
+            
+            if _enable_tour
+              a.text-decoration-none.btn.btn-sm.btn-outline-primary.d-none.d-xl-flex.mx-auto(role='button' href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='Welcome! &#128640; ' data-intro="Let's take an interactive tour of this R-universe page! Press <b>next</b> or → on your keyboard to begin!") &#x2728; Website Tour!
+              div.fixed-top.container(style="margin-top:-10px" data-title='The URL scheme' data-intro=`Package homepages have a URL <code>https://{owner}.r-universe.dev/{package}</code>`)
+
+            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search', data-intro='Search through all packages, articles and datasets in this and other universes!' data-title='Search bar' data-step=1004)
               input.form-control(type='search' placeholder=`universe:${universe} .....`)
               button.btn.btn-outline-secondary(type='submit') Search
 
@@ -70,7 +89,7 @@ html
       .row.el-element-overlay
         nav.col-xl-auto.d-none.d-xl-block
           div(style='width:280px;')
-            .sidebar-metadata
+            .sidebar-metadata(data-position="right" data-title='Owner information' data-intro='The sidebar shows information about the owner of this universe')
               a(href='/')
                 img#github-user-avatar.rounded.card-img-top.p-3(src=`https://r-universe.dev/avatars/${universe}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
               .card-body

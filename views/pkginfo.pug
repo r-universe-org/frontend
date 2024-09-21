@@ -1,12 +1,12 @@
 extends layout
 
 block content
-  .row.card.details-card
+  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="Here we find all information and content from this package...")
     h1.h5.card-header.text-center Package: #{Package} #{Version}
       .float-end
         a.ms-2.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
           i.fa-solid.fa-code-branch.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`Upstream git source`)
-        a.ms-2.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}`)
+        a.ms-2.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}` data-title="JSON API", data-intro="All data shown on this page is also available as a JSON API!")
           i.fa-solid.fa-plug.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`This page as API`)
     .card-body.col-12
       if _pkglogo
@@ -20,14 +20,15 @@ block content
             img.rounded-circle.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px;')
           p
             span.card-text.text-secondary.maintainer-name #{_maintainer.name}
-      h2.h5.card-title
-        span.package-details-name.text-dark #{Package}:
-        small.text-secondary.package-details-title  #{Title}
-      p.card-text.package-details-description.fst-italic !{description_to_html(Description)}
-      p
-        | Authors:
-        span.card-text.text-dark.package-details-author.ms-1 #{Author}
-      p.d-sm-table.overflow-x-invisible
+      div(data-title="Descriptives" data-intro="Title, description, and authors from the package DESCRIPTION file.")
+        h2.h5.card-title
+          span.package-details-name.text-dark #{Package}:
+          small.text-secondary.package-details-title  #{Title}
+        p.card-text.package-details-description.fst-italic !{description_to_html(Description)}
+        p
+          | Authors:
+          span.card-text.text-dark.package-details-author.ms-1 #{Author}
+      p.d-sm-table.overflow-x-invisible(data-title='Downloads and links' data-intro='We provide binaries for all platforms, rendered documentation, and lots of other data.')
         a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
         a.package-details-source(href=`/src/contrib/${Package}_${Version}.tar.gz`) #{Package}_#{Version}.tar.gz
         br
@@ -82,7 +83,7 @@ block content
       #install.row.card.m-0.mb-3.py-1.d-none.d-md-block
         // <link rel="stylesheet" href="https://github.githubassets.com/assets/gist-embed-c77408be8058.css">
         link(rel='stylesheet' href='https://r-universe.dev/static/gist-embed.css')
-        .gist.ps-0
+        .gist.ps-0(data-title='How to install the package' data-intro='You can copy this into your R session or your package README.')
           button#copy-code-button.float-end.btn.btn-outline-dark.far.fa-copy.p-2.m-1(type='button')
           table
             tbody
@@ -128,13 +129,13 @@ block content
         span.peerreview-status
 
       if _bugtracker
-        p.mb-2.package-details-issues
+        p.mb-2.package-details-issues(data-title='Upstream issue tracker' data-intro='Where to interact with developers of this package.')
           | Bug tracker:
           u
             a.ms-1.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
           span.open-issues-count.badge.text-bg-warning.ms-1
       if _sysdeps
-        .system-library-row
+        .system-library-row(data-title="System libraries" data-intro="External C/C++/Fortran system libraries that this package links to. On Linux you may need to install these sperately.")
           span.float-start Uses libs:
           ul.system-library-list.list-unstyled.d-table.ps-1.mb-2
             each library in _sysdeps
@@ -145,7 +146,7 @@ block content
                   a(target='_blank' href=library.homepage)
                     sup.fas.fa-external-link-alt
       if _datasets
-        .dataset-row
+        .dataset-row(data-position="left" data-scroll-to="tooltip" data-title="Package datasets", data-intro='Datasets in this package. Click on the &#x2B07; icons to show more information or download data as csv, xlsx, or json.')
           span.float-start Datasets:
           ul.dataset-list.list-unstyled.d-table.ps-1.mb-2
             each data in _datasets
@@ -173,10 +174,10 @@ block content
           i
             | This package does not link to any Github/Gitlab/R-forge repository. No issue tracker or development information is available.
       if _topics
-        p.card-text.package-details-topics.clearfix
+        p.card-text.package-details-topics.clearfix(data-title='Tags and topics' data-intro='Click to find other packages with this tag.')
           each topic in _topics
             a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=${topic.includes("-") ? `"${topic}"` : encodeURIComponent(topic)}`) #{topic}
-      p.metric-icons
+      p.metric-icons(data-title='Popularity Metrics' data-intro='Some stats on how much this package is used. These numbers are also used for ranking results in our search engine.')
         if _exports
           a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
             i.fas.fa-shapes.text-dark
@@ -194,7 +195,7 @@ block content
             i.fas.fa-cube.text-danger
             |  #{_rundeps.length} dependencies
         if _usedby
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}`)
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}` data-title="Dependents" data-intro="Other packages that (indirectly) need this package to run.")
             i.fas.fa-cubes.text-success
             |  #{_usedby} dependents
         if _mentions
@@ -202,15 +203,15 @@ block content
             i.fa-solid.fa-flask.text-primary
             |  #{format_count(_mentions)} mentions
         if _searchresults
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code`)
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='Usage in scripts' data-intro='R scripts on GitHub that use this package.')
             i.fa-solid.fa-code
             |  #{format_count(_searchresults)} scripts
         if _downloads && _downloads.count > 0
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=_downloads.source)
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=_downloads.source data-title="Download statistics" data-intro="Montly downloads on CRAN and BioConductor.")
             i.fas.fa-download.text-success-emphasis
             |  #{format_count(_downloads.count)} downloads
 
-      p
+      p(data-title="Build and check status" data-intro="Latest commit and check results. Click to expand on check logs for this build.")
         small.text-dark
           span.mx-1.package-details-updated Last updated #{_lastupdate}
           | from:
@@ -272,7 +273,7 @@ block content
           span.labels
             each dep in _rundeps
               a.badge.text-bg-danger.rounded-pill.ms-1(href=`https://cran.dev/${dep}`) #{dep}
-    .package-details-article-list.list-group.pe-0
+    .package-details-article-list.list-group.pe-0(data-position="left" data-title="Articles (vignettes)" data-intro="If the package has any vignettes, rendered articles are linked here.")
       if _status === 'failure'
         .vignette-failure-alert.alert.alert-warning.m-0(role='alert')
           | Vignettes and/or manual for this package failed to build, some documents may be unavailable. Please inspect the
@@ -304,10 +305,10 @@ block content
                 small.text-muted.article-created.text-nowrap Started: #{(article.created || "??").substring(0, 10)}
 
   if _assets.includes("extra/citation.html")
-    #citation.package-details-citation.row.card.mt-4
+    #citation.package-details-citation.row.card.mt-4(data-position="left" data-title='Preferred citation' data-intro='How to cite this package, as indicated by the authors in the CITATION file (if available)')
       h2.h5.card-title.card-header.text-center
         a.text-dark.plink.mb-0(href='#citation') Citation
-        .float-end
+        .float-end(data-title='Other cite formats' data-intro='APIs to get this same citation info in JSON, CFF or BibTeX format')
           a.text-decoration-none.ms-1(target='_blank' href=`/${Package}/citation.txt` data-bs-toggle="tooltip" data-bs-title="Raw citation text")
             i.fa-regular.fa-file-lines.text-dark.grow-on-over
           a.text-decoration-none.ms-1(target='_blank' href=`/${Package}/citation.json` data-bs-toggle="tooltip" data-bs-title="Citation JSON API")
@@ -317,8 +318,8 @@ block content
       .package-citation-content.card-body
 
   if _owner != 'cran'
-    #development.row.card.mt-4
-      a.plink.card-title.card-header.text-center.text-dark(href='#development')
+    #development.row.card.mt-4(data-position="left" data-title='Development activity' data-intro='Commits in the past year and contributors to this project')
+      a.plink.card-title.card-header.text-center.text-dark(href='#development' )
         h2.h5.mb-0 Development and contributors
       .card-body.col-12
         .p-0.d-none.d-md-block
@@ -329,30 +330,31 @@ block content
               a.me-1.package-details-contributor.text-decoration-none(href=`https://${login}.r-universe.dev/contributors`)
                 img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
 
-  #readme.package-details-readme.row.card.mt-4
+  #readme.package-details-readme.row.card.mt-4(data-scroll-to="tooltip" data-position="left" data-title='Documentation' data-intro='Rendered documentation from the README and help pages.')
     a.plink.card-title.card-header.text-center.text-dark(href='#readme')
       h2.h5.mb-0 Readme and manuals
     .card-body
       if _assets.includes("extra/readme.html") || _assets.includes("readme.html")
         .package-readme-content
       if _help
-        a#manual.plink(href='#manual')
-          h3.h4.text-dark Help Manual
-        table.col-12.table.table-sm.table-hover.manpages-table
-          thead
-            tr
-              th Help page
-              th Topics
-          tbody
-            each page in _help
+        div(data-position="left" data-scroll-to="tooltip" data-title="Manual pages" data-intro="Links to help pages from the package reference manual")
+          a#manual.plink(href='#manual')
+            h3.h4.text-dark Help Manual
+          table.col-12.table.table-sm.table-hover.manpages-table
+            thead
               tr
-                - var name = page.page.replace(/\.html$/, "");
-                td
-                  a(target='_blank' href=`/${Package}/doc/manual.html#${name}`) #{page.title || name}
-                td
-                  | #{Array.isArray(page.topics) && page.topics.join(" ")}
+                th Help page
+                th Topics
+            tbody
+              each page in _help
+                tr
+                  - var name = page.page.replace(/\.html$/, "");
+                  td
+                    a(target='_blank' href=`/${Package}/doc/manual.html#${name}`) #{page.title || name}
+                  td
+                    | #{Array.isArray(page.topics) && page.topics.join(" ")}
 
-  #users.row.card.mt-4
+  #users.row.card.mt-4(data-position="left" data-scroll-to="tooltip" data-title='Dependents' data-intro='Organizations and maintainers who import this package. This can be another indication of the package trustworthyness.')
     a.plink.card-title.card-header.text-center.text-dark(href='#users')
       h2.h5.mb-0 Usage by other packages (reverse dependencies)
     ul.list-group.list-group-flush.package-details-revdeps
