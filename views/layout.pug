@@ -22,7 +22,7 @@ html
     header.mb-3.border-bottom.bg-body-tertiary
       .container(style='max-width: 1440px')
         .dropdown.float-end.py-2.my-2
-          a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown' data-title='More info on R-universe' data-intro='What the project is, our docs, etc.' data-step=10000)
+          a.d-block.link-body-emphasis.text-decoration-none.dropdown-toggle(href='#' data-bs-toggle='dropdown' data-title='About R-universe' data-intro='What the project is, our documentation, etc.' data-step=1005)
             img#mainlogo(src='https://r-universe.dev/static/logo-big.svg', width=110)
           ul.dropdown-menu.text-small
             li
@@ -43,7 +43,7 @@ html
             img.rounded.me-2(src=`https://r-universe.dev/avatars/${universe}.png?size=40` style="height:40px;")
             span.navbar-brand.mx-1 #{universe}
           .collapse.navbar-collapse.py-2.float-start#navbarNav
-            ul.navbar-nav.me-lg-auto.mb-0.justify-content-center(data-title='Other resources in the universe' data-intro='<ul><li>Builds: recent activity</li><li>Packages: explore more</li><li>Articles: all long-form documentation</li><li>Datasets: all data</li><li>Contribution: humans of this universe</li><li>API: programmatic access to the data</li><li>Feed: subscribe to updates of this universe</li></ul>' data-step="2")
+            ul.navbar-nav.me-lg-auto.mb-0.justify-content-center(data-title='Tabs to other content in this universe' data-intro='<ul><li>Builds: recent updates</li><li>Packages: other packages</li><li>Articles: all vignettes</li><li>Datasets: all datasets</li><li>Contribution: people doing the work</li><li>API: programmatic endpoints</li><li>Feed: RSS update</li></ul>' data-step=1003)
               li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href='/builds') Builds
               li.nav-item
@@ -60,11 +60,11 @@ html
                 a.nav-link.px-2.link-body-emphasis(href='/apis') API
               li.nav-item
                 a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
-              if _enable_tour
-                li.nav-item
-                  a.nav-link.px-2.link-body-emphasis(href='javascript:introJs().setOptions({showProgress: true,showBullets: false,nextLabel:"Next (or press Enter)",tooltipPosition:"auto"}).start();', data-title='It seems you are navigating R-universe!' data-intro='Would you like help? You can also read the <a href="https://docs.r-universe.org">docs</a>.' data-step="1") Website Tour
+            
+            if _enable_tour
+              a.btn.btn-sm.btn-outline-primary.d-xl-flex.mx-auto(role='button' href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='Welcome!' data-intro='An interactive tour of R-universe! Press ENTER or next to proceed.') &#x2728; Website Tour!
 
-            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search', data-intro='Find another page to admire' data-title='This is the search bar')
+            form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search', data-intro='Search through all packages, articles and datasets in this and other universes!' data-title='Search bar' data-step=1004)
               input.form-control(type='search' placeholder=`universe:${universe} .....`)
               button.btn.btn-outline-secondary(type='submit') Search
 
@@ -75,7 +75,7 @@ html
       .row.el-element-overlay
         nav.col-xl-auto.d-none.d-xl-block
           div(style='width:280px;')
-            .sidebar-metadata(data-title='Metadata on the universe' data-intro='Some numbers' data-step="99")
+            .sidebar-metadata(data-position="right" data-title='Owner information' data-intro='Some info and links from the universe that hosts this package' data-step=1001)
               a(href='/')
                 img#github-user-avatar.rounded.card-img-top.p-3(src=`https://r-universe.dev/avatars/${universe}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
               .card-body
