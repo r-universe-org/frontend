@@ -146,7 +146,7 @@ block content
                   a(target='_blank' href=library.homepage)
                     sup.fas.fa-external-link-alt
       if _datasets
-        .dataset-row(data-title="Package datasets", data-intro="If the package contains datasets, here you can find more information and directly download them in several formats!")
+        .dataset-row(data-position="left" data-title="Package datasets", data-intro="If the package contains datasets, here you can find more information and directly download them in several formats!")
           span.float-start Datasets:
           ul.dataset-list.list-unstyled.d-table.ps-1.mb-2
             each data in _datasets
