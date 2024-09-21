@@ -1,12 +1,12 @@
 extends layout
 
 block content
-  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="Descriptive information and metadata from this package. Let's dive in some deeper...")
+  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="Here we find descriptive information and metadata from this package. Let's dive in some deeper...")
     h1.h5.card-header.text-center Package: #{Package} #{Version}
       .float-end
         a.ms-2.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
           i.fa-solid.fa-code-branch.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`Upstream git source`)
-        a.ms-2.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}` data-title="JSON API", data-intro="All data we show on this page is also available as a JSON API!")
+        a.ms-2.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}` data-title="JSON API", data-intro="All data shown on this page is also available as a JSON API!")
           i.fa-solid.fa-plug.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`This page as API`)
     .card-body.col-12
       if _pkglogo
@@ -129,7 +129,7 @@ block content
         span.peerreview-status
 
       if _bugtracker
-        p.mb-2.package-details-issues(data-title='Issue tracker' data-intro='Where to interact with developers of this package.')
+        p.mb-2.package-details-issues(data-title='Upstream issue tracker' data-intro='Where to interact with developers of this package.')
           | Bug tracker:
           u
             a.ms-1.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
@@ -305,7 +305,7 @@ block content
                 small.text-muted.article-created.text-nowrap Started: #{(article.created || "??").substring(0, 10)}
 
   if _assets.includes("extra/citation.html")
-    #citation.package-details-citation.row.card.mt-4(data-position="left" data-title='Preferred citation' data-intro='How to cite this package, as requested by the authors in the CITATION file (if available)')
+    #citation.package-details-citation.row.card.mt-4(data-position="left" data-title='Preferred citation' data-intro='How to cite this package, as indicated by the authors in the CITATION file (if available)')
       h2.h5.card-title.card-header.text-center
         a.text-dark.plink.mb-0(href='#citation') Citation
         .float-end(data-title='Other cite formats' data-intro='APIs to get this same citation info in JSON, CFF or BibTeX format')
@@ -354,7 +354,7 @@ block content
                   td
                     | #{Array.isArray(page.topics) && page.topics.join(" ")}
 
-  #users.row.card.mt-4(data-position="left" data-scroll-to="tooltip" data-title='Dependents' data-intro='Which orgs and maintainers import this package. This is another indication of the package trustworthyness.')
+  #users.row.card.mt-4(data-position="left" data-scroll-to="tooltip" data-title='Dependents' data-intro='Organizations and maintainers who import this package. This is another indication of the package trustworthyness.')
     a.plink.card-title.card-header.text-center.text-dark(href='#users')
       h2.h5.mb-0 Usage by other packages (reverse dependencies)
     ul.list-group.list-group-flush.package-details-revdeps
