@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="Here we find descriptive information and metadata from this package. Let's dive in some deeper...")
+  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="At the top we find descriptive information and metadata from this package...")
     h1.h5.card-header.text-center Package: #{Package} #{Version}
       .float-end
         a.ms-2.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
@@ -28,7 +28,7 @@ block content
         p
           | Authors:
           span.card-text.text-dark.package-details-author.ms-1 #{Author}
-      p.d-sm-table.overflow-x-invisible(data-title='Downloads and links' data-intro='Get binaries for all platforms, extensive documentation, and all the metadata.')
+      p.d-sm-table.overflow-x-invisible(data-title='Downloads and links' data-intro='We provide binaries for all platforms, rendered documentation, and lots of other data.')
         a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
         a.package-details-source(href=`/src/contrib/${Package}_${Version}.tar.gz`) #{Package}_#{Version}.tar.gz
         br
@@ -146,7 +146,7 @@ block content
                   a(target='_blank' href=library.homepage)
                     sup.fas.fa-external-link-alt
       if _datasets
-        .dataset-row(data-position="left" data-title="Package datasets", data-intro="If the package contains datasets, here you can find more information and directly download them in several formats!")
+        .dataset-row(data-position="left" data-title="Package datasets", data-intro='Datasets in this package. Click on the &#x2B07; icons to show more information or download data as csv, xlsx, or json.')
           span.float-start Datasets:
           ul.dataset-list.list-unstyled.d-table.ps-1.mb-2
             each data in _datasets

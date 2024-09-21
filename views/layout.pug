@@ -46,6 +46,8 @@ html
             li
               a.dropdown-item(href='https://r-universe.dev/articles/') All articles
             li
+              a.dropdown-item(href='https://r-universe.dev/datasets/') All datasets
+            li
               a.dropdown-item(href='https://r-universe.dev/sysdeps/') All system Libraries
 
 
@@ -73,7 +75,7 @@ html
                 a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
             
             if _enable_tour
-              a.btn.btn-sm.btn-outline-primary.d-none.d-xl-flex.mx-auto(role='button' href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='Welcome!' data-intro='An interactive tour of R-universe! Press ENTER or next to proceed.') &#x2728; Website Tour!
+              a.btn.btn-sm.btn-outline-primary.d-none.d-xl-flex.mx-auto(role='button' href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='Welcome! &#128640; ' data-intro='Go take an interactive tour of this R-universe page! Press ENTER or next to proceed.') &#x2728; Website Tour!
 
             form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search', data-intro='Search through all packages, articles and datasets in this and other universes!' data-title='Search bar' data-step=1004)
               input.form-control(type='search' placeholder=`universe:${universe} .....`)
@@ -86,7 +88,7 @@ html
       .row.el-element-overlay
         nav.col-xl-auto.d-none.d-xl-block
           div(style='width:280px;')
-            .sidebar-metadata(data-position="right" data-title='Owner information' data-intro='Some info and links from the universe that hosts this package' data-step=1001)
+            .sidebar-metadata(data-position="right" data-title='Owner information' data-intro='Some info and links from the owner of this universe' data-step=1001)
               a(href='/')
                 img#github-user-avatar.rounded.card-img-top.p-3(src=`https://r-universe.dev/avatars/${universe}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
               .card-body
