@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="At the top we find descriptive information and metadata from this package...")
+  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="Here we find all information and content from this package...")
     h1.h5.card-header.text-center Package: #{Package} #{Version}
       .float-end
         a.ms-2.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
@@ -195,7 +195,7 @@ block content
             i.fas.fa-cube.text-danger
             |  #{_rundeps.length} dependencies
         if _usedby
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}` data-title="Dependents" data-intro="Number of other packages that require this package to run.")
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}` data-title="Dependents" data-intro="Other packages that (indirectly) need this package to run.")
             i.fas.fa-cubes.text-success
             |  #{_usedby} dependents
         if _mentions
@@ -203,7 +203,7 @@ block content
             i.fa-solid.fa-flask.text-primary
             |  #{format_count(_mentions)} mentions
         if _searchresults
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='Usage in scripts' data-intro='How many R scripts on GitHub use this package.')
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='Usage in scripts' data-intro='R scripts on GitHub that use this package.')
             i.fa-solid.fa-code
             |  #{format_count(_searchresults)} scripts
         if _downloads && _downloads.count > 0
