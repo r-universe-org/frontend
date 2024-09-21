@@ -75,7 +75,8 @@ html
                 a.nav-link.px-2.link-body-emphasis(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank') Feed
             
             if _enable_tour
-              a.btn.btn-sm.btn-outline-primary.d-none.d-xl-flex.mx-auto(role='button' href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='Welcome! &#128640; ' data-intro='Go take an interactive tour of this R-universe page! Press ENTER or next to proceed.') &#x2728; Website Tour!
+              a.text-decoration-none.btn.btn-sm.btn-outline-primary.d-none.d-xl-flex.mx-auto(role='button' href='javascript:introJs().setOptions({showProgress: true,showBullets: false}).start();', data-title='Welcome! &#128640; ' data-intro="Let's take an interactive tour of this R-universe page! Press <b>next</b> or → on your keyboard to begin!") &#x2728; Website Tour!
+              div.fixed-top.container(style="margin-top:-10px" data-title='The URL scheme' data-intro=`Package homepages have a URL <code>https://{owner}.r-universe.dev/{package}</code>`)
 
             form#searchform.d-none.d-lg-flex.input-group.col-12.col-lg-auto.mb-3.mb-lg-0.me-lg-4(role='search', data-intro='Search through all packages, articles and datasets in this and other universes!' data-title='Search bar' data-step=1004)
               input.form-control(type='search' placeholder=`universe:${universe} .....`)
