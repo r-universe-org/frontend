@@ -1,12 +1,12 @@
 extends layout
 
 block content
-  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package summary" data-intro="Here you can find general information and metadata about this package. Let's dive in some deeper...")
+  .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="Descriptive information and metadata from this package. Let's dive in some deeper...")
     h1.h5.card-header.text-center Package: #{Package} #{Version}
-      .float-end(data-title="Git/API links" data-intro="<ul><li>Upstream Git repository</li><li>API link with all data on this page in JSON format</li></ul>")
+      .float-end
         a.ms-2.upstream-git-link.text-decoration-none.ms-1(target='_blank' href=_upstream)
           i.fa-solid.fa-code-branch.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`Upstream git source`)
-        a.ms-2.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}`)
+        a.ms-2.package-json-link.text-decoration-none(target='_blank' href=`/api/packages/${Package}` data-title="JSON API", data-intro="All data we show on this page is also available as a JSON API!")
           i.fa-solid.fa-plug.text-dark.grow-on-over(data-bs-toggle="tooltip" data-bs-title=`This page as API`)
     .card-body.col-12
       if _pkglogo
@@ -20,7 +20,7 @@ block content
             img.rounded-circle.img.mb-2(src='https://r-universe.dev/static/nobody.jpg' style='max-height: 120px;')
           p
             span.card-text.text-secondary.maintainer-name #{_maintainer.name}
-      div(data-title="Descriptive information" data-intro="Title, description, and authors from the package DESCRIPTION file")
+      div(data-title="Descriptive information" data-intro="Title, description, and authors from the package DESCRIPTION file.")
         h2.h5.card-title
           span.package-details-name.text-dark #{Package}:
           small.text-secondary.package-details-title  #{Title}
@@ -28,7 +28,7 @@ block content
         p
           | Authors:
           span.card-text.text-dark.package-details-author.ms-1 #{Author}
-      p.d-sm-table.overflow-x-invisible(data-title='Download links' data-intro='Get binaries for all platforms, extensive documentation, and all the metadata.')
+      p.d-sm-table.overflow-x-invisible(data-title='Downloads and links' data-intro='Get binaries for all platforms, extensive documentation, and all the metadata.')
         a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
         a.package-details-source(href=`/src/contrib/${Package}_${Version}.tar.gz`) #{Package}_#{Version}.tar.gz
         br
@@ -135,7 +135,7 @@ block content
             a.ms-1.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
           span.open-issues-count.badge.text-bg-warning.ms-1
       if _sysdeps
-        .system-library-row(data-title="System libraries" data-intro="External C/C++/Fortran system libraries that this package links to. On Linux you need to install these sperately.")
+        .system-library-row(data-title="System libraries" data-intro="External C/C++/Fortran system libraries that this package links to. On Linux you may need to install these sperately.")
           span.float-start Uses libs:
           ul.system-library-list.list-unstyled.d-table.ps-1.mb-2
             each library in _sysdeps
@@ -174,7 +174,7 @@ block content
           i
             | This package does not link to any Github/Gitlab/R-forge repository. No issue tracker or development information is available.
       if _topics
-        p.card-text.package-details-topics.clearfix(data-title='Tags and topics' data-intro='Click to find other packages with this topic.')
+        p.card-text.package-details-topics.clearfix(data-title='Tags and topics' data-intro='Click to find other packages with this tag.')
           each topic in _topics
             a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=${topic.includes("-") ? `"${topic}"` : encodeURIComponent(topic)}`) #{topic}
       p.metric-icons(data-title='Popularity Metrics' data-intro='Some stats on how much this package is used. These numbers are also used for ranking results in our search engine.')
@@ -195,7 +195,7 @@ block content
             i.fas.fa-cube.text-danger
             |  #{_rundeps.length} dependencies
         if _usedby
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}` data-title="Dependents" data-intro="How many other packages require this package to run")
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}` data-title="Dependents" data-intro="Number of other packages that require this package to run.")
             i.fas.fa-cubes.text-success
             |  #{_usedby} dependents
         if _mentions
@@ -203,11 +203,11 @@ block content
             i.fa-solid.fa-flask.text-primary
             |  #{format_count(_mentions)} mentions
         if _searchresults
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='Usage in scripts' data-intro='How many R scripts on GitHub use this package')
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='Usage in scripts' data-intro='How many R scripts on GitHub use this package.')
             i.fa-solid.fa-code
             |  #{format_count(_searchresults)} scripts
         if _downloads && _downloads.count > 0
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=_downloads.source data-title="Download statistics" data-intro="Number of montly downloads on CRAN and BioConductor")
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=_downloads.source data-title="Download statistics" data-intro="Montly downloads on CRAN and BioConductor.")
             i.fas.fa-download.text-success-emphasis
             |  #{format_count(_downloads.count)} downloads
 
@@ -273,7 +273,7 @@ block content
           span.labels
             each dep in _rundeps
               a.badge.text-bg-danger.rounded-pill.ms-1(href=`https://cran.dev/${dep}`) #{dep}
-    .package-details-article-list.list-group.pe-0(data-position="left" data-title="Articles (vignettes)" data-intro="If the package has any vignettes, rendered articles are listed here.")
+    .package-details-article-list.list-group.pe-0(data-position="left" data-title="Articles (vignettes)" data-intro="If the package has any vignettes, rendered articles are linked here.")
       if _status === 'failure'
         .vignette-failure-alert.alert.alert-warning.m-0(role='alert')
           | Vignettes and/or manual for this package failed to build, some documents may be unavailable. Please inspect the
