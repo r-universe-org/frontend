@@ -135,7 +135,7 @@ block content
             a.ms-1.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
           span.open-issues-count.badge.text-bg-warning.ms-1
       if _sysdeps
-        .system-library-row(data-title="System libraries" data-intro="External C/C++/Fortran system libraries that this package links to. On Linux you may need to install these sperately.")
+        .system-library-row(data-title="System libraries" data-intro="External C/C++/Fortran system libraries that this package links to. On Linux you may need to install these separately.")
           span.float-start Uses libs:
           ul.system-library-list.list-unstyled.d-table.ps-1.mb-2
             each library in _sysdeps
