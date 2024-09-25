@@ -30,7 +30,7 @@ block content
               if x._score
                 span.text-muted.badge.badge-light.p-1.border.me-1
                   i.fas.fa-chart-line.text-primary
-                  |  #{Math.pow(x._score-1, 2).toFixed(2)} score
+                  |  #{x._score.toFixed(2)} score
               if x._rundeps
                 span.text-muted.badge.badge-light.p-1.border.me-1
                   i.fas.fa-cube.text-danger

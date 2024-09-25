@@ -189,7 +189,7 @@ block content
         if _score
           a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href='https://github.com/r-universe-org/help#how-is-the-package-rank-score-calculated')
             i.fas.fa-chart-line.text-primary
-            |  #{Math.pow(_score-1, 2).toFixed(2)} score
+            |  #{_score.toFixed(2)} score
         if _rundeps
           a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#dependslist')
             i.fas.fa-cube.text-danger

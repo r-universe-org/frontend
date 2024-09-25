@@ -136,7 +136,7 @@ function show_pkg_card(pkg, i){
   if(pkg._usedby){
     item.find('.description-dependents').removeClass('d-none').append(` ${pkg._usedby} dependents`);
   }
-  item.find('.description-pkgscore').removeClass('d-none').append(` ${Math.pow(pkg._score-1, 2).toFixed(2)} score`);
+  item.find('.description-pkgscore').removeClass('d-none').append(` ${pkg._score.toFixed(2)} score`);
   if(pkg.match){
     item.find('.description-score').removeClass('d-none').append(` ${pkg.match.toFixed(1)} match`);
   }

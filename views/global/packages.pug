@@ -21,7 +21,7 @@ block content
           tr
             th
               a(href=`https://${x.universe}.r-universe.dev/${x.package}`) #{x.package}
-            td #{Math.pow(x.score-1, 2).toFixed(2)}
+            td #{x.score.toFixed(2)}
             td #{x.stars}
             td #{x.downloads}
             td #{x.scripts}
