@@ -57,7 +57,11 @@ function load_github_user_info(){
   if(universe === 'r-multiverse-staging'){
     ghuser = 'r-multiverse';
   }
+  if(universe === 'ropensci-champions'){
+    ghuser = 'ropensci';
+  }
   $(".navbar img").attr('src', $(".navbar img").attr('src').replace(`/${universe}.png`, `/${ghuser}.png`));
+  $("#github-user-avatar").attr('src', $("#github-user-avatar").attr('src').replace(`/${universe}.png`, `/${ghuser}.png`));
   //$("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
   /*
   get_text(`https://r-universe.dev/avatars/${ghuser}.keys`).then(function(res){
