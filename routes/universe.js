@@ -112,14 +112,15 @@ router.get("/badges", function(req, res, next){
   var fields = ['Package', '_user', '_registered'];
   db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
-    pkgdata.unshift({Package: ':articles', _user: universe});
-    pkgdata.unshift({Package: ':packages', _user: universe});
-    pkgdata.unshift({Package: ':registry', _user: universe});
-    pkgdata.unshift({Package: ':name', _user: universe});
+    pkgdata.unshift({Package: ':datasets', _user: universe, ref: '/datasets'});
+    pkgdata.unshift({Package: ':articles', _user: universe, ref: '/articles'});
+    pkgdata.unshift({Package: ':packages', _user: universe, ref: '/packages'});
+    pkgdata.unshift({Package: ':registry', _user: universe, ref: '/'});
+    pkgdata.unshift({Package: ':name', _user: universe, ref: '/'});
     pkgdata = pkgdata.map(function(x){
       return Object.assign(x, {
         badge: `https://${x._user}.r-universe.dev/badges/${x.Package}`,
-        link: `https://${x._user}.r-universe.dev/${x.Package[0] == ":" ? "" : x.Package}`
+        link: `https://${x._user}.r-universe.dev${x.ref || '/' + x.Package}`
       });
     });
     res.render('badges', {
