@@ -1,7 +1,6 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var globalRouter = require('./routes/global');
@@ -18,7 +17,6 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'static'))); //TODO: remove?
 app.use('/_global/favicon.ico', express.static(path.join(__dirname, 'static/favicon.ico')))
 app.use('/_global/static', express.static(path.join(__dirname, 'static')))

@@ -1,15 +1,13 @@
 {
   "name": "frontend",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "scripts": {
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "cookie-parser": "^1.4.6",
-    "debug": "^4.3.4",
-    "express": "^4.19.2",
+    "express": "^4.21.0",
     "http-errors": "*",
-    "mongodb": "^6.7.0",
+    "mongodb": "^6.9.0",
     "morgan": "^1.10.0",
     "pug": "^3.0.2"
   }
