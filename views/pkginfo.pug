@@ -176,7 +176,7 @@ block content
       if _topics
         p.card-text.package-details-topics.clearfix(data-title='Tags and topics' data-intro='Click to find other packages with this tag.')
           each topic in _topics
-            a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=${topic.includes("-") ? `"${topic}"` : encodeURIComponent(topic)}`) #{topic}
+            a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=topic%3A${topic}`) #{topic}
       p.metric-icons(data-title='Popularity Metrics' data-intro='Some stats on how much this package is used. These numbers are also used for ranking results in our search engine.')
         if _exports
           a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
