@@ -1,6 +1,6 @@
-/* Database */
-const mongodb = require('mongodb');
-const createError = require('http-errors');
+import {MongoClient} from 'mongodb';
+import createError from 'http-errors';
+
 const HOST = process.env.CRANLIKE_MONGODB_SERVER || '127.0.0.1';
 const PORT = process.env.CRANLIKE_MONGODB_PORT || 27017;
 const USER = process.env.CRANLIKE_MONGODB_USERNAME || 'root';
@@ -8,30 +8,26 @@ const PASS = process.env.CRANLIKE_MONGODB_PASSWORD;
 const AUTH = PASS ? (USER + ':' + PASS + "@") : "";
 const URL = 'mongodb://' + AUTH + HOST + ':' + PORT;
 const production = process.env.NODE_ENV == 'production';
-var mongo_find;
-var mongo_aggregate;
+const col = await (production ? mongo_col() : null);
 
-if(production){
-  console.log("Connecting to database....")
-  const connection = mongodb.MongoClient.connect(URL);
-  connection.then(function(client) {
-    console.log("Connected to MongoDB!")
-    const db = client.db('cranlike');
-    const col = db.collection('packages');
-    mongo_find = function(q){
-      if(!col)
-        throw new Error("No mongodb connection available.");
-      return col.find(q);
-    }
-    mongo_aggregate = function(q){
-      if(!col)
-        throw new Error("No mongodb connection available.");
-      return col.aggregate(q);
-    }
-  }).catch(function(error){
-    console.log("Failed to connect to mongodb!\n" + error)
-    throw error;
+function mongo_col(){
+  console.log("Connecting to database...");
+  return MongoClient.connect(URL).then(function(client){
+    console.log("Connected to MongoDB!");
+    return client.db('cranlike').collection('packages');
   });
+}
+
+function mongo_find(q){
+  if(!col || !col.find)
+    throw new Error("No mongodb connection available.");
+  return col.find(q);
+}
+
+function mongo_aggregate(q){
+  if(!col || !col.aggregate)
+    throw new Error("No mongodb connection available.");
+  return col.aggregate(q);
 }
 
 function group_package_data(docs){
@@ -114,18 +110,18 @@ function build_projection(fields){
   return projection;
 }
 
-function mongo_package_info(package, universe){
-  return mongo_find({_user: universe, Package: package, _registered: true}).toArray().then(function(docs){
+function mongo_package_info(pkg, universe){
+  return mongo_find({_user: universe, Package: pkg, _registered: true}).toArray().then(function(docs){
     if(docs.length){
       var pkgdata = group_package_data(docs);
       if(pkgdata._type === 'failure')
-        throw createError(404, `Package ${package} failed to build: ${pkgdata._buildurl}`)
+        throw createError(404, `Package ${pkg} failed to build: ${pkgdata._buildurl}`)
       return pkgdata;
     } else {
       // Try to find case insensitive or other universes
       var altquery = {
         _type: 'src',
-        _nocasepkg: package.toLowerCase(),
+        _nocasepkg: pkg.toLowerCase(),
         _universes: universe,
         _registered: true
       }
@@ -135,7 +131,7 @@ function mongo_package_info(package, universe){
             location: `https://${alt._user}.r-universe.dev/${alt.Package}`
           }});
         } else {
-          throw createError(404, `Package ${package} not found in ${universe}`)
+          throw createError(404, `Package ${pkg} not found in ${universe}`)
         }
       });
     }
@@ -316,11 +312,6 @@ function mongo_all_datasets(){
   return cursor.toArray();
 }
 
-function days_ago(n){
-  var now = new Date();
-  return now.getTime()/1000 - (n*60*60*24);
-}
-
 function mongo_recent_builds(days = 7){
   var query = {'_commit.time' : {'$gt': days_ago(days)}};
   var cursor = mongo_aggregate([
@@ -361,20 +352,20 @@ function mongo_recent_builds(days = 7){
   return cursor.toArray();
 }
 
-function get_package_info(package, universe){
+export function get_package_info(pkg, universe){
   if(production){
-    return mongo_package_info(package, universe);
+    return mongo_package_info(pkg, universe);
   } else {
-    console.warn(`Fetching ${package} info from API...`)
+    console.warn(`Fetching ${pkg} info from API...`)
     if(universe){
-      return get_json(`https:${universe}.r-universe.dev/api/packages/${package}`);
+      return get_json(`https:${universe}.r-universe.dev/api/packages/${pkg}`);
     } else {
-      return get_json(`https://cran.dev/${package}/json`);
+      return get_json(`https://cran.dev/${pkg}/json`);
     }
   }
 }
 
-function get_universe_vignettes(universe){
+export function get_universe_vignettes(universe){
   if(production){
     return mongo_universe_vignettes(universe)
   } else {
@@ -383,7 +374,7 @@ function get_universe_vignettes(universe){
   }
 }
 
-function get_universe_packages(universe, fields, all = true){
+export function get_universe_packages(universe, fields, all = true){
   if(production){
     return mongo_universe_packages(universe, fields, all)
   } else {
@@ -393,7 +384,7 @@ function get_universe_packages(universe, fields, all = true){
   }
 }
 
-function get_repositories(){
+export function get_repositories(){
   if(production){
     return mongo_all_universes()
   } else {
@@ -402,7 +393,7 @@ function get_repositories(){
   }
 }
 
-function get_scores(){
+export function get_scores(){
   if(production){
     return mongo_all_scores()
   } else {
@@ -411,7 +402,7 @@ function get_scores(){
   }
 }
 
-function get_organizations(){
+export function get_organizations(){
   if(production){
     return mongo_all_universes(true);
   } else {
@@ -420,7 +411,7 @@ function get_organizations(){
   }
 }
 
-function get_sysdeps(){
+export function get_sysdeps(){
   if(production){
     return mongo_all_sysdeps()
   } else {
@@ -429,7 +420,7 @@ function get_sysdeps(){
   }
 }
 
-function get_builds(){
+export function get_builds(){
   if(production){
     return mongo_recent_builds()
   } else {
@@ -438,7 +429,7 @@ function get_builds(){
   }
 }
 
-function get_articles(){
+export function get_articles(){
   if(production){
     return mongo_all_articles()
   } else {
@@ -447,7 +438,7 @@ function get_articles(){
   }
 }
 
-function get_datasets(){
+export function get_datasets(){
   if(production){
     return mongo_all_datasets()
   } else {
@@ -455,16 +446,3 @@ function get_datasets(){
     return get_ndjson(`https://r-universe.dev/api/datasets?stream=1`);
   }
 }
-
-module.exports = {
-  get_scores: get_scores,
-  get_builds : get_builds,
-  get_articles: get_articles,
-  get_datasets: get_datasets,
-  get_sysdeps : get_sysdeps,
-  get_repositories: get_repositories,
-  get_organizations: get_organizations,
-  get_package_info: get_package_info,
-  get_universe_packages: get_universe_packages,
-  get_universe_vignettes: get_universe_vignettes
-};

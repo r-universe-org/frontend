@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
+import {get_package_info} from '../src/db.js';
 const router = express.Router();
-const db = require("../src/db.js");
 
 function avatar_url(login, size){
   if(size){
@@ -49,11 +49,11 @@ function summarize_checks(pkgdata){
 }
 
 function group_binaries(x){
-  var package = x.Package;
+  var pkg = x.Package;
   var binaries = x._binaries || [];
   var win = binaries.filter(x => x.os == 'win').sort(sortfun).map(function(binary){
     var build = binary.r.substring(0,3);
-    var filename = `${package}_${binary.version}.zip`;
+    var filename = `${pkg}_${binary.version}.zip`;
     var repo = `r-${build}`;
     var url = `/bin/windows/contrib/${build}/${filename}`;
     return {filename: filename, repo: repo, url: url};
@@ -61,7 +61,7 @@ function group_binaries(x){
   var mac = binaries.filter(x => x.os == 'mac').sort(sortfun).map(function(binary){
     var build = binary.r.substring(0,3);
     var arch = (binary.arch || "any").replace("aarch64", "arm64");
-    var filename = `${package}_${binary.version}.tgz`;
+    var filename = `${pkg}_${binary.version}.tgz`;
     var platform = arch.match("arm64") ? 'big-sur-arm64' : 'big-sur-x86_64';
     var repo = `r-${build}-${arch}`
     var url = `/bin/macosx/${platform}/contrib/${build}/${filename}`;
@@ -70,14 +70,14 @@ function group_binaries(x){
   var linux = binaries.filter(x => x.os == 'linux').map(function(binary){
     var build = binary.r.substring(0,3);
     var distro = binary.distro || "unknown";
-    var filename = `${package}_${binary.version}.tar.gz`;
+    var filename = `${pkg}_${binary.version}.tar.gz`;
     var repo = `r-${build}-${distro}`;
     var url = `/bin/linux/${distro}/${build}/src/contrib/${filename}`;
     return {filename: filename, repo: repo, url: url};
   });
   var wasm = binaries.filter(x => x.os == 'wasm').sort(sortfun).map(function(binary){
     var build = binary.r.substring(0,3);
-    var filename = `${package}_${binary.version}.tgz`;
+    var filename = `${pkg}_${binary.version}.tgz`;
     var repo = `r-${build}-emscripten`;
     var url = `/bin/emscripten/contrib/${build}/${filename}`;
     return {filename: filename, repo: repo, url: url};
@@ -135,10 +135,10 @@ function get_topic_page(index, topic){
   return index.find(function(x) {return Array.isArray(x.topics) && x.topics.includes(topic)});
 }
 
-function help_page_url(package, index, topic){
+function help_page_url(pkg, index, topic){
   var chapter = get_topic_page(index, topic);
   if(chapter && chapter.page){
-    return `/${package}/doc/manual.html#${chapter.page.replace(/.html$/, "")}`;
+    return `/${pkg}/doc/manual.html#${chapter.page.replace(/.html$/, "")}`;
   }
 }
 
@@ -211,7 +211,7 @@ router.get('/:package', function(req, res, next) {
   if(req.params.package.startsWith("_")){
     return next();
   }
-  return db.get_package_info(req.params.package, req.universe).then(function(pkgdata){
+  return get_package_info(req.params.package, req.universe).then(function(pkgdata){
     pkgdata.format_count = format_count;
     pkgdata.universe = pkgdata._user;
     pkgdata.avatar_url = avatar_url;
@@ -238,4 +238,4 @@ router.get('/:package', function(req, res, next) {
   }).catch(next);
 });
 
-module.exports = router;
+export default router;

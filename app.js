@@ -1,25 +1,24 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-
-var globalRouter = require('./routes/global');
-var universeRouter = require('./routes/universe');
-var pkginfoRouter = require('./routes/pkginfo');
+import path from 'node:path';
+import createError from 'http-errors';
+import express from 'express';
+import logger from 'morgan';
+import globalRouter from './routes/global.js';
+import universeRouter from './routes/universe.js';
+import pkginfoRouter from './routes/pkginfo.js';
 
 var app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', 'views');
 app.set('view engine', 'pug');
 //app.set('view cache', true); //enabled by default in prod?
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'static'))); //TODO: remove?
-app.use('/_global/favicon.ico', express.static(path.join(__dirname, 'static/favicon.ico')))
-app.use('/_global/static', express.static(path.join(__dirname, 'static')))
+app.use(express.static('static')); //TODO: remove?
+app.use('/_global/favicon.ico', express.static('static/favicon.ico'));
+app.use('/_global/static', express.static('static'));
 
 // remove trailing slashes
 app.use((req, res, next) => {
@@ -66,4 +65,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+export default app;

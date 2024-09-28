@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
+import {get_universe_packages, get_universe_vignettes, get_package_info} from '../src/db.js';
 const router = express.Router();
-const db = require("../src/db.js");
 
 function sort_by_package(x,y){
   return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
@@ -83,7 +83,7 @@ router.get('/builds', function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
     '_maintainer', '_upstream', '_registered', '_created', '_linuxdevel', '_winbinary',
     '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
-  db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('builds', {
       format_yymmdd: format_yymmdd,
       format_time_since: format_time_since,
@@ -98,7 +98,7 @@ router.get('/builds', function(req, res, next) {
 router.get("/packages", function(req, res, next){
   var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time',
     '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_sysdeps', '_registered'];
-  db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('packages', {
       format_count: format_count,
       format_time_since: format_time_since,
@@ -110,7 +110,7 @@ router.get("/packages", function(req, res, next){
 router.get("/badges", function(req, res, next){
   var universe = res.locals.universe;
   var fields = ['Package', '_user', '_registered'];
-  db.get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
     pkgdata.unshift({Package: ':datasets', _user: universe, ref: '/datasets'});
     pkgdata.unshift({Package: ':articles', _user: universe, ref: '/articles'});
@@ -131,7 +131,7 @@ router.get("/badges", function(req, res, next){
 
 router.get("/apis", function(req, res, next){
   var fields = ['_datasets', '_registered'];
-  db.get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
+  get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
     res.render('apis', {
       pkgdata: pkgdata.filter(x => x._registered).sort(sort_by_package)
     });
@@ -140,7 +140,7 @@ router.get("/apis", function(req, res, next){
 
 router.get("/datasets", function(req, res, next){
   var fields = ['_datasets', '_registered'];
-  db.get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
+  get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
     res.render('datasets', {
       pkgdata: pkgdata.filter(x => x._registered).sort(sort_by_package)
     });
@@ -152,7 +152,7 @@ router.get("/contributors", function(req, res, next){
 });
 
 router.get("/articles", function(req, res, next){
-  db.get_universe_vignettes(res.locals.universe).then(function(articles){
+  get_universe_vignettes(res.locals.universe).then(function(articles){
     articles = articles.map(function(x){
       x.host = (x.user !== res.locals.universe) ? `https://${x.user}.r-universe.dev` : "";
       return x;
@@ -165,7 +165,7 @@ router.get("/articles", function(req, res, next){
 });
 
 router.get("/articles/:package/:vignette", function(req, res, next){
-  return db.get_package_info(req.params.package, req.universe).then(function(pkgdata){
+  return get_package_info(req.params.package, req.universe).then(function(pkgdata){
     var article = pkgdata._vignettes && pkgdata._vignettes.find(x => x.filename == req.params.vignette);
     if(article){
       //do not open pdf files in iframe
@@ -200,4 +200,4 @@ router.get('/sitemaps?.*', function(req, res, next) {
   res.redirect(301, '/sitemap_index.xml')
 });
 
-module.exports = router;
+export default router;
