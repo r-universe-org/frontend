@@ -1,0 +1,27 @@
+extends global
+
+block content
+  #content-container.container.col.p-4
+    h1
+      span.fa.fa-user-astronaut.fa-fw.ml-3
+      |  Welcome to R-universe!
+    p.lead.my-3 Thank you for installing the R-universe app. What happens next?
+    p
+      ol
+        li
+          | If you did not already have a universe yet, your source monorepo will appear after a few minutes on: 
+          a(href='https://github.com/r-universe/')
+            tt https://github.com/r-universe/{username}
+          | , where &quot;username&quot; is the GitHub user or organization where the GitHub app was installed.
+        li
+          | If you have a custom <code>packages.json</code> file, it will sync with this list. Otherwise your universe will show your CRAN packages from 
+          a(href='https://github.com/r-universe-org/cran-to-git') cran-to-git
+          | .
+        li
+          | The universe automatically syncs and updates your packages approximately once per hour.
+    p 
+      | The packages automatically become available on the package repository under your own subdomain 
+      code https://{yourname}.r-universe.dev
+      | . Consult the 
+      a(href='https://docs.r-universe.dev') r-universe docs
+      |  for more information.

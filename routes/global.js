@@ -155,4 +155,8 @@ router.get("/_global/galaxy", function(req, res, next){
   }).catch(next);
 });
 
+router.get("/_global/welcome", function(req, res, next){
+  res.render('global/welcome');
+});
+
 export default router;
