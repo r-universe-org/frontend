@@ -75,7 +75,7 @@ function update_cran_status(){
       var iconclass = "fa fa-question-circle popover-dismiss";
       var color = color_bad;
       if (upstream.match('https://github.com/cran/')){
-        var tiptext = `A package '${package}' exists on CRAN but description does not link to any git repository or issue tracker`;
+        var tiptext = `A package '${package}' exists on CRAN but its description does not link to a known Git server`;
       } else {
         var tiptext = `A package '${package}' exists on CRAN but description does not link to:<br/><u>${upstream}</u>. This could be another source.`;
       }
