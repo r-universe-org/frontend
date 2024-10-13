@@ -254,13 +254,13 @@ function release_annotations(tags, activity_data){
     var date = new Date(x.date);
     var week = date.getWeek();
     var year = date.getWeekYear();
-    var matchdate = activity_data.find(x => x.date.getWeek() == week && x.date.getWeekYear() == year).date;
+    var matchdate = activity_data.find(x => x.date.getWeek() == week && x.date.getWeekYear() == year);
     //var latest = (i == tags.length-1);
     var color = 'black';
     return {
       type: 'line',
-      xMin: matchdate,
-      xMax: matchdate,
+      xMin: matchdate ? matchdate.date : date,
+      xMax: matchdate ? matchdate.date : date,
       borderColor: color,
       borderDash: [3, 3],
       label: {
