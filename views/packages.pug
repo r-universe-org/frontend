@@ -2,9 +2,9 @@ extends layout
 
 block content
   .row#package-card-container(data-masonry='{"percentPosition":true}')
-    each x in pkgdata
+    each x,i in pkgdata
       if x._registered !== false && x._type !== 'failure'
-        .col-lg-6
+        .col-lg-6.package-card-col(class=(i > 20 && 'd-none'))
           .card.mt-4.package-description-card
             .card-body
               if x._pkglogo
@@ -39,6 +39,9 @@ block content
                 span.text-muted.badge.badge-light.p-1.border.me-1
                   i.fas.fa-cubes.text-success
                   |  #{x._usedby} dependents
+
+    .col-12.scrollbottom#scrollbottom1(style="height:500px")
+    .col-12.scrollbottom#scrollbottom2(style="height:1000px")
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')
