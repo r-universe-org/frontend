@@ -23,22 +23,26 @@ block content
                   p.card-text
                     each topic in x._topics
                       span.badge.badge-topic.me-1 #{topic}
-              if x._stars
-                span.text-muted.badge.badge-light.p-1.border.me-1
-                  i.fas.fa-star.text-warning
-                  |  #{format_count(x._stars)} stars
               if x._score
                 span.text-muted.badge.badge-light.p-1.border.me-1
                   i.fas.fa-chart-line.text-primary
                   |  #{x._score.toFixed(2)} score
-              if x._rundeps
+              if x._stars
                 span.text-muted.badge.badge-light.p-1.border.me-1
-                  i.fas.fa-cube.text-danger
-                  |  #{x._rundeps.length} dependencies
+                  i.fas.fa-star.text-warning
+                  |  #{format_count(x._stars)} stars
               if x._usedby
                 span.text-muted.badge.badge-light.p-1.border.me-1
                   i.fas.fa-cubes.text-success
-                  |  #{x._usedby} dependents
+                  |  #{format_count(x._usedby)} packages
+              if x._searchresults
+                span.text-muted.badge.badge-light.p-1.border.me-1
+                  i.fa-solid.fa-code.text-danger
+                  |  #{format_count(x._searchresults)} scripts
+              if x._downloads && x._downloads.count > 0
+                span.text-muted.badge.badge-light.p-1.border.me-1
+                  i.fas.fa-download.text-success-emphasis
+                  |  #{format_count(x._downloads.count)} downloads
 
     .col-12.scrollbottom#scrollbottom1(style="height:500px")
     .col-12.scrollbottom#scrollbottom2(style="height:1000px")

@@ -178,30 +178,18 @@ block content
           each topic in _topics
             a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=topic%3A${topic}`) #{topic}
       p.metric-icons(data-title='Popularity Metrics' data-intro='Some stats on how much this package is used. These numbers are also used for ranking results in our search engine.')
-        if _exports
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
-            i.fas.fa-shapes.text-dark
-            |  #{_exports.length} exports
-        if _stars
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`${_upstream}/stargazers`)
-            i.fas.fa-star.text-warning
-            |  #{format_count(_stars)} stars
         if _score
           a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href='https://github.com/r-universe-org/help#how-is-the-package-rank-score-calculated')
             i.fas.fa-chart-line.text-primary
             |  #{_score.toFixed(2)} score
-        if _rundeps
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#dependslist')
-            i.fas.fa-cube.text-danger
-            |  #{_rundeps.length} dependencies
+        if _stars
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`${_upstream}/stargazers`)
+            i.fas.fa-star.text-warning
+            |  #{format_count(_stars)} stars
         if _usedby
           a.text-muted.badge.text-bg-light.p-1.me-1.border(href=`https://r-universe.dev/search/?q=needs:${Package}` data-title="Dependents" data-intro="Other packages that (indirectly) need this package to run.")
             i.fas.fa-cubes.text-success
-            |  #{_usedby} dependents
-        if _mentions
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://papers.ecosyste.ms/projects/${_owner == 'bioc' ? 'bioconductor' : 'cran'}/${Package}`)
-            i.fa-solid.fa-flask.text-primary
-            |  #{format_count(_mentions)} mentions
+            |  #{format_count(_usedby)} packages
         if _searchresults
           a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://github.com/search?q=library%28${Package}%29&type=code` data-title='Usage in scripts' data-intro='R scripts on GitHub that use this package.')
             i.fa-solid.fa-code
@@ -210,6 +198,18 @@ block content
           a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=_downloads.source data-title="Download statistics" data-intro="Montly downloads on CRAN and BioConductor.")
             i.fas.fa-download.text-success-emphasis
             |  #{format_count(_downloads.count)} downloads
+        if _mentions
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=`https://papers.ecosyste.ms/projects/${_owner == 'bioc' ? 'bioconductor' : 'cran'}/${Package}`)
+            i.fa-solid.fa-flask.text-primary
+            |  #{format_count(_mentions)} mentions
+        if _exports
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#exportlist')
+            i.fas.fa-shapes.text-dark
+            |  #{_exports.length} exports
+        if _rundeps
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(data-bs-toggle='collapse' href='#dependslist')
+            i.fas.fa-cube.text-danger
+            |  #{_rundeps.length} dependencies
 
       p(data-title="Build and check status" data-intro="Latest commit and check results. Click to expand on check logs for this build.")
         small.text-dark

@@ -12,9 +12,14 @@ function sort_by_score(x,y){
 
 function format_count(count){
   if(count > 1000000) {
-    return (count/1000000).toFixed(1) + 'M';
+    var val = count/1000000;
+    return val.toFixed(val < 10 ? 1 : 0) + 'M';
   }
-  return count < 1000 ? count : (count/1000).toFixed(1) + 'k';
+  if(count > 1000) {
+    var val = count / 1000;
+    return val.toFixed(val < 10 ? 1 : 0) + 'k';
+  }
+  return count;
 }
 
 function format_yymmdd(x){
@@ -96,8 +101,8 @@ router.get('/builds', function(req, res, next) {
 });
 
 router.get("/packages", function(req, res, next){
-  var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time',
-    '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_sysdeps', '_registered'];
+  var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time', '_downloads',
+    '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_registered', '_searchresults'];
   get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('packages', {
       format_count: format_count,
