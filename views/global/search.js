@@ -220,7 +220,7 @@ function append_topic(topic, i){
 
 function load_all_topics(){
   $('#topics-list').empty().text("Popular topics: ");
-  get_ndjson('https://r-universe.dev/stats/topics?min=3&limit=1000').then(function(topicdata){
+  get_ndjson('https://r-universe.dev/stats/topics?min=3&limit=250').then(function(topicdata){
     topicdata.map(x => x.topic).forEach(append_topic);
   });
   return false;
