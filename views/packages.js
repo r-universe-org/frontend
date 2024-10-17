@@ -9,7 +9,7 @@ $(function(){
   const observer = new IntersectionObserver(function(entries){
     for (let entry of entries) {
       if (entry.isIntersecting) {
-        var max = entry.target.id == 'scrollbottom2' ? 60 : 30;
+        var max = entry.target.id == 'scrollbottom2' ? 20 : 10;
         console.log(`Loading ${max} more cards...`)
         document.querySelectorAll(".package-card-col.d-none").forEach(function(el, i){
           if(i < max) el.classList.remove('d-none');
