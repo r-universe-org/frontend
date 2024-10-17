@@ -92,15 +92,18 @@ html
             .sidebar-metadata(data-position="right" data-title='Owner information' data-intro='The sidebar shows information about the owner of this universe')
               a(href='/')
                 img#github-user-avatar.rounded.card-img-top.p-3(src=`https://r-universe.dev/avatars/${universe}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
+              p.fs-6.float-end
+                a#github-user-github(href=`https://github.com/${_universe_name}` target='_blank' class=`${_universe_type !== 'user' ? 'd-none' : ''}`)
+                  span.fa-brands.fa-github.fa-fw.me-1.text-dark.grow-on-over
+                a#github-user-mastodon.d-none(target='_blank')
+                  span.fa-brands.fa-mastodon.fa-fw.me-1.grow-on-over(style="color: #6364FF;")
+                a#github-user-twitter.d-none(target='_blank')
+                  span.fa-brands.fa-square-x-twitter.fa-fw.me-1.grow-on-over
+                a#github-user-orcid.d-none(target='_blank')
+                  span.fa-brands.fa-orcid.fa-fw.me-1.text-success.grow-on-over
               .card-body
                 h5.card-title
                   span#github-user-name #{_universe_name}
-                  a#github-user-mastodon.float-end.d-none.grow-on-over(target='_blank')
-                    span.fa-brands.fa-mastodon.fa-fw.me-1(style="color: #6364FF;")
-                  a#github-user-twitter.float-end.d-none.grow-on-over(target='_blank')
-                    span.fa-brands.fa-square-x-twitter.fa-fw.me-1
-                  a#github-user-orcid.float-end.d-none.grow-on-over(target='_blank')
-                    span.fa-brands.fa-orcid.fa-fw.me-1.text-success
                 p#github-user-bio.card-text #{_universe_bio}
               ul.list-group.list-group-flush.pb-2.sidebar-user-details
                 li#github-user-universe-row.list-group-item.border-light-subtle.text-truncate

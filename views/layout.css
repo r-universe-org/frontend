@@ -85,11 +85,8 @@ a:hover {
 }
 
 .grow-on-over:hover {
-  transition: all .2s ease-in-out;
-}
-
-.grow-on-over:hover {
-  transform: scale(1.2);
+  transition: all .2s ease-in-out !important;
+  transform: scale(1.2) !important;
 }
 
 /* Test package: chromote */

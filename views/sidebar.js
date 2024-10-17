@@ -83,6 +83,9 @@ function load_github_user_info(){
     }
 
     $("#github-user-bio").text(user.bio);
+    if(user.type === 'User'){
+      $("#github-user-github").removeClass("d-none").attr('href', `https://github.com/${ghuser}`);
+    }
     if(user.company){
       $("#github-user-company").toggleClass("d-none").find('.content').text(user.company);
     }
