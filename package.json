@@ -6,7 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "express": "^4.21.1",
+    "express": "^5.0.1",
     "http-errors": "*",
     "mongodb": "^6.9.0",
     "morgan": "^1.10.0",

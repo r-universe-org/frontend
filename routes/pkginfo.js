@@ -240,7 +240,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._checksummary = summarize_checks(pkgdata);
     pkgdata._enable_tour = true;
     res.render('pkginfo', pkgdata);
-  }).catch(next);
+  });
 });
 
 export default router;

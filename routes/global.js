@@ -61,7 +61,7 @@ router.get("/_global/activity", function(req, res, next){
 });
 
 router.get("/_global/builds", function(req, res, next){
-  get_builds().then(function(packages){
+  return get_builds().then(function(packages){
     packages.forEach(function(x){
       var checks = x.runs.filter(run => run.check && run.built.Platform !== 'x86_64-apple-darwin20');
       x.check_icon_html = function(version, type){
@@ -82,11 +82,11 @@ router.get("/_global/builds", function(req, res, next){
       title: "R-universe - recent builds",
       packages: packages
     });
-  }).catch(next);
+  })
 });
 
 router.get("/_global/organizations", function(req, res, next){
-  get_organizations().then(function(orgs){
+  return get_organizations().then(function(orgs){
     orgs.forEach(function(x){
       x.avatar = x.uuid ? `https://avatars.githubusercontent.com/u/${x.uuid}` : `https://r-universe.dev/avatars/${x.universe}.png`;
     });
@@ -94,11 +94,11 @@ router.get("/_global/organizations", function(req, res, next){
       title: "R-universe - community",
       orgs: orgs
     });
-  }).catch(next);
+  });
 });
 
 router.get("/_global/repositories", function(req, res, next){
-  get_repositories().then(function(repos){
+  return get_repositories().then(function(repos){
     res.render('global/repositories', {
       title: "R-universe - browse repositories",
       repos: repos,
@@ -108,7 +108,7 @@ router.get("/_global/repositories", function(req, res, next){
 });
 
 router.get("/_global/articles", function(req, res, next){
-  get_articles().then(function(articles){
+  return get_articles().then(function(articles){
     res.render('global/articles', {
       title: "R-universe - browse articles",
       articles: articles,
@@ -118,7 +118,7 @@ router.get("/_global/articles", function(req, res, next){
 });
 
 router.get("/_global/datasets", function(req, res, next){
-  get_datasets().then(function(datasets){
+  return get_datasets().then(function(datasets){
     res.render('global/datasets', {
       title: "R-universe - browse datasets",
       datasets: datasets
@@ -127,7 +127,7 @@ router.get("/_global/datasets", function(req, res, next){
 });
 
 router.get("/_global/packages", function(req, res, next){
-  get_scores().then(function(packages){
+  return get_scores().then(function(packages){
     res.render('global/packages', {
       title: "R-universe - top packages",
       packages: packages
@@ -136,7 +136,7 @@ router.get("/_global/packages", function(req, res, next){
 });
 
 router.get("/_global/sysdeps", function(req, res, next){
-  get_sysdeps().then(function(sysdeps){
+  return get_sysdeps().then(function(sysdeps){
     sysdeps = sysdeps.filter(x => x.library && x.library !== 'c++');
     sysdeps.forEach(function(x){
       x.description = cleanup_sysdep_desc(x.description);
@@ -150,9 +150,9 @@ router.get("/_global/sysdeps", function(req, res, next){
 });
 
 router.get("/_global/galaxy", function(req, res, next){
-  get_organizations().then(function(orgs){
+  return get_organizations().then(function(orgs){
     res.render('global/galaxy', {rnd: rnd, orgs: orgs.slice(0, 250)});
-  }).catch(next);
+  });
 });
 
 router.get("/_global/welcome", function(req, res, next){
