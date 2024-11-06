@@ -42,9 +42,9 @@ app.use(function(req, res, next){
   res.locals.universe = req.universe || 'ropensci';
   res.locals.node_env = req.app.get('env');
   next();
-})
+});
 
-app.use('/', globalRouter);
+app.use('/_global/', globalRouter);
 app.use('/', universeRouter);
 app.use('/', pkginfoRouter);
 
