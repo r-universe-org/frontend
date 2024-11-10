@@ -5,6 +5,7 @@ import logger from 'morgan';
 import globalRouter from './routes/global.js';
 import universeRouter from './routes/universe.js';
 import pkginfoRouter from './routes/pkginfo.js';
+import {get_etag} from './src/db.js';
 
 var app = express();
 
@@ -42,6 +43,30 @@ app.use(function(req, res, next){
   res.locals.universe = req.universe || 'ropensci';
   res.locals.node_env = req.app.get('env');
   next();
+});
+
+// set etag headers
+app.use('/:package{/*splat}', function(req, res, next){
+  const pkg = req.params.package;
+  const tabs = ["builds", "packages", "badges", "apis", "datasets", "contributors", "articles"];
+  if(pkg == '_global'){
+    var query = {};
+  } else if (tabs.includes(pkg)){
+    var query = {_user: res.locals.universe}
+  } else {
+    var query = {_user: res.locals.universe, Package: pkg}
+  }
+  return get_etag(query).then(function(etag){
+    if(etag){
+      res.set('ETag', etag); //may cache 10 sec before re-checking etag
+      res.set('Cache-Control', 'public, max-age=10, must-revalidate');
+      if(etag === req.header('If-None-Match')){
+        res.status(304).send();
+        return; //no next
+      }
+    }
+    next();
+  });
 });
 
 app.use('/_global/', globalRouter);

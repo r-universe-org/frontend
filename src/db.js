@@ -18,6 +18,12 @@ function mongo_col(){
   });
 }
 
+function mongo_etag(q){
+  if(!col || !col.find)
+    throw new Error("No mongodb connection available.");
+  return col.findOne(q, {sort:{_id: -1}, project: {_id: 1}}).then(x => x && String(x._id));
+}
+
 function mongo_find(q){
   if(!col || !col.find)
     throw new Error("No mongodb connection available.");
@@ -444,5 +450,13 @@ export function get_datasets(){
   } else {
     console.warn(`Fetching datasets from API...`);
     return get_ndjson(`https://r-universe.dev/api/datasets?stream=1`);
+  }
+}
+
+export function get_etag(query){
+  if(production){
+    return mongo_etag(query);
+  } else {
+    return Promise.resolve(new Date().toISOString());
   }
 }
