@@ -52,7 +52,7 @@ app.use('/:package{/*splat}', function(req, res, next){
   if(pkg == '_global'){
     var query = {};
   } else if (tabs.includes(pkg)){
-    var query = {_user: res.locals.universe}
+    var query = {_universes: res.locals.universe}
   } else {
     var query = {_user: res.locals.universe, Package: pkg}
   }
