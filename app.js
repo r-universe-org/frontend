@@ -60,9 +60,12 @@ app.use('/:package{/*splat}', function(req, res, next){
     if(doc){
       const etag = `W/"${doc._id}"`;
       const date = doc._published.toUTCString();
-      res.set('ETag', etag); //frontend may cache 60 sec before rechecking
+      res.set('ETag', etag);
       res.set('Last-Modified', date);
-      res.set('Cache-Control', 'public, max-age=60, must-revalidate');
+      //clients may cache front-end pages for 60s before revalidating.
+      //revalidation can either be done by comparing Etag or Last-Modified.
+      //do not set 'must-revalidate' as this will disallow using stale cache when server is offline.
+      res.set('Cache-Control', 'public, max-age=60');
       if(etag === req.header('If-None-Match') || date === req.header('If-Modified-Since')){
         //todo: also invalidate for updates in frontend itself
         res.status(304).send();
