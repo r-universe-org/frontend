@@ -1,6 +1,6 @@
 var _paq = window._paq = window._paq || [];
 var site_id = location.hostname == 'docs.r-universe.dev' ? '4' : '2';
-console.log(`Matomo site ID for ${location.hostname}: ${site_id}`);
+//console.log(`Matomo site ID for ${location.hostname}: ${site_id}`);
 _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
 _paq.push(["setCookieDomain", "*.r-universe.dev"]);
 _paq.push(["setDomains", ["*.r-universe.dev"]]);
