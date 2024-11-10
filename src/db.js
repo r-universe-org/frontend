@@ -18,10 +18,10 @@ function mongo_col(){
   });
 }
 
-function mongo_etag(q){
+function mongo_latest(q){
   if(!col || !col.find)
     throw new Error("No mongodb connection available.");
-  return col.findOne(q, {sort:{_id: -1}, project: {_id: 1}}).then(x => x && `W/"${x._id}"`);
+  return col.findOne(q, {sort:{_id: -1}, project: {_id: 1, _published: 1}});
 }
 
 function mongo_find(q){
@@ -453,10 +453,10 @@ export function get_datasets(){
   }
 }
 
-export function get_etag(query){
+export function get_latest(query){
   if(production){
-    return mongo_etag(query);
+    return mongo_latest(query);
   } else {
-    return Promise.resolve(new Date().toISOString());
+    return Promise.resolve();
   }
 }

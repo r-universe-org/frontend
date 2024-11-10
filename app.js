@@ -5,7 +5,7 @@ import logger from 'morgan';
 import globalRouter from './routes/global.js';
 import universeRouter from './routes/universe.js';
 import pkginfoRouter from './routes/pkginfo.js';
-import {get_etag} from './src/db.js';
+import {get_latest} from './src/db.js';
 
 var app = express();
 
@@ -56,11 +56,15 @@ app.use('/:package{/*splat}', function(req, res, next){
   } else {
     var query = {_user: res.locals.universe, Package: pkg}
   }
-  return get_etag(query).then(function(etag){
-    if(etag){
-      res.set('ETag', etag); //frontend may cache 60 sec before rechecking etag
+  return get_latest(query).then(function(doc){
+    if(doc){
+      const etag = `W/"${doc._id}"`;
+      const date = doc._published.toUTCString();
+      res.set('ETag', etag); //frontend may cache 60 sec before rechecking
+      res.set('Last-Modified', date);
       res.set('Cache-Control', 'public, max-age=60, must-revalidate');
-      if(etag === req.header('If-None-Match')){
+      if(etag === req.header('If-None-Match') || date === req.header('If-Modified-Since')){
+        //todo: also invalidate for updates in frontend itself
         res.status(304).send();
         return; //no next
       }
