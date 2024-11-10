@@ -58,8 +58,8 @@ app.use('/:package{/*splat}', function(req, res, next){
   }
   return get_etag(query).then(function(etag){
     if(etag){
-      res.set('ETag', etag); //may cache 10 sec before re-checking etag
-      res.set('Cache-Control', 'public, max-age=10, must-revalidate');
+      res.set('ETag', etag); //frontend may cache 60 sec before rechecking etag
+      res.set('Cache-Control', 'public, max-age=60, must-revalidate');
       if(etag === req.header('If-None-Match')){
         res.status(304).send();
         return; //no next

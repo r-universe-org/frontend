@@ -21,7 +21,7 @@ function mongo_col(){
 function mongo_etag(q){
   if(!col || !col.find)
     throw new Error("No mongodb connection available.");
-  return col.findOne(q, {sort:{_id: -1}, project: {_id: 1}}).then(x => x && String(x._id));
+  return col.findOne(q, {sort:{_id: -1}, project: {_id: 1}}).then(x => x && `W/"${x._id}"`);
 }
 
 function mongo_find(q){
