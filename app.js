@@ -45,8 +45,8 @@ app.use(function(req, res, next){
   next();
 });
 
-// set etag headers
-app.use('/:package{/*splat}', function(req, res, next){
+// precheck if package/universe exists and set caching
+app.use('/:package', function(req, res, next){
   const pkg = req.params.package;
   const tabs = ["builds", "packages", "badges", "apis", "datasets", "contributors", "articles"];
   if(pkg == '_global'){
@@ -71,6 +71,9 @@ app.use('/:package{/*splat}', function(req, res, next){
         res.status(304).send();
         return; //no next
       }
+    } else {
+      //TODO: deal with non existing universe/pkg
+      //Move some logic from mongo_package_info() to here
     }
     next();
   });
