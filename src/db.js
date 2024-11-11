@@ -21,7 +21,7 @@ function mongo_col(){
 function mongo_latest(q){
   if(!col || !col.find)
     throw new Error("No mongodb connection available.");
-  return col.findOne(q, {sort:{_id: -1}, project: {_id: 1, _published: 1}});
+  return col.findOne(q, {sort:{_id: -1}, project: {_id: 1, _published: 1, _user: 1, Package: 1}});
 }
 
 function mongo_find(q){
@@ -118,29 +118,12 @@ function build_projection(fields){
 
 function mongo_package_info(pkg, universe){
   return mongo_find({_user: universe, Package: pkg, _registered: true}).toArray().then(function(docs){
-    if(docs.length){
-      var pkgdata = group_package_data(docs);
-      if(pkgdata._type === 'failure')
-        throw createError(404, `Package ${pkg} failed to build: ${pkgdata._buildurl}`)
-      return pkgdata;
-    } else {
-      // Try to find case insensitive or other universes
-      var altquery = {
-        _type: 'src',
-        _nocasepkg: pkg.toLowerCase(),
-        _universes: universe,
-        _registered: true
-      }
-      return mongo_find(altquery).next().then(function(alt){
-        if(alt){
-          throw createError(301, `Package has moved...`, {headers : {
-            location: `https://${alt._user}.r-universe.dev/${alt.Package}`
-          }});
-        } else {
-          throw createError(404, `Package ${pkg} not found in ${universe}`)
-        }
-      });
-    }
+    if(!docs.length) //should never happen because we checked earlier
+      throw createError(404, `Package ${pkg} not found in ${universe}`); 
+    var pkgdata = group_package_data(docs);
+    if(pkgdata._type === 'failure')
+      throw createError(404, `Package ${pkg} failed to build: ${pkgdata._buildurl}`)
+    return pkgdata;
   });
 }
 
@@ -364,7 +347,7 @@ export function get_package_info(pkg, universe){
   } else {
     console.warn(`Fetching ${pkg} info from API...`)
     if(universe){
-      return get_json(`https:${universe}.r-universe.dev/api/packages/${pkg}`);
+      return get_json(`https://${universe}.r-universe.dev/api/packages/${pkg}`);
     } else {
       return get_json(`https://cran.dev/${pkg}/json`);
     }

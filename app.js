@@ -7,7 +7,8 @@ import universeRouter from './routes/universe.js';
 import pkginfoRouter from './routes/pkginfo.js';
 import {get_latest} from './src/db.js';
 
-var app = express();
+const production = process.env.NODE_ENV == 'production';
+const app = express();
 
 // view engine setup
 app.set('views', 'views');
@@ -45,16 +46,22 @@ app.use(function(req, res, next){
   next();
 });
 
-// precheck if package/universe exists and set caching
+// check if package/universe exists and handle caching values
 app.use('/:package', function(req, res, next){
+  if(!production){
+    res.set('Cache-Control', 'no-cache');
+    return next();
+  }
+  const universe = res.locals.universe;
   const pkg = req.params.package;
   const tabs = ["builds", "packages", "badges", "apis", "datasets", "contributors", "articles"];
+  const metapage = tabs.includes(pkg);
   if(pkg == '_global'){
     var query = {};
-  } else if (tabs.includes(pkg)){
-    var query = {_universes: res.locals.universe}
+  } else if (metapage){
+    var query = {_universes: universe};
   } else {
-    var query = {_user: res.locals.universe, Package: pkg}
+    var query = {_user: universe, Package: pkg, _registered: true}; //remotes dont have webpage
   }
   return get_latest(query).then(function(doc){
     if(doc){
@@ -67,15 +74,22 @@ app.use('/:package', function(req, res, next){
       //do not set 'must-revalidate' as this will disallow using stale cache when server is offline.
       res.set('Cache-Control', 'public, max-age=60');
       if(etag === req.header('If-None-Match') || date === req.header('If-Modified-Since')){
-        //todo: also invalidate for updates in frontend itself
+        //todo: also invalidate for updates in frontend itself?
         res.status(304).send();
-        return; //no next
+      } else {
+        next(); //proceed to routing
       }
+    } else if(metapage) {
+      throw createError(404, `Universe not found: ${universe}`);
     } else {
-      //TODO: deal with non existing universe/pkg
-      //Move some logic from mongo_package_info() to here
-    }
-    next();
+      // Try to find case insensitive or in other universe
+      var altquery = {_type: 'src', _nocasepkg: pkg.toLowerCase(), _universes: universe, _registered: true};
+      return get_latest(altquery).then(function(alt){
+        if(!alt)
+          throw createError(404, `Package ${pkg} not found in ${universe}`);
+        res.redirect(`https://${alt._user}.r-universe.dev/${alt.Package}`);
+      });
+    };
   });
 });
 
