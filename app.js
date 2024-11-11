@@ -90,7 +90,6 @@ app.use(function(req, res, next) {
 
 // global error handler
 app.use(function(err, req, res, next) {
-  res.locals.message = err.message;
   res.locals.error = err;
   res.locals.mode = req.app.get('env')
 
