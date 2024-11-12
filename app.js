@@ -64,6 +64,8 @@ app.use('/:package', function(req, res, next){
     var query = {_user: universe, Package: pkg, _registered: true}; //remotes dont have webpage
   }
   return get_latest(query).then(function(doc){
+    //also cache 404 errors below
+    res.set('Cache-Control', 'public, max-age=60');
     if(doc){
       const etag = `W/"${doc._id}"`;
       const date = doc._published.toUTCString();
@@ -72,7 +74,6 @@ app.use('/:package', function(req, res, next){
       //clients may cache front-end pages for 60s before revalidating.
       //revalidation can either be done by comparing Etag or Last-Modified.
       //do not set 'must-revalidate' as this will disallow using stale cache when server is offline.
-      res.set('Cache-Control', 'public, max-age=60');
       if(etag === req.header('If-None-Match') || date === req.header('If-Modified-Since')){
         //todo: also invalidate for updates in frontend itself?
         res.status(304).send();
