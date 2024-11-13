@@ -88,7 +88,7 @@ app.use('/:package', function(req, res, next){
       return get_latest(altquery).then(function(alt){
         if(!alt)
           throw createError(404, `Package ${pkg} not found in ${universe}`);
-        res.redirect(`https://${alt._user}.r-universe.dev/${alt.Package}`);
+        res.redirect(`https://${alt._user}.r-universe.dev/${alt.Package}${req.path.replace(/\/$/, '')}`);
       });
     };
   });
