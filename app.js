@@ -67,13 +67,12 @@ app.use('/:package', function(req, res, next){
     var cdn_cache = 30;
   }
   return get_latest(query).then(function(doc){
-    //also cache 404 errors below
-    res.set('Cache-Control', 'public, max-age=60');
-
     //Using 'CDN-Cache-Control' would make nginx also do this and we'd need to refresh twice?
+    //Switch back when fixed in cloudflare: https://community.cloudflare.com/t/support-for-stale-while-revalidate/496788/35
     //res.set('Cloudflare-CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
-    //Above currently does not work well, use nginx for now: https://community.cloudflare.com/t/support-for-stale-while-revalidate/496788/35
-    res.set('CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
+    //res.set('Cache-Control', 'public, max-age=60');
+    //also cache 404 errors below
+    res.set('Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
       const etag = `W/"${doc._id}"`;
