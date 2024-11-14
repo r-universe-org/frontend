@@ -71,7 +71,10 @@ app.use('/:package', function(req, res, next){
     res.set('Cache-Control', 'public, max-age=60');
 
     //Using 'CDN-Cache-Control' would make nginx also do this and we'd need to refresh twice?
-    res.set('Cloudflare-CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
+    //res.set('Cloudflare-CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
+    //Above currently does not work well, use nginx for now: https://community.cloudflare.com/t/support-for-stale-while-revalidate/496788/35
+    res.set('CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
+
     if(doc){
       const etag = `W/"${doc._id}"`;
       const date = doc._published.toUTCString();
