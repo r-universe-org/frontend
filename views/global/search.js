@@ -24,7 +24,15 @@ function get_url(url){
 }
 
 function get_json(url){
-  return get_url(url).then((res) => res.json());
+  return fetch(url).then(res => {
+    if(res.ok){
+      return res.json();
+    } else {
+      return res.text().then(function(txt){
+        throw new Error(txt);
+      });
+    }
+  });
 }
 
 function get_text(url){
@@ -185,15 +193,17 @@ function update_results(){
     } else {
       $('#search-results-comment').text(`Showing ${x.results.length} of total ${x.total} results\n`);
     }
-    var qlink = $('<a href="#"><small>(show query)</small></a>').appendTo('#search-results-comment');
+    var qlink = $('<a mx-1 href="#"><small>(show query)</small></a>').appendTo('#search-results-comment');
     qlink.click(function(e){
       e.preventDefault();
       $(this).hide();
-      $('#search-results-comment').append($("<code>").text(JSON.stringify(x.query)));
+      $('#search-results-comment').append($("<tt>").text(JSON.stringify(x.query)));
     });
     x.results.forEach(show_pkg_card);
     msnry = new Masonry('#search-results');
     msnry.layout();
+  }).catch(function(err){
+    $('#search-results-comment').empty().text(err.message);
   });
 };
 
