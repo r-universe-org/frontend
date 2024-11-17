@@ -18,9 +18,9 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static('static')); //TODO: remove?
+app.use(express.static('static', {maxAge: '1d'})); //TODO: remove?
 app.use('/_global/favicon.ico', express.static('static/favicon.ico'));
-app.use('/_global/static', express.static('static'));
+app.use('/_global/static', express.static('static', {maxAge: '1d'}));
 
 // remove trailing slashes
 app.use((req, res, next) => {
