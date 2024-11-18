@@ -268,7 +268,7 @@ function load_organizations(){
 }
 
 function load_summary_stats(){
-  get_json('https://r-universe.dev/stats/summary').then(function(stats){
+  get_json('https://r-universe.dev/stats/summary?all=true').then(function(stats){
     Object.keys(stats).forEach(key => $(`#summary-n-${key}`).text(stats[key]));
   });
 }
