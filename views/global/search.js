@@ -138,8 +138,8 @@ function show_pkg_card(pkg, i){
   if(pkg.stars){
     item.find('.description-stars').removeClass('d-none').append(` ${pkg.stars} stars`);
   }
-  if(pkg.rundeps){
-    item.find('.description-dependencies').removeClass('d-none').append(` ${pkg.rundeps.length} dependencies`);
+  if(pkg._searchresults){
+    item.find('.description-scripts').removeClass('d-none').append(` ${pkg._searchresults} scripts`);
   }
   if(pkg._usedby){
     item.find('.description-dependents').removeClass('d-none').append(` ${pkg._usedby} dependents`);
