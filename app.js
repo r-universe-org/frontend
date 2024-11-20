@@ -54,7 +54,8 @@ app.use('/:package', function(req, res, next){
   }
   const universe = res.locals.universe;
   const pkg = req.params.package;
-  const tabs = ["builds", "packages", "badges", "apis", "datasets", "contributors", "articles"];
+  const tabs = ["builds", "packages", "badges", "apis", "datasets", "contributors", "articles",
+    "robots.txt", "favicon.ico", "sitemap.xml", "sitemap_index.xml", "feed.xml", "index.xml"];
   const metapage = tabs.includes(pkg);
   if(pkg == '_global'){
     var query = {};
