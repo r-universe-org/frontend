@@ -327,7 +327,7 @@ function init_observer(){
       }
     }
   }, {rootMargin: "100px"});
-  window.msnry = new Masonry('#search-results');
+  window.msnry = new Masonry('#search-results', {transitionDuration: 0.2});
   window.observer = observer;
 }
 
