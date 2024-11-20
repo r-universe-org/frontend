@@ -150,9 +150,6 @@ function make_pkg_card(pkg, i){
   }
   item.appendTo('#search-results');
   var topics = pkg.topics || [];
-  if(pkg.sysdeps){
-    topics = topics.concat(pkg.sysdeps);
-  }
   if(topics && topics.length){
     var topicdiv = item.find('.description-topics').removeClass('d-none');
     if(typeof topics === 'string') topics = [topics]; //hack for auto-unbox bug
@@ -161,7 +158,7 @@ function make_pkg_card(pkg, i){
       var topicurl = `/search?q=${quotedtopic}`;
       $("<a>").attr("href", topicurl).addClass('badge badge-topic me-1').text(topic).appendTo(topicdiv).click(function(e){
         e.preventDefault();
-        search_for(topic);
+        search_for(quotedtopic);
       });
     });
   }
