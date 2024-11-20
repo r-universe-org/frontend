@@ -189,12 +189,26 @@ router.get("/articles/:package/:vignette", function(req, res, next){
   });
 });
 
-router.get('/favicon.ico', function(req, res, next) {
-  res.status(404).send("No favicon yet");
+router.get("/sitemap_index.xml", function(req, res, next){
+  var universe = res.locals.universe;
+  var fields = ['Package', '_user', '_registered'];
+  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+    pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
+    res.type('application/xml').render('sitemap', {
+      pkgdata: pkgdata
+    });
+  });
 });
 
-router.get('/ads.txt', function(req, res, next) {
-  res.status(404).send("No thanks");
+router.get("/feed.xml", function(req, res, next){
+  var universe = res.locals.universe;
+  var fields = ['Package', '_user', '_registered'];
+  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+    pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
+    res.type('application/xml').render('feed', {
+      pkgdata: pkgdata
+    });
+  });
 });
 
 router.get('/robots.txt', function(req, res, next) {
@@ -203,6 +217,14 @@ router.get('/robots.txt', function(req, res, next) {
 
 router.get('/sitemap{s}.*ext', function(req, res, next) {
   res.redirect(301, '/sitemap_index.xml')
+});
+
+router.get('/index.xml', function(req, res, next) {
+  res.redirect(301, '/feed.xml')
+});
+
+router.get('/ads.txt', function(req, res, next) {
+  res.status(404).send("No thanks");
 });
 
 export default router;
