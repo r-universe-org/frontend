@@ -95,11 +95,13 @@ html
               p.fs-6.float-end
                 a#github-user-github(href=`https://github.com/${_universe_name}` target='_blank' class=`${_universe_type !== 'user' ? 'd-none' : ''}`)
                   span.fa-brands.fa-github.fa-fw.me-1.text-dark.grow-on-over
-                a#github-user-mastodon.d-none(target='_blank')
+                a#github-user-mastodon.d-none(target='_blank' rel='nofollow me')
                   span.fa-brands.fa-mastodon.fa-fw.me-1.grow-on-over(style="color: #6364FF;")
-                a#github-user-twitter.d-none(target='_blank')
+                a#github-user-twitter.d-none(target='_blank' rel='nofollow me')
                   span.fa-brands.fa-square-x-twitter.fa-fw.me-1.grow-on-over
-                a#github-user-orcid.d-none(target='_blank')
+                a#github-user-bluesky.d-none(target='_blank' rel='nofollow me')
+                  span.fa-brands.fa-bluesky.fa-fw.me-1.grow-on-over
+                a#github-user-orcid.d-none(target='_blank' rel='nofollow me')
                   span.fa-brands.fa-orcid.fa-fw.me-1.text-success.grow-on-over
               .card-body
                 h5.card-title

@@ -130,13 +130,17 @@ function load_maintainer_list(){
     }
     x.sort(order).slice(0,25).forEach(function(maintainer){
       if(maintainer.login == universe && maintainer.orcid){
-        $("#github-user-orcid").toggleClass("d-none").attr('href', 'https://orcid.org/' + maintainer.orcid);
+        $("#github-user-orcid").removeClass("d-none").attr('href', 'https://orcid.org/' + maintainer.orcid);
       }
       if(maintainer.login == universe && maintainer.mastodon){
-        $("#github-user-mastodon").toggleClass("d-none").attr('href', maintainer.mastodon);
+        $("#github-user-mastodon").removeClass("d-none").attr('href', maintainer.mastodon);
+      }
+      if(maintainer.login == universe && maintainer.bluesky){
+        $("#github-user-bluesky").removeClass("d-none").attr('href', maintainer.bluesky);
+        $("#github-user-twitter").hide();
       }
       if(maintainer.login == universe && maintainer.emails && maintainer.emails.length){
-        $("#github-user-emails").toggleClass("d-none").find(".content").append(maintainer.emails.join("<br/>"));
+        $("#github-user-emails").removeClass("d-none").find(".content").append(maintainer.emails.join("<br/>"));
         $("#github-user-emails").tooltip({title: `Maintainer email address from package descriptions`});
       }
       if(maintainer.login == universe && maintainer.orgs){
