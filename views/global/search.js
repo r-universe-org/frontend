@@ -23,8 +23,8 @@ function get_url(url){
   });
 }
 
-function get_json(url){
-  return fetch(url).then(res => {
+function get_json(url, opts = {}){
+  return fetch(url, opts).then(res => {
     if(res.ok){
       return res.json();
     } else {
@@ -33,6 +33,14 @@ function get_json(url){
       });
     }
   });
+}
+
+// Cancel pending requests when we fire a new one
+var controller = new AbortController();
+function abort_and_get_json(url){
+  controller.abort();
+  controller = new AbortController();
+  return get_json(url, { signal: controller.signal });
 }
 
 function get_text(url){
@@ -191,7 +199,8 @@ function update_results(){
   $('#results-placeholder').hide();
   $('svg').hide('fast');
   $(window).scrollTop(0);
-  get_json('https://r-universe.dev/api/search?limit=200&all=true&q=' + q).then(function(x){
+  $('#search-results-comment').empty().text("Loading...");
+  abort_and_get_json('https://r-universe.dev/api/search?limit=200&all=true&q=' + q).then(function(x){
     if(!x.total){
       $('#search-results-comment').text(`No results for "${decodeURIComponent(q)}"`);
     } else {
@@ -205,7 +214,9 @@ function update_results(){
     });
     populate_search_results(x.results);
   }).catch(function(err){
-    $('#search-results-comment').empty().text(err.message);
+    if(err.name !== 'AbortError'){
+      $('#search-results-comment').empty().text(err.message);
+    }
   });
 };
 
