@@ -96,7 +96,7 @@ function load_github_user_info(){
       var blog = user.blog.startsWith("http") ? user.blog : "https://" + user.blog;
       $("#github-user-blog").toggleClass("d-none").find('.content').append(a(blog));
     }
-    if(user.twitter_username){
+    if(user.type === 'User' && user.twitter_username){
       $("#github-user-twitter").toggleClass("d-none").attr('href', 'https://twitter.com/' + user.twitter_username);
     }
     if(user.followers){
