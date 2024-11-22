@@ -92,7 +92,7 @@ html
             .sidebar-metadata(data-position="right" data-title='Owner information' data-intro='The sidebar shows information about the owner of this universe')
               a(href='/')
                 img#github-user-avatar.rounded.card-img-top.p-3(src=`https://r-universe.dev/avatars/${universe}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
-              p.fs-6.float-end
+              p.fs-6.float-end.mb-0(style="margin-top: -10px;")
                 a#github-user-github(href=`https://github.com/${_universe_name}` target='_blank' class=`${_universe_type !== 'user' ? 'd-none' : ''}`)
                   span.fa-brands.fa-github.fa-fw.me-1.text-dark.grow-on-over
                 a#github-user-mastodon.d-none(target='_blank' rel='nofollow me')
