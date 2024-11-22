@@ -1,6 +1,32 @@
 doctype xml
 rss(version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:r="https://r-universe.dev")
   channel
-    title WIP
+    title #{universe}.r-universe.dev
+    link https://#{universe}.r-universe.dev
+    description Recent package updates in #{universe}
+    generator R-universe
+    image
+      url https://github.com/#{universe}.png
+      title R packages by #{universe}
+      link https://#{universe}.r-universe.dev
+    lastBuildDate #{convert_date(pkgdata[0]._commit.time)}
     each x in pkgdata
-      item WIP #{x.Package}
+      item
+        title [#{x._user}] #{x.Package} #{x.Version}
+        author #{x._maintainer.email} (#{x._maintainer.name})
+        description #{x.Description}
+        link #{x._buildurl}
+        pubDate #{convert_date(x._commit.time)}
+        r:package #{x.Package}
+        r:version #{x.Version}
+        r:status #{x._status}
+        r:repository https://#{x._user}.r-universe.dev
+        r:upstream #{x._upstream}
+        if x._vignettes
+          each article in x._vignettes
+            r:article
+              r:source #{article.source}
+              r:filename #{article.filename}
+              r:title #{article.title}
+              r:created #{article.created}
+              r:modified #{article.modified}

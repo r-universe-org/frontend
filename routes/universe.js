@@ -6,6 +6,10 @@ function sort_by_package(x,y){
   return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
 }
 
+function sort_by_date(x,y){
+  return x.updated < y.updated ? -1 : 1
+}
+
 function sort_by_score(x,y){
   return x._score > y._score ? -1 : 1
 }
@@ -28,6 +32,13 @@ function format_yymmdd(x){
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+function convert_date(timestamp){
+  if(!timestamp) return;
+  const date = new Date(parseInt(timestamp)*1000);
+  if(!date) return;
+  return date.toUTCString();
 }
 
 function parse_date(x){
@@ -202,12 +213,18 @@ router.get("/sitemap_index.xml", function(req, res, next){
 
 router.get("/feed.xml", function(req, res, next){
   var universe = res.locals.universe;
-  var fields = ['Package', '_user', '_registered'];
+  var fields = ['Package', 'Version', 'Description', '_user', '_maintainer',
+    '_status', '_upstream', '_buildurl', '_vignettes', '_commit.time', '_registered'];
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
-    pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
-    res.type('application/xml').render('feed', {
-      pkgdata: pkgdata
-    });
+    pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_date);
+    if(pkgdata.length == 0){
+      return res.status(404).send("no packages found for this user;");
+    } else {
+      res.type('application/xml').render('feed', {
+        convert_date: convert_date,
+        pkgdata: pkgdata
+      });
+    }
   });
 });
 
