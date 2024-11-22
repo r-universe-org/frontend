@@ -132,6 +132,9 @@ function load_maintainer_list(){
       if(maintainer.login == universe && maintainer.orcid){
         $("#github-user-orcid").removeClass("d-none").attr('href', 'https://orcid.org/' + maintainer.orcid);
       }
+      if(maintainer.login == universe && maintainer.linkedin){
+        $("#github-user-linkedin").removeClass("d-none").attr('href', maintainer.linkedin.replace(/^in/, "https://www.linkedin.com/in"));
+      }
       if(maintainer.login == universe && maintainer.mastodon){
         $("#github-user-mastodon").removeClass("d-none").attr('href', maintainer.mastodon);
       }

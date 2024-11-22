@@ -205,7 +205,7 @@ router.get("/sitemap_index.xml", function(req, res, next){
   var fields = ['Package', '_user', '_registered'];
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
-    res.type('application/xml').render('sitemap', {
+    res.type('application/xml').render('sitemap-index', {
       pkgdata: pkgdata
     });
   });

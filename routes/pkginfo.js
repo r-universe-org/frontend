@@ -213,9 +213,6 @@ function description_to_html(txt = ""){
 }
 
 router.get('/:package', function(req, res, next) {
-  if(req.params.package.startsWith("_")){
-    return next();
-  }
   return get_package_info(req.params.package, req.universe).then(function(pkgdata){
     pkgdata.format_count = format_count;
     pkgdata.universe = pkgdata._user;
@@ -243,4 +240,9 @@ router.get('/:package', function(req, res, next) {
   });
 });
 
+router.get('/:package/sitemap.xml', function(req, res, next) {
+  return get_package_info(req.params.package, req.universe).then(function(pkgdata){
+    res.type('application/xml').render('sitemap', pkgdata);
+  });
+});
 export default router;
