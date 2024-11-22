@@ -206,7 +206,7 @@ router.get("/sitemap_index.xml", function(req, res, next){
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
     res.type('application/xml').render('sitemap-index', {
-      pkgdata: pkgdata
+      pkgdata: pkgdata.map(x => ({universe: x._user, package: x.Package}))
     });
   });
 });

@@ -159,4 +159,12 @@ router.get("/welcome", function(req, res, next){
   res.render('global/welcome');
 });
 
+router.get("/sitemap_index.xml", function(req, res, next){
+  return get_scores().then(function(packages){
+    res.type('application/xml').render('sitemap-index', {
+      pkgdata: packages
+    });
+  });
+});
+
 export default router;
