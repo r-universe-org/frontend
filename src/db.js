@@ -129,9 +129,6 @@ function mongo_package_info(pkg, universe){
 
 function mongo_universe_packages(user, fields, limit){
   var query = {'_universes': user};
-  if(user == 'cran'){
-    query['_commit.time'] = {'$gt': days_ago(7)};
-  }
   var projection = build_projection(fields);
   var cursor = mongo_aggregate([
     {$match: query},
@@ -154,11 +151,9 @@ function mongo_universe_packages(user, fields, limit){
 }
 
 function mongo_universe_vignettes(user){
-  var limit = 200;
   var cursor = mongo_aggregate([
     {$match: {_universes: user, _type: 'src', '_vignettes' : {$exists: true}}},
     {$sort : {'_commit.time' : -1}},
-    {$limit : limit},
     {$project: {
       _id: 0,
       user: '$_user',
