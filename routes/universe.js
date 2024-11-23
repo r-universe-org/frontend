@@ -147,7 +147,7 @@ router.get("/badges", function(req, res, next){
 
 router.get("/apis", function(req, res, next){
   var fields = ['_datasets', '_registered'];
-  return get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
+  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('apis', {
       pkgdata: pkgdata.filter(x => x._registered).sort(sort_by_package)
     });
@@ -156,7 +156,7 @@ router.get("/apis", function(req, res, next){
 
 router.get("/datasets", function(req, res, next){
   var fields = ['_datasets', '_registered'];
-  return get_universe_packages(res.locals.universe, fields, true).then(function(pkgdata){
+  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('datasets', {
       pkgdata: pkgdata.filter(x => x._registered).sort(sort_by_package)
     });
@@ -213,10 +213,11 @@ router.get("/sitemap_index.xml", function(req, res, next){
 
 router.get("/feed.xml", function(req, res, next){
   var universe = res.locals.universe;
+  var limit = parseInt(req.query.limit) || 50;
   var fields = ['Package', 'Version', 'Description', '_user', '_maintainer',
     '_status', '_upstream', '_buildurl', '_vignettes', '_commit.time', '_registered'];
-  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
-    pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_date);
+  return get_universe_packages(res.locals.universe, fields, limit).then(function(pkgdata){
+    pkgdata = pkgdata.filter(x => x._registered && x._type == 'src').sort(sort_by_date);
     if(pkgdata.length == 0){
       return res.status(404).send("no packages found for this user;");
     } else {

@@ -127,8 +127,8 @@ function mongo_package_info(pkg, universe){
   });
 }
 
-function mongo_universe_packages(user, fields, all){
-  var query = all ? {'_universes': user} : {'_user': user};
+function mongo_universe_packages(user, fields, limit){
+  var query = {'_universes': user};
   if(user == ":any" || user == 'cran'){
     query['_commit.time'] = {'$gt': days_ago(7)};
   }
@@ -144,7 +144,7 @@ function mongo_universe_packages(user, fields, all){
     }},
     {$match: {'$or' : [{indexed: true}, {'_id.user': user}]}},
     {$sort : {timestamp : -1}},
-    {$limit : 2500}
+    {$limit : limit}
   ]);
   return cursor.toArray().then(function(pkglist){
     if(!pkglist.length)
@@ -363,12 +363,12 @@ export function get_universe_vignettes(universe){
   }
 }
 
-export function get_universe_packages(universe, fields, all = true){
+export function get_universe_packages(universe, fields, limit = 2500){
   if(production){
-    return mongo_universe_packages(universe, fields, all)
+    return mongo_universe_packages(universe, fields, limit)
   } else {
     console.warn(`Fetching ${universe} packages from API...`)
-    var apiurl = `https://${universe}.r-universe.dev/api/packages?stream=1&fields=${fields.join()}&limit=2500${all ? '&all=true' : ''}`;
+    var apiurl = `https://${universe}.r-universe.dev/api/packages?stream=1&all=true&limit=${limit}&fields=${fields.join()}`;
     return get_ndjson(apiurl)
   }
 }
