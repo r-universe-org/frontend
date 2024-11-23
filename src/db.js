@@ -127,9 +127,14 @@ function mongo_package_info(pkg, universe){
   });
 }
 
+//TODO: this is heavy because we also query all binaries which we dont use currently
 function mongo_universe_packages(user, fields, limit){
   var query = {'_universes': user};
   var projection = build_projection(fields);
+  var postmatch = {'$or': [{indexed: true}, {'_id.user': user}]};
+  if(user == 'cran'){
+    postmatch = {indexed: true}; //only list indexed cran packages
+  }
   var cursor = mongo_aggregate([
     {$match: query},
     {$project: projection},
@@ -139,7 +144,7 @@ function mongo_universe_packages(user, fields, limit){
       timestamp: { $max : "$_commit.time" },
       files: { '$push': '$$ROOT' }
     }},
-    {$match: {'$or' : [{indexed: true}, {'_id.user': user}]}},
+    {$match: postmatch},
     {$sort : {timestamp : -1}},
     {$limit : limit}
   ]);
@@ -151,8 +156,12 @@ function mongo_universe_packages(user, fields, limit){
 }
 
 function mongo_universe_vignettes(user){
+  var query = {_universes: user, _type: 'src', '_vignettes' : {$exists: true}};
+  if(user == 'cran'){
+    query['_indexed'] = true;
+  }
   var cursor = mongo_aggregate([
-    {$match: {_universes: user, _type: 'src', '_vignettes' : {$exists: true}}},
+    {$match: query},
     {$sort : {'_commit.time' : -1}},
     {$project: {
       _id: 0,
@@ -358,7 +367,7 @@ export function get_universe_vignettes(universe){
   }
 }
 
-export function get_universe_packages(universe, fields, limit = 2500){
+export function get_universe_packages(universe, fields, limit = 5000){
   if(production){
     return mongo_universe_packages(universe, fields, limit)
   } else {
