@@ -167,4 +167,8 @@ router.get("/sitemap_index.xml", function(req, res, next){
   });
 });
 
+router.get('/sitemap{s}.*ext', function(req, res, next) {
+  res.redirect(301, '/sitemap_index.xml')
+});
+
 export default router;
