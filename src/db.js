@@ -129,7 +129,7 @@ function mongo_package_info(pkg, universe){
 
 function mongo_universe_packages(user, fields, limit){
   var query = {'_universes': user};
-  if(user == ":any" || user == 'cran'){
+  if(user == 'cran'){
     query['_commit.time'] = {'$gt': days_ago(7)};
   }
   var projection = build_projection(fields);

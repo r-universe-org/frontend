@@ -171,4 +171,9 @@ router.get('/sitemap{s}.*ext', function(req, res, next) {
   res.redirect(301, '/sitemap_index.xml')
 });
 
+router.get(["/index.xml", "/feed.xml"], function(req, res, next){
+  res.status(404).send("Global feeds are no longer supported");
+});
+
+
 export default router;
