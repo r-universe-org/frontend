@@ -242,7 +242,37 @@ router.get('/:package', function(req, res, next) {
 
 router.get('/:package/sitemap.xml', function(req, res, next) {
   return get_package_info(req.params.package, req.universe).then(function(pkgdata){
-    res.type('application/xml').render('sitemap', pkgdata);
+    const pkg = pkgdata.Package;
+    const assets = pkgdata._assets || [];
+    const vignettes = pkgdata._vignettes || [];
+    const baseurl = `https://${pkgdata._user}.r-universe.dev`;
+    const pkgurl = `https://${pkgdata._user}.r-universe.dev/${pkg}`;
+    var urls = [
+      `${pkgurl}`,
+      `${baseurl}/api/packages/${pkg}`,
+      `${pkgurl}/${pkg}.pdf`,
+      `${pkgurl}/doc/manual.html`
+    ];
+    if(assets.includes('extra/NEWS.html')){
+      urls.push(`${pkgurl}/NEWS`);
+    }
+    if(assets.includes('extra/NEWS.txt')){
+      urls.push(`${pkgurl}/NEWS.txt`);
+    }
+    if(assets.includes('extra/citation.html')){
+      urls.push(`${pkgurl}/citation`);
+    }
+    if(assets.includes('extra/citation.txt')){
+      urls.push(`${pkgurl}/citation.txt`);
+    }
+    if(assets.includes('extra/citation.cff')){
+      urls.push(`${pkgurl}/citation.cff`);
+    }
+    vignettes.map(function(vignette){
+      urls.push(`${pkgurl}/doc/${vignette.source}`);
+      urls.push(`${baseurl}/articles/${pkg}/${vignette.filename}`)
+    });
+    res.type('application/xml').render('sitemap', {urls: urls});
   });
 });
 export default router;
