@@ -56,6 +56,18 @@ function restore_from_query(e){
   search_for(decodeURIComponent(get_query()))
 }
 
+function format_count(count){
+  if(count > 1000000) {
+    var val = count/1000000;
+    return val.toFixed(val < 10 ? 1 : 0) + 'M';
+  }
+  if(count > 1000) {
+    var val = count / 1000;
+    return val.toFixed(val < 10 ? 1 : 0) + 'k';
+  }
+  return count;
+}
+
 function build_search_fields(){
   var searchdiv = $("#extra-search-fields");
   for (const field in searchfields) {
@@ -144,13 +156,13 @@ function make_pkg_card(pkg, i){
     item.find('.description-last-updated').text(`Last updated ${pretty_time_diff(pkg.updated)}.`);
   }
   if(pkg.stars){
-    item.find('.description-stars').removeClass('d-none').append(` ${pkg.stars} stars`);
+    item.find('.description-stars').removeClass('d-none').append(` ${format_count(pkg.stars)} stars`);
   }
   if(pkg._searchresults){
-    item.find('.description-scripts').removeClass('d-none').append(` ${pkg._searchresults} scripts`);
+    item.find('.description-scripts').removeClass('d-none').append(` ${format_count(pkg._searchresults)} scripts`);
   }
   if(pkg._usedby){
-    item.find('.description-dependents').removeClass('d-none').append(` ${pkg._usedby} dependents`);
+    item.find('.description-dependents').removeClass('d-none').append(` ${format_count(pkg._usedby)} dependents`);
   }
   item.find('.description-pkgscore').removeClass('d-none').append(` ${pkg._score.toFixed(2)} score`);
   if(pkg.match){
