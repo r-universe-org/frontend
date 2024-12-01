@@ -147,6 +147,11 @@ block content
           u
             a.ms-1.card-text.text-dark(target='_blank' href=_bugtracker) #{_bugtracker}
           span.open-issues-count.badge.text-bg-warning.ms-1
+      if _pkgdown
+        p.mb-2.package-details-pkgdown
+          | Pkgdown:
+          u
+            a.ms-1.card-text.text-dark(target='_blank' href=_pkgdown) https://#{url.parse(_pkgdown).hostname}
       if _sysdeps
         .system-library-row(data-title="System libraries" data-intro="External C/C++/Fortran system libraries that this package links to. On Linux you may need to install these separately.")
           span.float-start Uses libs:

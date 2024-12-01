@@ -1,4 +1,5 @@
 import express from 'express';
+import url from 'node:url';
 import {get_package_info} from '../src/db.js';
 const router = express.Router();
 
@@ -214,6 +215,7 @@ function description_to_html(txt = ""){
 
 router.get('/:package', function(req, res, next) {
   return get_package_info(req.params.package, req.universe).then(function(pkgdata){
+    pkgdata.url = url;
     pkgdata.format_count = format_count;
     pkgdata.universe = pkgdata._user;
     pkgdata.avatar_url = avatar_url;
