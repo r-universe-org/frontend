@@ -1,11 +1,12 @@
-.alert.alert-warning(role="alert")
-  if _indexurl
-    i.pe-1.fa-solid.fa-triangle-exclamation
-    | This package is considered a duplicate. The official version of this package is found at:
-    a.alert-link.ps-1(href=_indexurl) #{_indexurl}
-  else
-    | This package is hidden from search results because it is not hosted in the universe of the upstream owner
-    code.ps-1 #{_owner}
-    | . See also the
-    a.alert-link.ps-1(href='https://docs.r-universe.dev/browse/search.html#deduplication') R-universe documentation
-    | .
+if _indexed === false && _user !== 'r-multiverse' && _user !== 'r-multiverse-staging'
+  .alert.alert-warning(role="alert")
+    if _indexurl
+      i.pe-1.fa-solid.fa-triangle-exclamation
+      | This package is considered a duplicate. The official version of this package is found at:
+      a.alert-link.ps-1(href=_indexurl) #{_indexurl}
+    else
+      | This package is hidden from search results because it is not hosted in the universe of the upstream owner
+      code.ps-1 #{_owner}
+      | . See also the
+      a.alert-link.ps-1(href='https://docs.r-universe.dev/browse/search.html#deduplication') R-universe documentation
+      | .

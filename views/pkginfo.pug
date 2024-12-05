@@ -1,8 +1,7 @@
 extends layout
 
 block content
-  if _indexed === false
-    include includes/dupe-alert.pug
+  include includes/dupe-alert.pug
 
   .row.card.details-card(data-position="left" data-scroll-to="tooltip" data-title="Package overview" data-intro="Here we find all information and content from this package...")
     h1.h5.card-header.text-center Package: #{Package} #{Version}
