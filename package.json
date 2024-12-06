@@ -8,7 +8,7 @@
   "dependencies": {
     "express": "^5.0.1",
     "http-errors": "*",
-    "mongodb": "^6.10.0",
+    "mongodb": "^6.11.0",
     "morgan": "^1.10.0",
     "pug": "^3.0.2"
   }
