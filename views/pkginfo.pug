@@ -223,7 +223,7 @@ block content
           span.mx-1.package-details-updated Last updated #{_lastupdate}
           | from:
           a.ms-1.package-details-sha.link-underline-dark.fw-bold(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id.substring(0,10)}
-          if RemoteRef && RemoteRef !== "HEAD"
+          if RemoteRef && RemoteRef !== "HEAD" && !RemoteRef.match(/^[a-f0-9]{40}/i)
             span.package-details-remoteref  (on
               a(target='_blank' href=`${_upstream}/tree/${RemoteRef}`)  #{RemoteRef}
               | )
