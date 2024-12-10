@@ -219,19 +219,22 @@ router.get("/feed.xml", function(req, res, next){
     '_status', '_upstream', '_buildurl', '_vignettes', '_commit.time', '_registered'];
   return get_universe_packages(res.locals.universe, fields, limit).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered && x._type == 'src').sort(sort_by_date);
-    if(pkgdata.length == 0){
-      return res.status(404).send("no packages found for this user;");
-    } else {
-      res.type('application/xml').render('feed', {
-        convert_date: convert_date,
-        pkgdata: pkgdata
-      });
-    }
+    res.type('application/xml').render('feed', {
+      convert_date: convert_date,
+      pkgdata: pkgdata
+    });
   });
 });
 
 router.get('/robots.txt', function(req, res, next) {
-  res.type('text/plain').send(`Sitemap: https://${res.locals.universe}.r-universe.dev/sitemap_index.xml\n`);
+  return get_universe_packages(res.locals.universe, ['Package', '_datasets']).then(function(pkgdata){
+    pkgdata = pkgdata.filter(x => x._datasets);
+    var str = pkgdata.map(x => `Disallow: /${x.Package}/data/`);
+    str.unshift('User-agent: *');
+    str.push("");
+    str.push(`Sitemap: https://${res.locals.universe}.r-universe.dev/sitemap_index.xml`);
+    res.type('text/plain').send(str.join('\n'));
+  });
 });
 
 router.get('/sitemap{s}.*ext', function(req, res, next) {
