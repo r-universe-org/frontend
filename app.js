@@ -5,10 +5,14 @@ import logger from 'morgan';
 import globalRouter from './routes/global.js';
 import universeRouter from './routes/universe.js';
 import pkginfoRouter from './routes/pkginfo.js';
+import pkgdataRouter from './routes/pkgdata.js';
 import {get_latest} from './src/db.js';
 
 const production = process.env.NODE_ENV == 'production';
 const app = express();
+
+// Prettify all JSON responses
+app.set('json spaces', 2);
 
 // view engine setup
 app.set('views', 'views');
@@ -106,6 +110,7 @@ app.use('/:package', function(req, res, next){
 app.use('/_global/', globalRouter);
 app.use('/', universeRouter);
 app.use('/', pkginfoRouter);
+app.use('/', pkgdataRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -120,6 +125,7 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.header(err.headers);
+  res.type('text/html');
   res.render('error');
 });
 

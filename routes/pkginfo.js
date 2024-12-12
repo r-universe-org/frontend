@@ -280,4 +280,19 @@ router.get('/:package/sitemap.xml', function(req, res, next) {
     res.type('application/xml').render('sitemap', {urls: urls});
   });
 });
+
+router.get("/:package/json", function(req, res, next) {
+  res.redirect(301, `/api/packages/${req.params.package}`);
+});
+
+router.get('/:package/buildlog', function(req, res, next) {
+  return get_package_info(req.params.package, req.universe).then(function(x){
+    if(x.failure && x.failure.buildurl){
+      res.redirect(x.failure.buildurl);
+    } else {
+      res.redirect(x._buildurl);
+    }
+  });
+});
+
 export default router;
