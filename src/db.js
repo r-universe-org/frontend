@@ -1,4 +1,5 @@
 import {MongoClient, GridFSBucket} from 'mongodb';
+import {Readable} from  "node:stream";
 import createError from 'http-errors';
 
 const HOST = process.env.CRANLIKE_MONGODB_SERVER || '127.0.0.1';
@@ -388,11 +389,11 @@ export function get_package_stream(pkg, universe){
   if(production){
     return mongo_package_stream(pkg, universe);
   } else {
-    //TODO: fetch() from cdn instead
-    return Promise.resolve();
+    return get_package_info(pkg, universe).then(function(x){
+      return get_url(`https://cdn.r-universe.dev/${x._fileid}`).then(res => Readable.fromWeb(res.body));
+    });
   }
 }
-
 
 export function get_universe_vignettes(universe){
   if(production){
