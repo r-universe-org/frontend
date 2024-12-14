@@ -2,7 +2,7 @@ import express from 'express';
 import url from 'node:url';
 import createError from 'http-errors';
 import {list_package_files, get_package_stream} from '../src/db.js';
-import {extract_files_from_stream, index_files_from_stream, guess_type, cheerio_hljs, cheerio_page} from '../src/tools.js';
+import {extract_files_from_stream, index_files_from_stream, normalize_filename, cheerio_hljs, cheerio_page} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -20,10 +20,7 @@ function get_package_file(pkg, universe, filename){
 
 function send_package_file(req, res, filename, content_type){
   return get_package_file(req.params.package, req.universe, filename).then(function(buf){
-    if(!content_type)
-      content_type = guess_type(filename);
-    if(content_type)
-      res.type(content_type);
+    res.type(content_type || normalize_filename(filename));
     return res.send(buf);
   });
 }

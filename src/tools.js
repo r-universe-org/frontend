@@ -1,9 +1,9 @@
 import {Buffer} from "node:buffer";
 import tar from 'tar-stream';
 import gunzip from 'gunzip-maybe';
-import mime from 'mime';
 import {load as cheerio_load} from 'cheerio';
 import hljs from 'highlight.js';
+import path from 'node:path';
 
 export function stream2buffer(stream) {
   return new Promise((resolve, reject) => {
@@ -75,12 +75,8 @@ export function index_files_from_stream(input){
   });
 }
 
-export function guess_type(filename){
-  var contenttype = mime.getType(filename);
-  if(contenttype == 'text/plain' || filename.endsWith('.cff') || filename.endsWith('.Rmd')){
-    contenttype = 'text/plain; charset=utf-8';
-  }
-  return contenttype;
+export function normalize_filename(filename){
+  return path.basename(filename).replace(/\.(R|Rmd|Rnw|cff)$/, '.txt');
 }
 
 export function cheerio_hljs(html, pkgname, universe){
