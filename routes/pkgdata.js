@@ -1,8 +1,9 @@
-import express from 'express';
 import url from 'node:url';
+import path from 'node:path';
+import express from 'express';
 import createError from 'http-errors';
 import {list_package_files, get_package_stream} from '../src/db.js';
-import {extract_files_from_stream, index_files_from_stream, normalize_filename, cheerio_hljs, cheerio_page} from '../src/tools.js';
+import {extract_files_from_stream, index_files_from_stream, cheerio_hljs, cheerio_page} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ function get_package_file(pkg, universe, filename){
 
 function send_package_file(req, res, filename, content_type){
   return get_package_file(req.params.package, req.universe, filename).then(function(buf){
-    res.type(content_type || normalize_filename(filename));
+    res.type(content_type || normalize_filetype(filename));
     return res.send(buf);
   });
 }
@@ -44,6 +45,10 @@ function normalize_doc_path(file, pkgname){
     default:
       return `inst/doc/${file}`;
   }
+}
+
+function normalize_filetype(filename){
+  return path.basename(filename).replace(/\.(R|Rmd|Rnw|cff)$/, '.txt');
 }
 
 router.get('/:package/files', function(req, res, next) {
