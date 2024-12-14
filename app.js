@@ -3,9 +3,11 @@ import createError from 'http-errors';
 import express from 'express';
 import logger from 'morgan';
 import globalRouter from './routes/global.js';
+import apiRouter from './routes/api.js';
 import universeRouter from './routes/universe.js';
 import pkginfoRouter from './routes/pkginfo.js';
 import pkgdataRouter from './routes/pkgdata.js';
+
 import {get_latest} from './src/db.js';
 
 const production = process.env.NODE_ENV == 'production';
@@ -58,9 +60,10 @@ app.use('/:package', function(req, res, next){
   }
   const universe = res.locals.universe;
   const pkg = req.params.package;
-  const tabs = ["builds", "packages", "badges", "apis", "datasets", "contributors", "articles",
-    "robots.txt", "favicon.ico", "sitemap.xml", "sitemap_index.xml", "feed.xml", "index.xml"];
-  const metapage = tabs.includes(pkg);
+  const reserved = ["api","apis","articles","badges","bin","builds","citation","contributors","datasets","docs",
+    "favicon.ico","feed.xml","index.xml","manual","packages","readme","robots.txt","sitemap_index.xml",
+    "sitemap.xml","src","stats"] ;
+  const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};
     var cdn_cache = 3600;
@@ -108,6 +111,7 @@ app.use('/:package', function(req, res, next){
 });
 
 app.use('/_global/', globalRouter);
+app.use('/', apiRouter);
 app.use('/', universeRouter);
 app.use('/', pkginfoRouter);
 app.use('/', pkgdataRouter);

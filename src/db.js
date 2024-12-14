@@ -37,6 +37,15 @@ function mongo_aggregate(q){
   return packages.aggregate(q);
 }
 
+function mongo_ls_packages(universe){
+  if(!packages || !packages.aggregate)
+    throw new Error("No mongodb connection available.");
+  let query = {_type: 'src'};
+  if(universe != '_global')
+    query._user = universe;
+  return packages.distinct('Package', query);
+}
+
 function group_package_data(docs){
   var src = docs.find(x => x['_type'] == 'src');
   var failure = docs.find(x => x['_type'] == 'failure');
@@ -482,5 +491,13 @@ export function get_latest(query){
     return mongo_latest(query);
   } else {
     return Promise.resolve();
+  }
+}
+
+export function ls_packages(universe){
+  if(production){
+    return mongo_ls_packages(universe);
+  } else {
+    return get_json(`https://${universe}.r-universe.dev/api/ls`);
   }
 }
