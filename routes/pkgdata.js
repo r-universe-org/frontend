@@ -22,7 +22,7 @@ function get_package_file(pkg, universe, filename){
 function send_package_file(req, res, filename, content_type){
   return get_package_file(req.params.package, req.universe, filename).then(function(buf){
     res.type(content_type || normalize_filetype(filename));
-    return res.send(buf);
+    return res.send(buf); //sets application/octet-stream of no type is set
   });
 }
 
