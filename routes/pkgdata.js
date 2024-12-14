@@ -48,7 +48,7 @@ function normalize_doc_path(file, pkgname){
 }
 
 function normalize_filetype(filename){
-  return path.basename(filename).replace(/\.(R|Rmd|Rnw|cff)$/, '.txt');
+  return path.basename(filename).replace(/\.(r|rmd|rnw|cff|tex|md|rtex|rhtml)$/i, '.txt');
 }
 
 router.get('/:package/files', function(req, res, next) {
