@@ -3,7 +3,6 @@ import tar from 'tar-stream';
 import gunzip from 'gunzip-maybe';
 import {load as cheerio_load} from 'cheerio';
 import hljs from 'highlight.js';
-import path from 'node:path';
 
 export function stream2buffer(stream) {
   return new Promise((resolve, reject) => {
@@ -73,10 +72,6 @@ export function index_files_from_stream(input){
       });
     input.on('error', reject).pipe(gunzip()).pipe(extract);
   });
-}
-
-export function normalize_filename(filename){
-  return path.basename(filename).replace(/\.(R|Rmd|Rnw|cff)$/, '.txt');
 }
 
 export function cheerio_hljs(html, pkgname, universe){
