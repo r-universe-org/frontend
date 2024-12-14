@@ -11,7 +11,6 @@
     "gunzip-maybe": "^1.4.2",
     "highlight.js": "^11.10.0",
     "http-errors": "*",
-    "mime": "^4.0.4",
     "mongodb": "^6.11.0",
     "morgan": "^1.10.0",
     "pug": "^3.0.3",
