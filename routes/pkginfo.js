@@ -151,7 +151,7 @@ function help_page_url(pkg, index, topic){
 function prepare_datasets(pkgdata){
   if(pkgdata._datasets){
     var lazydata = (pkgdata.LazyData || "").toLowerCase();
-    return pkgdata._datasets.map(function(x){
+    var output = pkgdata._datasets.map(function(x){
       x.help = help_page_url(pkgdata.Package, pkgdata._help, x.name);
       x.title = cleanup_desc(x.title);
       if(lazydata == 'yes' || lazydata == 'true' || (x.file && !x.file.match(/\.R$/i))){
@@ -161,6 +161,9 @@ function prepare_datasets(pkgdata){
       }
       return x;
     }).filter(x => x.help);
+    if(output.length){
+      return output;
+    }
   }
 }
 
