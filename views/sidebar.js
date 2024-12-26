@@ -136,10 +136,15 @@ function load_maintainer_list(){
         $("#github-user-linkedin").removeClass("d-none").attr('href', maintainer.linkedin.replace(/^in/, "https://www.linkedin.com/in"));
       }
       if(maintainer.login == universe && maintainer.mastodon){
+        var match = maintainer.mastodon.match(/^(@.*)@(.*)$/);
+        if(match){
+          maintainer.mastodon = `https://${match[2]}/${match[1]}`
+        }
         $("#github-user-mastodon").removeClass("d-none").attr('href', maintainer.mastodon);
       }
       if(maintainer.login == universe && maintainer.bluesky){
-        $("#github-user-bluesky").removeClass("d-none").attr('href', maintainer.bluesky);
+        var bskylink = maintainer.bluesky.replace(/^@/, 'https://bsky.app/profile/');
+        $("#github-user-bluesky").removeClass("d-none").attr('href', bskylink);
         $("#github-user-twitter").hide();
       }
       if(maintainer.login == universe && maintainer.emails && maintainer.emails.length){
