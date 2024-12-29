@@ -1,4 +1,5 @@
-import {MongoClient} from 'mongodb';
+import {MongoClient, GridFSBucket} from 'mongodb';
+import {Readable} from  "node:stream";
 import createError from 'http-errors';
 
 const HOST = process.env.CRANLIKE_MONGODB_SERVER || '127.0.0.1';
@@ -8,32 +9,41 @@ const PASS = process.env.CRANLIKE_MONGODB_PASSWORD;
 const AUTH = PASS ? (USER + ':' + PASS + "@") : "";
 const URL = 'mongodb://' + AUTH + HOST + ':' + PORT;
 const production = process.env.NODE_ENV == 'production';
-const col = await (production ? mongo_col() : null);
 
-function mongo_col(){
-  console.log("Connecting to database...");
-  return MongoClient.connect(URL).then(function(client){
-    console.log("Connected to MongoDB!");
-    return client.db('cranlike').collection('packages');
-  });
-}
+/* Connect to database */
+console.log("Connecting to database....")
+const client = production && await MongoClient.connect(URL);
+const db = production && client.db('cranlike');
+const bucket = production && new GridFSBucket(db, {bucketName: 'files'});
+const packages = production && db.collection('packages');
+const chunks = production && db.collection('files.chunks');
+console.log("Connected to MongoDB!");
 
 function mongo_latest(q){
-  if(!col || !col.find)
+  if(!packages || !packages.find)
     throw new Error("No mongodb connection available.");
-  return col.findOne(q, {sort:{_id: -1}, project: {_id: 1, _published: 1, _user: 1, Package: 1}});
+  return packages.findOne(q, {sort:{_id: -1}, project: {_id: 1, _published: 1, _user: 1, Package: 1}});
 }
 
 function mongo_find(q){
-  if(!col || !col.find)
+  if(!packages || !packages.find)
     throw new Error("No mongodb connection available.");
-  return col.find(q);
+  return packages.find(q);
 }
 
 function mongo_aggregate(q){
-  if(!col || !col.aggregate)
+  if(!packages || !packages.aggregate)
     throw new Error("No mongodb connection available.");
-  return col.aggregate(q);
+  return packages.aggregate(q);
+}
+
+function mongo_ls_packages(universe){
+  if(!packages || !packages.aggregate)
+    throw new Error("No mongodb connection available.");
+  let query = {_type: 'src'};
+  if(universe != '_global')
+    query._user = universe;
+  return packages.distinct('Package', query);
 }
 
 function group_package_data(docs){
@@ -116,10 +126,14 @@ function build_projection(fields){
   return projection;
 }
 
+function mongo_package_files(pkg, universe){
+  return mongo_find({_user: universe, Package: pkg, _registered: true}).toArray();
+}
+
 function mongo_package_info(pkg, universe){
   return mongo_find({_user: universe, Package: pkg, _registered: true}).toArray().then(function(docs){
     if(!docs.length) //should never happen because we checked earlier
-      throw createError(404, `Package ${pkg} not found in ${universe}`); 
+      throw createError(404, `Package ${pkg} not found in ${universe}`);
     var pkgdata = group_package_data(docs);
     if(pkgdata._type === 'failure')
       throw createError(404, `Package ${pkg} failed to build: ${pkgdata._buildurl}`)
@@ -345,6 +359,15 @@ function mongo_recent_builds(days = 7){
   return cursor.toArray();
 }
 
+function mongo_package_stream(pkg, universe){
+  var query = {Package: pkg, _user: universe, _type: 'src'};
+  return packages.findOne(query, {sort: {'_id': -1}}).then(function(x){
+    if(!x)
+      throw `Package ${pkg} not found in ${universe}`;
+    return bucket.openDownloadStream(x._fileid);
+  });
+}
+
 export function get_package_info(pkg, universe){
   if(production){
     return mongo_package_info(pkg, universe);
@@ -355,6 +378,29 @@ export function get_package_info(pkg, universe){
     } else {
       return get_json(`https://cran.dev/${pkg}/json`);
     }
+  }
+}
+
+export function list_package_files(pkg, universe){
+  if(production){
+    return mongo_package_files(pkg, universe);
+  } else {
+    console.warn(`Fetching ${pkg} files from API...`)
+    if(universe){
+      return get_json(`https://${universe}.r-universe.dev/${pkg}/files`);
+    } else {
+      return get_json(`https://cran.dev/${pkg}/files`);
+    }
+  }
+}
+
+export function get_package_stream(pkg, universe){
+  if(production){
+    return mongo_package_stream(pkg, universe);
+  } else {
+    return get_package_info(pkg, universe).then(function(x){
+      return get_url(`https://cdn.r-universe.dev/${x._fileid}`).then(res => Readable.fromWeb(res.body));
+    });
   }
 }
 
@@ -445,5 +491,13 @@ export function get_latest(query){
     return mongo_latest(query);
   } else {
     return Promise.resolve();
+  }
+}
+
+export function ls_packages(universe){
+  if(production){
+    return mongo_ls_packages(universe);
+  } else {
+    return get_json(`https://${universe}.r-universe.dev/api/ls`);
   }
 }
