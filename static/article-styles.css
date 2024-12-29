@@ -259,12 +259,18 @@ main ol > li:first-child, main ul > li:first-child {
   }
 }
 
-/* For new front-end: hide title within iframe */
+/* Hide title within iframe */
 #topcontainer.article-in-iframe h1.title{
   display: none;
 }
 
-/* Legacy version of the above */
+/* New method of this (also works for litedown) */
+#topcontainer.article-in-iframe .frontmatter{
+  display: none;
+}
+
+/* Legacy version of the above
 #topcontainer.container-fluid h1.title{
   display: none;
 }
+*/

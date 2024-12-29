@@ -13,6 +13,7 @@
 /* Bootstrap styles to tables */
 function bootstrapStylePandocTables() {
   $('tr.header').parent('thead').parent('table').addClass('table table-sm');
+  $('.litedown-contents table').addClass('table table-sm');
 }
 $(document).ready(bootstrapStylePandocTables);
 
