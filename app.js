@@ -53,16 +53,16 @@ app.use(function(req, res, next){
 });
 
 // check if package/universe exists and handle caching values
-app.use('/:package', function(req, res, next){
+app.use('/{:package}', function(req, res, next){
   if(!production){
     res.set('Cache-Control', 'no-cache');
     return next();
   }
   const universe = res.locals.universe;
-  const pkg = req.params.package;
-  const reserved = ["api","apis","articles","badges","bin","builds","citation","contributors","datasets","docs",
+  const pkg = req.params.package || "";
+  const reserved = ["", "api","apis","articles","badges","bin","builds","citation","contributors","datasets","docs",
     "favicon.ico","feed.xml","index.xml","manual","packages","readme","robots.txt","sitemap_index.xml",
-    "sitemap.xml","src","stats"] ;
+    "sitemap.xml","src","stats", ""] ;
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};

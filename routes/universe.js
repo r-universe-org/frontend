@@ -93,7 +93,14 @@ function retry_url(x){
 
 /* Langing page (TODO) */
 router.get('/', function(req, res, next) {
-  res.render('index');
+  //res.render('index');
+  res.set('Cache-control', 'private'); // Vary does not work in cloudflare currently
+  const accept = req.headers['accept'];
+  if(accept && accept.includes('html')){
+    res.redirect(`/builds`);
+  } else {
+    res.send(`Welcome to the ${res.locals.universe} universe!`);
+  }
 });
 
 router.get('/builds', function(req, res, next) {
