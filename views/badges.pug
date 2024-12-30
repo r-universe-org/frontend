@@ -24,7 +24,7 @@ block content
               td
                 img(src=x.badge loading="lazy")
               td
-                a.markdown-copy-link.text-decoration-none(href='#', data-name=x.Package, data-badge=x.badge, data-link=x.link)
+                a.markdown-copy-link.text-decoration-none(href='#', data-name=x.Package || x.meta, data-badge=x.badge, data-link=x.link)
                   i.fa-brands.fa-markdown.fa-xl.grow-on-over
 
 block after_scripts

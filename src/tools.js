@@ -102,3 +102,22 @@ export function cheerio_page(html, page, pkgname, universe){
   el.find('hr').remove();
   return el.html();
 }
+
+export function fetch_github(url, opt = {}){
+  if(process.env.REBUILD_TOKEN){
+    opt.headers = opt.headers || {'Authorization': 'token ' + process.env.REBUILD_TOKEN};
+  }
+  return fetch(url, opt).then(function(response){
+    return response.json().catch(e => response.text()).then(function(data){
+      if (!response.ok) {
+        throw "GitHub API returned HTTP " + response.status + ": " + (data.message || data);
+      }
+      return data;
+    });
+  });
+}
+
+export function get_registry_info(user){
+  const url = 'https://api.github.com/repos/r-universe/' + user + '/actions/workflows/sync.yml/runs?per_page=1&status=completed';
+  return fetch_github(url);
+}

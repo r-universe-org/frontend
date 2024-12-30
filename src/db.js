@@ -46,6 +46,12 @@ function mongo_ls_packages(universe){
   return packages.distinct('Package', query);
 }
 
+function mongo_distinct(key, query){
+  if(!packages || !packages.aggregate)
+    throw new Error("No mongodb connection available.");
+  return packages.distinct(key, query);
+}
+
 function group_package_data(docs){
   var src = docs.find(x => x['_type'] == 'src');
   var failure = docs.find(x => x['_type'] == 'failure');
@@ -491,6 +497,14 @@ export function get_latest(query){
     return mongo_latest(query);
   } else {
     return Promise.resolve();
+  }
+}
+
+export function get_distinct(key, query){
+  if(production){
+    return mongo_distinct(key, query);
+  } else {
+    throw "Not implemented for devel";
   }
 }
 

@@ -94,7 +94,7 @@ function retry_url(x){
 /* Langing page (TODO) */
 router.get('/', function(req, res, next) {
   //res.render('index');
-  res.set('Cache-control', 'private'); // Vary does not work in cloudflare currently
+  res.set('Cache-control', 'private, max-age=604800'); // Vary does not work in cloudflare currently
   const accept = req.headers['accept'];
   if(accept && accept.includes('html')){
     res.redirect(`/builds`);
@@ -136,16 +136,20 @@ router.get("/badges", function(req, res, next){
   var fields = ['Package', '_user', '_registered'];
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
-    pkgdata.unshift({Package: ':datasets', _user: universe, ref: '/datasets'});
-    pkgdata.unshift({Package: ':articles', _user: universe, ref: '/articles'});
-    pkgdata.unshift({Package: ':packages', _user: universe, ref: '/packages'});
-    pkgdata.unshift({Package: ':registry', _user: universe, ref: '/'});
-    pkgdata.unshift({Package: ':name', _user: universe, ref: '/'});
+    pkgdata.unshift({meta: 'datasets', _user: universe, link: '/datasets'});
+    pkgdata.unshift({meta: 'articles', _user: universe, link: '/articles'});
+    pkgdata.unshift({meta: 'packages', _user: universe, link: '/packages'});
+    pkgdata.unshift({meta: 'registry', _user: universe, link: '/'});
+    pkgdata.unshift({meta: 'name', _user: universe, link: '/'});
     pkgdata = pkgdata.map(function(x){
-      return Object.assign(x, {
-        badge: `https://${x._user}.r-universe.dev/badges/${x.Package}`,
-        link: `https://${x._user}.r-universe.dev${x.ref || '/' + x.Package}`
-      });
+      if(x.Package){
+        x.badge = `https://${x._user}.r-universe.dev/${x.Package}/badges/version` ;
+        x.link = `https://${x._user}.r-universe.dev/${x.Package}`;
+      } else {
+        x.badge = `https://${x._user}.r-universe.dev/badges/:${x.meta}`;
+        x.link = `https://${x._user}.r-universe.dev${x.link}`;
+      }
+      return x;
     });
     res.render('badges', {
       pkgdata: pkgdata

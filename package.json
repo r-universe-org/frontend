@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "badgen": "^3.2.3",
     "cheerio": "^1.0.0",
     "express": "^5.0.1",
     "gunzip-maybe": "^1.4.2",

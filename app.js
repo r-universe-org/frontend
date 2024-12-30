@@ -5,6 +5,7 @@ import logger from 'morgan';
 import globalRouter from './routes/global.js';
 import apiRouter from './routes/api.js';
 import universeRouter from './routes/universe.js';
+import badgesRouter from './routes/badges.js';
 import pkginfoRouter from './routes/pkginfo.js';
 import pkgdataRouter from './routes/pkgdata.js';
 
@@ -52,7 +53,7 @@ app.use(function(req, res, next){
   next();
 });
 
-// check if package/universe exists and handle caching values
+// check if package/universe exists and handle caching
 app.use('/{:package}', function(req, res, next){
   if(!production){
     res.set('Cache-Control', 'no-cache');
@@ -61,8 +62,8 @@ app.use('/{:package}', function(req, res, next){
   const universe = res.locals.universe;
   const pkg = req.params.package || "";
   const reserved = ["", "api","apis","articles","badges","bin","builds","citation","contributors","datasets","docs",
-    "favicon.ico","feed.xml","index.xml","manual","packages","readme","robots.txt","sitemap_index.xml",
-    "sitemap.xml","src","stats", ""] ;
+    "favicon.ico","feed.xml","index.xml","manual","packages","readme","robots.txt", "shared", "sitemap_index.xml",
+    "sitemap.xml","src","stats"] ;
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};
@@ -83,7 +84,7 @@ app.use('/{:package}', function(req, res, next){
     res.set('Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 1;
+      const revision = 2;
       const etag = `W/"${doc._id}${revision}"`;
       const date = new Date(doc._published.getTime() + revision * 1000).toUTCString();
       res.set('ETag', etag);
@@ -114,6 +115,7 @@ app.use('/{:package}', function(req, res, next){
 app.use('/_global/', globalRouter);
 app.use('/', apiRouter);
 app.use('/', universeRouter);
+app.use('/', badgesRouter);
 app.use('/', pkginfoRouter);
 app.use('/', pkgdataRouter);
 
