@@ -83,8 +83,9 @@ app.use('/{:package}', function(req, res, next){
     res.set('Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const etag = `W/"${doc._id}"`;
-      const date = doc._published.toUTCString();
+      const revision = 1;
+      const etag = `W/"${doc._id}${revision}"`;
+      const date = new Date(doc._published.getTime() + revision * 1000).toUTCString();
       res.set('ETag', etag);
       res.set('Last-Modified', date);
       //clients may cache front-end pages for 60s before revalidating.
