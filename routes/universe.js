@@ -88,7 +88,7 @@ function build_url(x){
 function retry_url(x){
   var retrytype = x._failure ? 'failure' : 'src';
   var retryversion = x._failure ? x._failure.version : x.Version;
-  return `https://${x._user}.r-universe.dev/packages/${x.Package}/${retryversion}/${retrytype}`;
+  return `https://${x._user}.r-universe.dev/api/packages/${x.Package}/${retryversion}/${retrytype}`;
 }
 
 /* Langing page (TODO) */
