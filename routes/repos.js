@@ -45,6 +45,8 @@ function packages_index(query, req, res, mixed = false){
 
 function send_binary(query, req, res, postfix = ""){
   query._user = res.locals.universe;
+  if(!query.Version)
+    throw createError(404, 'No package version given');
   return get_package_hash(query).then(function(x){
     const hash = x._fileid;
     //const cdn = req.headers.host === 'localhost:3000' ? '/cdn' : 'https://cdn.r-universe.dev';
