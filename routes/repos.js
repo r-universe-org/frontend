@@ -6,6 +6,10 @@ import {get_universe_binaries, get_packages_index, get_package_hash} from '../sr
 
 const router = express.Router();
 
+function doc_to_ndjson(x){
+  return JSON.stringify(x) + '\n';
+}
+
 // Somehow node:stream/promises does not catch input on-error callbacks properly
 // so we promisify ourselves. See https://github.com/r-universe-org/help/issues/540
 function cursor_stream(cursor, output, transform, gzip){
@@ -16,23 +20,6 @@ function cursor_stream(cursor, output, transform, gzip){
     }
     input.pipe(output).on('finish', resolve).on('error', reject);
   });
-}
-
-function send_results(cursor, res, stream = false, transform = (x) => x){
-  //We only use hasNext() to catch broken queries and promisify response
-  return cursor.hasNext().then(function(has_next){
-    if(stream){
-      return cursor_stream(cursor, res.type('text/plain'), doc => doc_to_ndjson(transform(doc)));
-    } else {
-      return cursor.toArray().then(function(out){
-        return res.send(out.filter(x => x).map(transform));
-      });
-    }
-  });
-}
-
-function doc_to_ndjson(x){
-  return JSON.stringify(x) + '\n';
 }
 
 function packages_index(query, req, res, mixed = false){
@@ -110,8 +97,7 @@ router.get('/bin/emscripten/contrib/:built/:pkg.tgz', function(req, res, next) {
   return send_binary(query, req, res);
 });
 
-/* Below are legacy things for webR 4.3. remove When R 4.5 is released */
-
+/* Some legacy endpoints for webR 4.3. remove for R-4.5  */
 router.get('/bin/emscripten/contrib/:built/:pkg.data.gz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var query = {_type: 'wasm', 'Built.R' : {$regex: '^' + req.params.built},
@@ -133,34 +119,10 @@ router.get('/bin/emscripten/contrib/:built/:pkg.js.metadata', function(req, res,
   return send_binary(query, req, res, `/index`);
 });
 
-/* Indexes */
-
-router.get('/src', function(req, res, next) {
-  res.redirect('/src/contrib');
-});
+/* PACKAGES index files */
 
 router.get('/src/contrib{/:format}', function(req, res, next) {
   return packages_index({_type: 'src'}, req, res);
-});
-
-router.get('/bin', function(req, res, next) {
-  return get_universe_binaries(res.locals.universe).then(x => res.send(x));
-});
-
-router.get('/bin/windows', function(req, res, next) {
-  res.redirect('/bin/windows/contrib');
-});
-
-router.get(['/bin/macosx', '/bin/macosx/:arch'], function(req, res, next) {
-  res.redirect('/bin/macosx/big-sur-arm64/contrib');
-});
-
-router.get('/bin/windows/contrib/', function(req, res, next){
-  return get_universe_binaries(res.locals.universe, 'win').then(x => res.send(x));
-});
-
-router.get('/bin/macosx/:arch/contrib', function(req, res, next){
-  return get_universe_binaries(res.locals.universe, 'mac').then(x => res.send(x));
 });
 
 router.get('/bin/windows/contrib/:built{/:format}', function(req, res, next) {
@@ -189,10 +151,6 @@ router.get('/bin/linux/:distro/:built/src/contrib{/:format}', function(req, res,
   return packages_index(query, req, res, true);
 });
 
-router.get('/bin/linux/:distro/:built', function(req, res, next) {
-  res.redirect(`/bin/linux/${req.params.distro}/${req.params.built}/src/contrib`);
-});
-
 router.get('/bin/emscripten/contrib/:built{/:format}', function(req, res, next) {
   var query = {
     _type: 'wasm', 
@@ -201,6 +159,41 @@ router.get('/bin/emscripten/contrib/:built{/:format}', function(req, res, next) 
   return packages_index(query, req, res);
 });
 
+/* Some helper redirects and stats */ 
+router.get('/bin/windows', function(req, res, next) {
+  res.redirect('/bin/windows/contrib');
+});
 
+router.get('/bin/emscripten', function(req, res, next) {
+  res.redirect('/bin/emscripten/contrib');
+});
+
+router.get(['/bin/macosx', '/bin/macosx/:arch'], function(req, res, next) {
+  res.redirect('/bin/macosx/big-sur-arm64/contrib');
+});
+
+router.get('/bin/linux/:distro/:built', function(req, res, next) {
+  res.redirect(`/bin/linux/${req.params.distro}/${req.params.built}/src/contrib`);
+});
+
+router.get('/src', function(req, res, next) {
+  return get_universe_binaries(res.locals.universe, 'src').then(x => res.send(x));
+});
+
+router.get('/bin', function(req, res, next) {
+  return get_universe_binaries(res.locals.universe).then(x => res.send(x));
+});
+
+router.get('/bin/windows/contrib/', function(req, res, next){
+  return get_universe_binaries(res.locals.universe, 'win').then(x => res.send(x));
+});
+
+router.get('/bin/emscripten/contrib/', function(req, res, next){
+  return get_universe_binaries(res.locals.universe, 'wasm').then(x => res.send(x));
+});
+
+router.get('/bin/macosx/:arch/contrib', function(req, res, next){
+  return get_universe_binaries(res.locals.universe, 'mac').then(x => res.send(x));
+});
 
 export default router;
