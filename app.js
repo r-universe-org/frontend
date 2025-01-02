@@ -5,6 +5,7 @@ import logger from 'morgan';
 import cacheRouter from './routes/cache.js';
 import globalRouter from './routes/global.js';
 import apiRouter from './routes/api.js';
+import reposRouter from './routes/repos.js';
 import universeRouter from './routes/universe.js';
 import badgesRouter from './routes/badges.js';
 import pkginfoRouter from './routes/pkginfo.js';
@@ -55,6 +56,7 @@ app.use(function(req, res, next){
 app.use('/{:package}', cacheRouter);
 app.use('/_global/', globalRouter);
 app.use('/', apiRouter);
+app.use('/', reposRouter);
 app.use('/', universeRouter);
 app.use('/', badgesRouter);
 app.use('/', pkginfoRouter);
