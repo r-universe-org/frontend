@@ -394,7 +394,7 @@ function mongo_package_stream(pkg, universe){
   var query = {Package: pkg, _user: universe, _type: 'src'};
   return packages.findOne(query, {sort: {'_id': -1}}).then(function(x){
     if(!x)
-      throw `Package ${pkg} not found in ${universe}`;
+      throw createError(404, `Package ${pkg} not found in ${universe}`);
     return bucket.openDownloadStream(x._fileid);
   });
 }
