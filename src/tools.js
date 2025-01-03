@@ -3,6 +3,7 @@ import tar from 'tar-stream';
 import gunzip from 'gunzip-maybe';
 import {load as cheerio_load} from 'cheerio';
 import hljs from 'highlight.js';
+import createError from 'http-errors';
 
 export const pkgfields = {_id: 1, _type:1, _fileid:1, _dependencies: 1, Filesize: '$_filesize', Distro: '$_distro',
   SHA256: '$_sha256', Package: 1, Version: 1, Depends: 1, Suggests: 1, License: 1,
@@ -170,5 +171,5 @@ export function match_macos_arch(platform){
   if(platform.match("x86_64")){
     return {$not : /aarch64/};
   }
-  throw `Unknown platform: ${platform}`;
+  throw createError(404, `Unsupported MacOS version: ${platform}`);
 }
