@@ -1,5 +1,6 @@
 import {MongoClient, GridFSBucket} from 'mongodb';
 import {Readable} from  "node:stream";
+import {pkgfields} from './tools.js';
 import createError from 'http-errors';
 
 const HOST = process.env.CRANLIKE_MONGODB_SERVER || '127.0.0.1';
@@ -147,6 +148,18 @@ function mongo_package_info(pkg, universe){
   });
 }
 
+function mongo_package_hash(query){
+  if(query['$or']){
+    options.sort = {_type: 1}; //prefer linux binary over src packages
+  }
+  var options = {project: {_fileid: 1, Version: 1}};
+  return packages.findOne(query, options).then(function(x){
+    if(!x)
+      throw createError(404, 'Package not found for query: ' + JSON.stringify(query));
+    return x;
+  });
+}
+
 //TODO: this is heavy because we also query all binaries which we dont use currently
 function mongo_universe_packages(user, fields, limit){
   var query = {'_universes': user};
@@ -198,6 +211,18 @@ function mongo_universe_vignettes(user){
     }},
     {$unwind: '$vignette'}
   ]);
+  return cursor.toArray();
+}
+
+function mongo_universe_binaries(user, type){
+  var query = {_user: user};
+  if(type){
+    query._type = type;
+  }
+  var cursor = mongo_aggregate([
+    {$match: query},
+    {$group:{_id: {type: "$_type", R: "$Built.R", Platform: "$Built.Platform"}, count: { $sum: 1 }}}
+  ]).project({_id: 0, count: 1, type: "$_id.type", R: "$_id.R", Platform: "$_id.Platform"});
   return cursor.toArray();
 }
 
@@ -429,6 +454,14 @@ export function get_universe_packages(universe, fields, limit = 5000){
   }
 }
 
+export function get_universe_binaries(universe, type){
+  if(production){
+    return mongo_universe_binaries(universe, type);
+  } else {
+    throw "Not implemented for devel";
+  }
+}
+
 export function get_repositories(){
   if(production){
     return mongo_all_universes()
@@ -496,7 +529,37 @@ export function get_latest(query){
   if(production){
     return mongo_latest(query);
   } else {
-    return Promise.resolve();
+    throw "Not implemented for devel";
+  }
+}
+
+export function get_packages_index(query, fields = [], mixed = false){
+  if(production){
+    let projection = {...pkgfields};
+    fields.forEach(function (f) {
+      console.log("adding", f)
+      projection[f] = 1;
+    });
+    var cursor = mixed ? mongo_aggregate([
+      {$match: query},
+      {$sort: {_type: 1}},
+      {$group : {
+        _id : {'Package': '$Package'},
+        doc: { '$first': '$$ROOT' }
+      }},
+      {$replaceRoot: { newRoot: '$doc' }}
+    ]) : mongo_find(query);
+    return cursor.project(projection).sort({"Package" : 1});
+  } else {
+    throw "Not implemented for devel";
+  }
+}
+
+export function get_package_hash(query){
+  if(production){
+    return mongo_package_hash(query);
+  } else {
+    throw "Not implemented for devel";
   }
 }
 
@@ -512,6 +575,6 @@ export function ls_packages(universe){
   if(production){
     return mongo_ls_packages(universe);
   } else {
-    return get_json(`https://${universe}.r-universe.dev/api/ls`);
+    throw "Not implemented for devel";
   }
 }

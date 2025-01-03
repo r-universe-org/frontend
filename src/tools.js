@@ -4,6 +4,11 @@ import gunzip from 'gunzip-maybe';
 import {load as cheerio_load} from 'cheerio';
 import hljs from 'highlight.js';
 
+export const pkgfields = {_id: 1, _type:1, _fileid:1, _dependencies: 1, Filesize: '$_filesize', Distro: '$_distro',
+  SHA256: '$_sha256', Package: 1, Version: 1, Depends: 1, Suggests: 1, License: 1,
+  NeedsCompilation: 1, Imports: 1, LinkingTo: 1, Enhances: 1, License_restricts_use: 1,
+  OS_type: 1, Priority: 1, License_is_FOSS: 1, Archs: 1, Path: 1, MD5sum: 1, Built: 1};
+
 export function stream2buffer(stream) {
   return new Promise((resolve, reject) => {
     const _buf = [];
@@ -120,4 +125,50 @@ export function fetch_github(url, opt = {}){
 export function get_registry_info(user){
   const url = 'https://api.github.com/repos/r-universe/' + user + '/actions/workflows/sync.yml/runs?per_page=1&status=completed';
   return fetch_github(url);
+}
+
+function dep_to_string(x){
+  if(x.package && x.version){
+    return `${x.package} (${x.version})`;
+  } else {
+    return x.package || x;
+  }
+}
+
+function unpack_deps(x){
+  var alldeps = x['_dependencies'] || [];
+  var deptypes = new Set(alldeps.map(dep => dep.role));
+  deptypes.forEach(function(type){
+    x[type] = alldeps.filter(dep => dep.role == type).map(dep_to_string).join(", ");
+  });
+  delete x['_dependencies'];
+  return x;
+}
+
+export function doc_to_dcf(doc){
+  //this clones 'doc' and then deletes some fields
+  const { _id, _fileid, _type, Distro, ...x } = unpack_deps(doc);
+  if(_type == 'linux'){
+    x.Platform = 'x86_64-pc-linux-gnu' //pak likes this to identify binaries
+  }
+  let keys = Object.keys(x);
+  return keys.map(function(key){
+    let val = x[key];
+    if(key == 'Built'){
+      val = "R " + Object.values(val).join("; ");
+    } else if(typeof val === 'object') {
+      val = JSON.stringify(val)
+    }
+    return key + ": " + val.toString().replace(/\s/gi, ' ');
+  }).join("\n") + "\n\n";
+}
+
+export function match_macos_arch(platform){
+  if(platform.match("arm64|aarch64")){
+    return {$not : /x86_64/};
+  }
+  if(platform.match("x86_64")){
+    return {$not : /aarch64/};
+  }
+  throw `Unknown platform: ${platform}`;
 }
