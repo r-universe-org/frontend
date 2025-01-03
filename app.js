@@ -28,7 +28,7 @@ app.use(logger('dev'));
 
 //log errors to file
 logger.token('host', function (req, res) { return req.hostname })
-const errorLog = fs.createWriteStream('errors.log', { flags: 'a' });
+const errorLog = fs.createWriteStream('logs/frontend.log', { flags: 'a' });
 app.use(logger('[:date[iso]] :status :method :host:url (:response-time ms) :user-agent', {
   stream: errorLog,
   skip: function (req, res) { return res.statusCode < 400 }
