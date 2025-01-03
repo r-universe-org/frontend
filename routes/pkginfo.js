@@ -1,4 +1,5 @@
 import express from 'express';
+import createError from 'http-errors';
 import url from 'node:url';
 import {get_package_info} from '../src/db.js';
 const router = express.Router();
@@ -291,6 +292,51 @@ router.get('/:package/buildlog', function(req, res, next) {
       res.redirect(x.failure.buildurl);
     } else {
       res.redirect(x._buildurl);
+    }
+  });
+});
+
+/* Support pkgdown auto-linker for packages without a pkgdown site.
+   We do not set the pkgdown field in yaml to distinguish from actual pkgdown sites.
+ */
+router.get('/:package/pkgdown.yml', function(req, res, next){
+  return get_package_info(req.params.package, req.universe).then(function(doc){
+    var baseurl = doc._pkgdown || `https://${req.universe}.r-universe.dev/${req.params.package}`;
+    var output = [
+      `last_built: ${doc._created.toISOString()}`,
+      `urls:`,
+      `  reference: ${baseurl}/reference`,
+      `  article: ${baseurl}/articles`
+    ]
+    if(doc._vignettes){
+      output.push('articles:')
+      for (var article of doc._vignettes) {
+        var name = article.filename;
+        output.push(`  ${name.replace(/\.(html|pdf)$/, "")}: ${name}`)
+      }
+    }
+    res.type('text/plain').send(output.join('\n'));
+  });
+});
+
+router.get('/:package/reference/:page.html', function(req, res, next){
+  const rdname = req.params.page;
+  return get_package_info(req.params.package, req.universe).then(function(doc){
+    if(Array.isArray(doc._help) && doc._help.find(x => x.page === rdname)){
+      return res.redirect(`/${req.params.package}/doc/manual.html#${rdname}`);
+    } else {
+      throw createError(404, `No help page found for ${rdname}`);
+    }
+  });
+});
+
+router.get('/:package/articles/:article', function(req, res, next){
+  const article = req.params.article;
+  return get_package_info(req.params.package, req.universe).then(function(doc){
+    if(Array.isArray(doc._vignettes) && doc._vignettes.find(x => x.filename === article)){
+      return res.redirect(`/articles/${req.params.package}/${article}`);
+    } else {
+      throw createError(404, `Article not found ${article}`);
     }
   });
 });
