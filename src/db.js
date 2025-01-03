@@ -571,14 +571,6 @@ export function get_distinct(key, query){
   }
 }
 
-export function get_aggregate(pipeline){
-  if(production){
-    return mongo_aggregate(pipeline);
-  } else {
-    throw "Not implemented for devel";
-  }
-}
-
 export function ls_packages(universe){
   if(production){
     return mongo_ls_packages(universe);
