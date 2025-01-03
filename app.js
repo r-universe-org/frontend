@@ -38,6 +38,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('static', {maxAge: '1d'})); //TODO: remove?
 app.use('/_global/favicon.ico', express.static('static/favicon.ico'));
+app.use('/_global/robots.txt', express.static('static/robots.txt'));
 app.use('/_global/static', express.static('static', {maxAge: '1d'}));
 
 // remove trailing slashes

@@ -172,8 +172,12 @@ router.get('/sitemap{s}.*ext', function(req, res, next) {
 });
 
 router.get(["/index.xml", "/feed.xml"], function(req, res, next){
-  res.status(404).send("Global feeds are no longer supported");
+  res.status(404).send("Global feeds are no longer supported.");
 });
 
+/* Prevent fall-through */
+router.get('/*any', function(req, res, next){
+  res.status(404).send("Page not found.");
+});
 
 export default router;
