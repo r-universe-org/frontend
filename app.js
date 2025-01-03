@@ -2,6 +2,7 @@ import path from 'node:path';
 import createError from 'http-errors';
 import express from 'express';
 import logger from 'morgan';
+import cors from 'cors';
 import cacheRouter from './routes/cache.js';
 import globalRouter from './routes/global.js';
 import apiRouter from './routes/api.js';
@@ -21,6 +22,7 @@ app.set('views', 'views');
 app.set('view engine', 'pug');
 //app.set('view cache', true); //enabled by default in prod?
 
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
