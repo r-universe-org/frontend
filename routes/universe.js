@@ -139,7 +139,10 @@ router.get("/badges", function(req, res, next){
     pkgdata.unshift({meta: 'datasets', _user: universe, link: '/datasets'});
     pkgdata.unshift({meta: 'articles', _user: universe, link: '/articles'});
     pkgdata.unshift({meta: 'packages', _user: universe, link: '/packages'});
-    pkgdata.unshift({meta: 'registry', _user: universe, link: '/'});
+    if(pkgdata.find(x => (x.Package && x._user === universe))){
+      //hide badge for maintainer-only universes
+      pkgdata.unshift({meta: 'registry', _user: universe, link: '/'});
+    }
     pkgdata.unshift({meta: 'name', _user: universe, link: '/'});
     pkgdata = pkgdata.map(function(x){
       if(x.Package){
