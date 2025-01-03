@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import createError from 'http-errors';
 import express from 'express';
@@ -24,6 +25,15 @@ app.set('view engine', 'pug');
 
 app.use(cors())
 app.use(logger('dev'));
+
+//log errors to file
+logger.token('host', function (req, res) { return req.hostname })
+const errorLog = fs.createWriteStream('errors.log', { flags: 'a' });
+app.use(logger('[:date[iso]] :status :method :host:url (:response-time ms) :user-agent', {
+  stream: errorLog,
+  skip: function (req, res) { return res.statusCode < 400 }
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('static', {maxAge: '1d'})); //TODO: remove?
