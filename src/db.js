@@ -149,10 +149,10 @@ function mongo_package_info(pkg, universe){
 }
 
 function mongo_package_hash(query){
+  var options = {project: {_fileid: 1, Version: 1}};
   if(query['$or']){
     options.sort = {_type: 1}; //prefer linux binary over src packages
   }
-  var options = {project: {_fileid: 1, Version: 1}};
   return packages.findOne(query, options).then(function(x){
     if(!x)
       throw createError(404, 'Package not found for query: ' + JSON.stringify(query));
