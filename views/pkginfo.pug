@@ -229,7 +229,7 @@ block content
               | )
 
           | . Checks:
-          if _checksummary.includes('ERROR')
+          if _checksummary.match(/(ERROR|FAIL)/)
             a.ms-1.link-underline-dark.text-danger.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
           else if _checksummary.includes('WARNING')
             a.ms-1.link-underline-dark.text-warning.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
@@ -241,7 +241,7 @@ block content
           tr
             th Target
             th Result
-            th Date
+            th Latest binary
         tbody
           tr
             td Doc / Vignettes
@@ -256,14 +256,17 @@ block content
             tr
               td R-#{bin.r.substring(0,3)}-#{bin.os}#{bin.arch ? `-${bin.arch}` : '' }
               td
-                a(target="_blank" href=bin.buildurl)
-                  if bin.check == 'ERROR'
+                a(target="_blank" href=_buildurl)
+                  if _commit.id != bin.commit
+                    span.text-danger OUTDATED
+                  else if bin.check == 'ERROR'
                     span.text-danger #{bin.check}
                   else if bin.check == 'WARNING'
                     span.text-warning #{bin.check}
                   else
                     span.text-dark #{bin.check}
-              td #{date_to_string(bin.date)}
+              td
+                a.text-dark(target="_blank" href=bin.buildurl) #{date_to_string(bin.date)}
 
 
 

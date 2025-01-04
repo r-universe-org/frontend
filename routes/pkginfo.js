@@ -42,6 +42,8 @@ function format_count(count){
 function summarize_checks(pkgdata){
   var results = pkgdata._status.match('suc') ? {OK:1} : {ERROR:1};
   pkgdata._binaries.filter(x => x.check).forEach(function(bin){
+    if(bin.commit != pkgdata._commit.id)
+      bin.check = 'FAILURE';
     if(!results[bin.check]){
       results[bin.check] = 1
     } else {
@@ -50,9 +52,9 @@ function summarize_checks(pkgdata){
   });
   var out = [];
   for (const [key, value] of Object.entries(results)) {
-    out.push(`${key}: ${value}`)
+    out.push(`${value} ${key}`)
   }
-  return out.join(" ");
+  return out.join(", ");
 }
 
 function group_binaries(x){
