@@ -399,6 +399,22 @@ function mongo_package_stream(pkg, universe){
   });
 }
 
+export function get_bucket_stream(hash){
+  if(production){
+    return bucket.find({_id: hash}, {limit:1}).next().then(function(pkg){
+      if(!pkg)
+        throw createError(410, `File ${hash} not available (anymore)`);
+      pkg.stream = bucket.openDownloadStream(hash);
+      pkg.stream.on('error', function(err){
+        throw `Mongo stream error for ${hash}`;
+      });
+      return pkg;
+    });
+  } else {
+    throw "Not implemented for devel";
+  }
+}
+
 export function get_package_info(pkg, universe){
   if(production){
     return mongo_package_info(pkg, universe);
@@ -574,6 +590,14 @@ export function get_distinct(key, query){
 export function ls_packages(universe){
   if(production){
     return mongo_ls_packages(universe);
+  } else {
+    throw "Not implemented for devel";
+  }
+}
+
+export function bucket_find(query, options = {}){
+  if(production){
+    return bucket.find(query, options);
   } else {
     throw "Not implemented for devel";
   }

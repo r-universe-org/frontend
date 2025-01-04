@@ -4,6 +4,8 @@ import createError from 'http-errors';
 import express from 'express';
 import logger from 'morgan';
 import cors from 'cors';
+import cdnRouter from './routes/cdn.js';
+import prepareRouter from './routes/prepare.js';
 import cacheRouter from './routes/cache.js';
 import globalRouter from './routes/global.js';
 import apiRouter from './routes/api.js';
@@ -41,31 +43,9 @@ app.use('/_global/favicon.ico', express.static('static/favicon.ico'));
 app.use('/_global/robots.txt', express.static('static/robots.txt'));
 app.use('/_global/static', express.static('static', {maxAge: '1d'}));
 
-// remove trailing slashes
-app.use((req, res, next) => {
-  if (req.path.slice(-1) === '/' && req.path.length > 1) {
-    const query = req.url.slice(req.path.length)
-    const safepath = req.path.slice(0, -1).replace(/\/+/g, '/')
-    res.redirect(301, safepath + query)
-  } else {
-    next()
-  }
-})
-
-// set pug globals for 'universe' and 'node_env'
-app.use(function(req, res, next){
-  if(process.env.UNIVERSE){
-    req.universe = process.env.UNIVERSE;
-  } else if(req.app.get('env') === 'production'){
-    req.universe = req.hostname.replace('.r-universe.dev', '');
-    res.locals.vhost = req.headers['r-universe-vhost'];
-  }
-  res.locals.universe = req.universe || 'ropensci';
-  res.locals.node_env = req.app.get('env');
-  next();
-});
-
-// check if package/universe exists and handle caching
+//routers
+app.use('/cdn', cdnRouter);
+app.use('/', prepareRouter);
 app.use('/{:package}', cacheRouter);
 app.use('/_global/', globalRouter);
 app.use('/', apiRouter);
