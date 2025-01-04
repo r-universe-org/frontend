@@ -319,6 +319,10 @@ router.get('/:package/pkgdown.yml', function(req, res, next){
   });
 });
 
+router.get('/:package/reference', function(req, res, next){
+  res.redirect(`/${req.params.package}/doc/manual.html`);
+});
+
 router.get('/:package/reference/:page.html', function(req, res, next){
   const rdname = req.params.page;
   return get_package_info(req.params.package, req.universe).then(function(doc){
@@ -328,6 +332,10 @@ router.get('/:package/reference/:page.html', function(req, res, next){
       throw createError(404, `No help page found for ${rdname}`);
     }
   });
+});
+
+router.get('/:package/articles', function(req, res, next){
+  res.redirect('/articles');
 });
 
 router.get('/:package/articles/:article', function(req, res, next){
