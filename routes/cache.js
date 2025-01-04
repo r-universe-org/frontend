@@ -34,7 +34,7 @@ export default function(req, res, next){
     res.set('Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 2;
+      const revision = 2; // bump to invalidate all caches
       const etag = `W/"${doc._id}${revision}"`;
       const date = new Date(doc._published.getTime() + revision * 1000).toUTCString();
       res.set('ETag', etag);
@@ -43,7 +43,6 @@ export default function(req, res, next){
       //revalidation can either be done by comparing Etag or Last-Modified.
       //do not set 'must-revalidate' as this will disallow using stale cache when server is offline.
       if(etag === req.header('If-None-Match') || date === req.header('If-Modified-Since')){
-        //todo: also invalidate for updates in frontend itself?
         res.status(304).send();
       } else {
         next(); //proceed to routing
