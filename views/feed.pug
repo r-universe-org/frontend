@@ -9,7 +9,8 @@ rss(version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:r="https://r-un
       url https://github.com/#{universe}.png
       title R packages by #{universe}
       link https://#{universe}.r-universe.dev
-    lastBuildDate #{convert_date(pkgdata[0]._commit.time)}
+    if pkgdata.length > 0
+      lastBuildDate #{convert_date(pkgdata[0]._commit.time)}
     each x in pkgdata
       item
         title [#{x._user}] #{x.Package} #{x.Version}
