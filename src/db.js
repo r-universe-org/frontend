@@ -18,6 +18,7 @@ const db = production && client.db('cranlike');
 const bucket = production && new GridFSBucket(db, {bucketName: 'files'});
 const packages = production && db.collection('packages');
 const chunks = production && db.collection('files.chunks');
+const universes = production && packages.distinct('_universes');
 console.log("Connected to MongoDB!");
 
 function mongo_latest(q){
@@ -598,6 +599,15 @@ export function ls_packages(universe){
 export function bucket_find(query, options = {}){
   if(production){
     return bucket.find(query, options);
+  } else {
+    throw "Not implemented for devel";
+  }
+}
+
+//use cached result because we dont want any delay for this
+export function get_all_universes(){
+  if(production){
+    return universes;
   } else {
     throw "Not implemented for devel";
   }

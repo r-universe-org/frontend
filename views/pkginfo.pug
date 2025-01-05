@@ -336,9 +336,9 @@ block content
           canvas#package-updates-canvas(height='300')
         if _contributions
           .package-details-contributors.text-center
-            each count, login in _contributions
-              a.me-1.package-details-contributor.text-decoration-none(href=`https://${login}.r-universe.dev/contributors`)
-                img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=count data-login=login style='width: 80px; border-radius: 50%;' src=avatar_url(login, 160))
+            each x in _contributions
+              a.me-1.package-details-contributor.text-decoration-none(href=x.href)
+                img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=x.count data-login=x.login style='width: 80px; border-radius: 50%;' src=avatar_url(x.login, 160))
 
   #readme.package-details-readme.row.card.mt-4(data-scroll-to="tooltip" data-position="left" data-title='Documentation' data-intro='Rendered documentation from the README and help pages.')
     a.plink.card-title.card-header.text-center.text-dark(href='#readme')

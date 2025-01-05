@@ -1,7 +1,7 @@
 import express from 'express';
 import createError from 'http-errors';
 import url from 'node:url';
-import {get_package_info} from '../src/db.js';
+import {get_package_info, get_all_universes} from '../src/db.js';
 const router = express.Router();
 
 function avatar_url(login, size){
@@ -133,9 +133,15 @@ function filter_releases(pkgdata){
   }
 }
 
-function filter_contributions(pkgdata, max = 12){
+function filter_contributions(pkgdata, universes, max = 12){
   if(pkgdata._contributions){
-    return Object.fromEntries(Object.entries(pkgdata._contributions).slice(0,max))
+    return Object.entries(pkgdata._contributions).slice(0,max).map(function([login, count]){
+      return {
+        login: login, 
+        count: count, 
+        href: universes.includes(login) && `https://${login}.r-universe.dev/`
+      }
+    });
   }
 }
 
@@ -220,7 +226,8 @@ function description_to_html(txt = ""){
 }
 
 router.get('/:package', function(req, res, next) {
-  return get_package_info(req.params.package, req.universe).then(function(pkgdata){
+  const promises = [get_package_info(req.params.package, req.universe), get_all_universes()];
+  return Promise.all(promises).then(function([pkgdata, universes]){
     pkgdata.url = url;
     pkgdata.format_count = format_count;
     pkgdata.universe = pkgdata._user;
@@ -237,7 +244,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._problems = problem_summary(pkgdata);
     pkgdata._lastupdate = pretty_time_diff(pkgdata._commit.time);
     pkgdata._releases = filter_releases(pkgdata);
-    pkgdata._contributions = filter_contributions(pkgdata);
+    pkgdata._contributions = filter_contributions(pkgdata, universes);
     pkgdata._universe_type = pkgdata._userbio.type;
     pkgdata._universe_name = pkgdata._userbio.name;
     pkgdata._universe_bio = pkgdata._userbio.description;
