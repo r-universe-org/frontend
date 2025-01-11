@@ -2,7 +2,7 @@ import express from 'express';
 import createError from 'http-errors';
 import badgen from 'badgen';
 import {get_registry_info} from '../src/tools.js';
-import {get_distinct} from '../src/db.js';
+import {get_distinct, get_package_info} from '../src/db.js';
 
 const router = express.Router();
 
@@ -85,6 +85,51 @@ router.get('/:package/badges/version', function(req, res, next) {
       badge.color = color || 'green';
     }
     send_badge(badge, user, res, `https://${user}.r-universe.dev/${pkg}`);
+  });
+});
+
+function check_result(pkg){
+  let results = [];
+  if(pkg._failure || pkg._status == 'failure')
+    return 'FAILURE';
+  for (var bin of pkg._binaries) {
+    if(!bin.check)
+      continue; //ignore wasm
+    if(bin.r < pkg._rbuild)
+      continue //ignore oldrel
+    if(bin.commit != pkg._commit.id)
+      return 'FAILURE' //no binary for this commit?
+    results.push(bin.check)
+  }
+  if(results.includes('ERROR'))
+    return 'ERROR'
+  if(results.includes('WARNING'))
+    return 'WARNING'
+  if(results.includes('NOTE'))
+    return 'NOTE'
+  return results.length ? 'OK' : 'FAILURE';
+}
+
+router.get('/:package/badges/checks', function(req, res, next) {
+  var user = res.locals.universe;
+  var pkg = req.params.package;
+  var color = req.query.color;
+  var badge = {
+    label: 'r-universe',
+    status: 'unavailable',
+    color: color || 'red',
+    style: req.query.style,
+    scale: req.query.scale
+  };
+  return get_package_info(pkg, user).then(function(x){
+    badge.status = check_result(x);
+    if(badge.status == 'WARNING'){
+      badge.color = color || 'orange';
+    }
+    if(badge.status == 'NOTE' || badge.status == 'OK'){
+      badge.color = color || 'green';
+    }
+    send_badge(badge, user, res, x._buildurl);
   });
 });
 
