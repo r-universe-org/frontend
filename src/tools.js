@@ -1,5 +1,6 @@
 import {Buffer} from "node:buffer";
 import tar from 'tar-stream';
+import zlib from 'node:zlib';
 import gunzip from 'gunzip-maybe';
 import {load as cheerio_load} from 'cheerio';
 import hljs from 'highlight.js';
@@ -163,6 +164,22 @@ export function doc_to_dcf(doc){
     }
     return key + ": " + val.toString().replace(/\s/gi, ' ');
   }).join("\n") + "\n\n";
+}
+
+export function doc_to_ndjson(x){
+  return JSON.stringify(x) + '\n';
+}
+
+// Somehow node:stream/promises does not catch input on-error callbacks properly
+// so we promisify ourselves. See https://github.com/r-universe-org/help/issues/540
+export function cursor_stream(cursor, output, transform, gzip){
+  return new Promise(function(resolve, reject) {
+    var input = cursor.stream({transform: transform}).on('error', reject);
+    if(gzip){
+      input = input.pipe(zlib.createGzip()).on('error', reject);
+    }
+    input.pipe(output).on('finish', resolve).on('error', reject);
+  });
 }
 
 export function match_macos_arch(platform){

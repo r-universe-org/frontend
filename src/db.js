@@ -127,9 +127,18 @@ function array_first(key){
 }
 
 function build_projection(fields){
+  if(!fields || !fields.length) return {_id:0};
   var projection = {Package:1, _type:1, _user:1, _indexed: 1, _id:0};
   fields.forEach(function (f) {
-    projection[f] = 1;
+    if(f == '_binaries'){
+      projection['Built'] = 1;
+      projection['_status'] = 1;
+      projection['_check'] = 1;
+      if(!fields.includes("_commit"))
+        projection['_commit.id'] = 1;
+    } else {
+      projection[f] = 1;
+    }
   });
   return projection;
 }
@@ -138,8 +147,9 @@ function mongo_package_files(pkg, universe){
   return mongo_find({_user: universe, Package: pkg, _registered: true}).toArray();
 }
 
-function mongo_package_info(pkg, universe){
-  return mongo_find({_user: universe, Package: pkg, _registered: true}).toArray().then(function(docs){
+function mongo_package_info(pkg, universe, fields){
+  var proj = build_projection(fields);
+  return mongo_find({_user: universe, Package: pkg, _registered: true}).project(proj).toArray().then(function(docs){
     if(!docs.length) //should never happen because we checked earlier
       throw createError(404, `Package ${pkg} not found in ${universe}`);
     var pkgdata = group_package_data(docs);
@@ -416,9 +426,9 @@ export function get_bucket_stream(hash){
   }
 }
 
-export function get_package_info(pkg, universe){
+export function get_package_info(pkg, universe, fields){
   if(production){
-    return mongo_package_info(pkg, universe);
+    return mongo_package_info(pkg, universe, fields);
   } else {
     console.warn(`Fetching ${pkg} info from API...`)
     if(universe){
@@ -463,7 +473,7 @@ export function get_universe_vignettes(universe){
 
 export function get_universe_packages(universe, fields, limit = 5000){
   if(production){
-    return mongo_universe_packages(universe, fields, limit)
+    return mongo_universe_packages(universe, fields, limit);
   } else {
     console.warn(`Fetching ${universe} packages from API...`)
     var apiurl = `https://${universe}.r-universe.dev/api/packages?stream=1&all=true&limit=${limit}&fields=${fields.join()}`;
@@ -554,7 +564,6 @@ export function get_packages_index(query, fields = [], mixed = false){
   if(production){
     let projection = {...pkgfields};
     fields.forEach(function (f) {
-      console.log("adding", f)
       projection[f] = 1;
     });
     var cursor = mixed ? mongo_aggregate([
