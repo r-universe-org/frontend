@@ -48,7 +48,7 @@ export default function(req, res, next){
         next(); //proceed to routing
       }
     } else if(metapage) {
-      throw createError(404, `Universe not found: ${universe}`);
+      throw createError(404, `No packages found for this owner or maintainer: ${universe}`);
     } else {
       // Try to find case insensitive or in other universe
       var altquery = {_type: 'src', _nocasepkg: pkg.toLowerCase(), _universes: universe, _registered: true};
