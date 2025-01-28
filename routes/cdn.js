@@ -61,7 +61,7 @@ router.get("/robots.txt", function(req, res, next) {
 router.get("/:hash{/:postfix}", function(req, res, next) {
   let hash = req.params.hash || "";
   let postfix = req.params.postfix || "send";
-  if(hash.length != 32 && hash.length != 64) //should be md5 or sha256
+  if(hash.length != 64) //should sha256
     return next(createError(400, "Invalid hash length"));
   return send_from_bucket(hash, postfix, res);
 });
