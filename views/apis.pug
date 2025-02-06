@@ -76,11 +76,14 @@ block content
             label.form-check-label(for='form-types-docs') Package docs
         fieldset.col-sm
           .form-check
-            input.form-check-input(name='binaries' type='checkbox' value='4.4' id='form-binaries-4.3')
-            label.form-check-label(for='form-binaries-4.3') Binaries for R-4.4
+            input.form-check-input(name='binaries' type='checkbox' value='4.5' id='form-binaries-4.5')
+            label.form-check-label(for='form-binaries-4.5') Binaries for R-4.5
           .form-check
-            input.form-check-input(name='binaries' type='checkbox' value='4.3' id='form-binaries-4.2')
-            label.form-check-label(for='form-binaries-4.2') Binaries for R-4.3
+            input.form-check-input(name='binaries' type='checkbox' value='4.4' id='form-binaries-4.4')
+            label.form-check-label(for='form-binaries-4.4') Binaries for R-4.4
+          .form-check
+            input.form-check-input(name='binaries' type='checkbox' value='4.3' id='form-binaries-4.3')
+            label.form-check-label(for='form-binaries-4.3') Binaries for R-4.3
         fieldset.col-sm
           select#api-snapshot-packages.form-control(multiple='' size='10')
             each x in pkgdata
