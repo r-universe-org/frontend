@@ -248,6 +248,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._universe_type = pkgdata._userbio.type;
     pkgdata._universe_name = pkgdata._userbio.name;
     pkgdata._universe_bio = pkgdata._userbio.description;
+    pkgdata._reviewdata = pkgdata._metadata && pkgdata._metadata.review;
     pkgdata._checks = pkgdata._binaries.filter(x => x.check).sort((x,y) => `${x.r}${x.os}` < `${y.r}${y.os}` ? 1 : -1);
     pkgdata._checksummary = summarize_checks(pkgdata);
     pkgdata._enable_tour = true;

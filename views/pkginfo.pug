@@ -124,11 +124,15 @@ block content
           | The latest version of this package failed to build. Look at the
           a.build-failure-url.ms-1(href=_failure.buildurl target='_blank') build logs
           |  for more information.
-      p.package-details-peerreview.mb-2.d-none
-        | Peer review:
-        u
-          a.peerreview-link.text-dark.mx-1(target='_blank' href='#')
-        span.peerreview-status
+      if _reviewdata
+        p.package-details-peerreview.mb-2
+          | Reviews:
+          u
+            a.peerreview-link.text-dark.mx-1(target='_blank' href=_reviewdata.url) #{_reviewdata.organization} ##{_reviewdata.id}
+          if _reviewdata.status === 'reviewed'
+            i.fa.fa-check.text-success(data-bs-toggle="tooltip" data-bs-title=`This package has been approved by the ${_reviewdata.organization} community`)
+          else
+            b (#{_reviewdata.status})
 
       if _bugtracker
         p.mb-2.package-details-issues(data-title='Upstream issue tracker' data-intro='Where to interact with developers of this package.')

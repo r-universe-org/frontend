@@ -91,23 +91,6 @@ function update_cran_status(){
   });
 }
 
-function update_peer_review(){
-  if(universe == 'ropensci'){
-    get_json('https://badges.ropensci.org/json/onboarded.json').then(function(onboarded){
-      var reviewdata = onboarded.find(x => x.pkgname == package);
-      if(reviewdata){
-        var reviewdiv = $('.package-details-peerreview').removeClass('d-none');
-        var reviewurl = `https://github.com/ropensci/software-review/issues/${reviewdata.iss_no}`
-        var icon = $('<i class="fa fa-check"></i>').css('color', color_ok).tooltip({title: "Package has been peer reviewed by the rOpenSci community"});
-        reviewdiv.find('.peerreview-status').append(reviewdata.status == 'reviewed' ? icon : `(${reviewdata.status})`);
-        reviewdiv.find('.peerreview-link').attr("href", reviewurl).text("ropensci#" + reviewdata.iss_no);
-      }
-    }).catch((error) => {
-      console.log("Failed to load onboarded.json")
-    });
-  }
-}
-
 function show_data_download(x){
   $('#download-data-modal h5').text(x.title);
   $('#download-data-modal .modal-body').empty().text("Loading...")
@@ -342,7 +325,6 @@ $(function(){
   update_copy_gist();
   update_cran_status();
   update_open_issues();
-  update_peer_review();
   update_dataset_onclick();
   enable_default_tooltips();
   update_citation_html();
