@@ -96,9 +96,6 @@ function load_github_user_info(){
       var blog = user.blog.startsWith("http") ? user.blog : "https://" + user.blog;
       $("#github-user-blog").toggleClass("d-none").find('.content').append(a(blog));
     }
-    if(user.type === 'User' && user.twitter_username){
-      $("#github-user-twitter").toggleClass("d-none").attr('href', 'https://twitter.com/' + user.twitter_username);
-    }
     if(user.followers){
       $("#github-user-followers").toggleClass("d-none").find('.content').text(countstr(user.followers) + " followers");
     }
@@ -145,7 +142,6 @@ function load_maintainer_list(){
       if(maintainer.login == universe && maintainer.bluesky){
         var bskylink = maintainer.bluesky.replace(/^@/, 'https://bsky.app/profile/');
         $("#github-user-bluesky").removeClass("d-none").attr('href', bskylink);
-        $("#github-user-twitter").hide();
       }
       if(maintainer.login == universe && maintainer.emails && maintainer.emails.length){
         $("#github-user-emails").removeClass("d-none").find(".content").append(maintainer.emails.join("<br/>"));
