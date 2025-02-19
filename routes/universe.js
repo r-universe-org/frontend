@@ -105,7 +105,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/builds', function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
-    '_maintainer', '_upstream', '_registered', '_created', '_linuxdevel', '_winbinary',
+    '_maintainer', '_upstream', '_registered', '_created', '_linuxdevel', '_winbinary', '_windevel',
     '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('builds', {

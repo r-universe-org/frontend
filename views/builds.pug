@@ -73,11 +73,11 @@ block content
                   else
                     i.fa-fw.fa-solid.fa-xmark.color_bad
 
-                  if row._winbinary === 'success'
+                  if row._windevel === 'success'
                     i.fa-fw.fab.fa-windows.color_ok
-                  else if row._winbinary == 'failure'
+                  else if row._windevel == 'failure'
                     i.fa-fw.fab.fa-windows.color_bad
-                  else if row._winbinary === 'skipped' || row.OS_type === 'unix'
+                  else if row._windevel === 'skipped' || row.OS_type === 'unix'
                     i.fa-fw.fa-solid.fa-minus.color_meh
                   else
                     i.fa-fw.fa-solid.fa-xmark.color_bad
