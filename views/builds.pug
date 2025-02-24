@@ -23,7 +23,7 @@ block content
               td.text-nowrap #{format_yymmdd(row._commit.time*1000)}
               td
                 if row._registered === false
-                  | #{row.Package} <small>(via remote)</small>
+                  | #{row.Package} <small>(remote/noindex)</small>
                 else if row._type === 'failure'
                   | #{row.Package}
                 else if row._user === universe && row._owner === universe
