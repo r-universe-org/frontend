@@ -72,9 +72,6 @@ function make_contributor_chart(max = 20){
       });
     }
 
-    // remove spinner
-    $("#loadingstatus").remove();
-
     const ctx = document.getElementById('contributors-canvas');
     $(ctx).height(logins.length * (size + 10) + 50);
     ctx.onclick = function(e){
@@ -119,6 +116,7 @@ function make_contributor_chart(max = 20){
       options: {
         //events: [], //disable all hover events, much faster (but no tooltips)
         animation : {
+          duration: 200,
           onComplete: render_avatars,
           onProgress: render_avatars
         },
@@ -156,6 +154,9 @@ function make_contributor_chart(max = 20){
           padding: {
             right: 60
           }
+        },
+        onHover: function(event, el){
+          event.native.target.style.cursor = el[0] ? 'pointer' : 'default';
         },
         scales: {
           y: {
