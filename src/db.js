@@ -267,7 +267,7 @@ function mongo_all_scores(){
     scripts: "$_searchresults",
     dependents: '$_usedby',
     commits: {$sum: '$_updates.n'},
-    contributors: array_size({$objectToArray: '$_contributions'}),
+    contributors: array_size('$_contributors'),
     datasets: array_size('$_datasets'),
     vignettes: array_size('$_vignettes'),
     releases: array_size('$_releases')

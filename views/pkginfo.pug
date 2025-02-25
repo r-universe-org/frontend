@@ -338,11 +338,11 @@ block content
       .card-body.col-12
         .p-0.d-none.d-md-block
           canvas#package-updates-canvas(height='300')
-        if _contributions
+        if _contributors
           .package-details-contributors.text-center
-            each x in _contributions
+            each x in _contributors
               a.me-1.package-details-contributor.text-decoration-none(href=x.href)
-                img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=x.count data-login=x.login style='width: 80px; border-radius: 50%;' src=avatar_url(x.login, 160))
+                img.package-contributor-img.img-fluid.p-1.shadow-lg(loading="lazy" data-count=x.count data-login=x.user style='width: 80px; border-radius: 50%;' src=avatar_url(x.uuid || x.user, 160))
 
   #readme.package-details-readme.row.card.mt-4(data-scroll-to="tooltip" data-position="left" data-title='Documentation' data-intro='Rendered documentation from the README and help pages.')
     a.plink.card-title.card-header.text-center.text-dark(href='#readme')
@@ -409,7 +409,7 @@ block after_head
 
 block before_scripts
   script
-    | window.pkginfo=!{JSON.stringify({package: Package, bugtracker:_bugtracker, upstream:_upstream, releases: _releases, updates:_updates, contributions:_contributions})}
+    | window.pkginfo=!{JSON.stringify({package: Package, bugtracker:_bugtracker, upstream:_upstream, releases: _releases, updates:_updates})}
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js')

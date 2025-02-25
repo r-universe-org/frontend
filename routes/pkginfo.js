@@ -133,14 +133,11 @@ function filter_releases(pkgdata){
   }
 }
 
-function filter_contributions(pkgdata, universes, max = 12){
-  if(pkgdata._contributions){
-    return Object.entries(pkgdata._contributions).slice(0,max).map(function([login, count]){
-      return {
-        login: login, 
-        count: count, 
-        href: universes.includes(login) && `https://${login}.r-universe.dev/`
-      }
+function filter_contributors(pkgdata, universes, max = 12){
+  if(pkgdata._contributors){
+    return pkgdata._contributors.slice(0, max).map(function(x){
+      x.href = universes.includes(x.user) && `https://${x.user}.r-universe.dev/`;
+      return x;
     });
   }
 }
@@ -244,7 +241,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._problems = problem_summary(pkgdata);
     pkgdata._lastupdate = pretty_time_diff(pkgdata._commit.time);
     pkgdata._releases = filter_releases(pkgdata);
-    pkgdata._contributions = filter_contributions(pkgdata, universes);
+    pkgdata._contributors = filter_contributors(pkgdata, universes);
     pkgdata._universe_type = pkgdata._userbio.type;
     pkgdata._universe_name = pkgdata._userbio.name;
     pkgdata._universe_bio = pkgdata._userbio.description;
