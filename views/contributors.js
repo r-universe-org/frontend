@@ -10,12 +10,11 @@ function sort_packages(array){
   return array.sort((a, b) => (a.count > b.count) ? -1 : 1);
 }
 
-function combine_results(results, max){
-  const contributions = results[1];
+function combine_results([contributors, contributions], max){
   if(contributions.length == 0){
-    return results[0];
+    return contributors;
   }
-  var data = results[0].map(function(x){
+  var data = contributors.map(function(x){
     x.contributions = 0;
     x.packages = [];
     return x;
