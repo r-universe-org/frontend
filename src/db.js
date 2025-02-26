@@ -227,6 +227,45 @@ function mongo_universe_binaries(user, type){
   return cursor.toArray();
 }
 
+/* NB Contributions are grouped by upstream url instead of package namme to avoid duplicate counting
+ * of contributions in repos with many packages, e.g. https://github.com/r-forge/ctm/tree/master/pkg */
+function mongo_universe_contributors(user, limit = 20){
+  var query = {_universes: user, _type: 'src', '_registered' : true};
+  var cursor = mongo_aggregate([
+    {$match: query},
+    {$project: {
+      _id: 0,
+      contributors: '$_contributors',
+      upstream: '$_upstream'
+    }},
+    {$unwind: "$contributors"},
+    {$group: {_id: "$contributors.user", repos: {$addToSet: {upstream: '$upstream', count: '$contributors.count'}}}},
+    {$project: {_id:0, login: '$_id', total: {$sum: '$repos.count'}, repos: 1}},
+    {$sort:{ total: -1}},
+    {$limit: limit}
+  ]);
+  return cursor.toArray();
+}
+
+function mongo_universe_contributions(user, limit = 20){
+  var query = {_type: 'src', '_contributors.user': user, '_indexed' : true, '_maintainer.login': {$ne: user}};
+  var cursor = mongo_aggregate([
+    {$match: query},
+    {$addFields: {contrib: {$arrayElemAt:['$_contributors', { $indexOfArray: [ "$_contributors.user", user ]}]}}},
+    {$group: {
+      _id: "$_upstream",
+      owner: {$first: '$_user'}, //equals upstream org
+      packages: {$addToSet: '$Package'},
+      maintainers: {$addToSet: '$_maintainer.login'}, //upstreams can have multiple pkgs and maintainers
+      contributions: {$max: '$contrib.count'}
+    }},
+    {$project: {_id:0, contributions:'$contributions', upstream: '$_id', owner: '$owner', packages: '$packages', maintainers: '$maintainers'}},
+    {$sort:{ contributions: -1}},
+    {$limit: limit}
+  ]);
+  return cursor.toArray();
+}
+
 function mongo_all_universes(organizations_only){
   var query = {_type: 'src', _registered: true};
   if(organizations_only){
@@ -479,6 +518,24 @@ export function get_universe_binaries(universe, type){
   }
 }
 
+export function get_universe_contributors(universe, limit){
+  if(production){
+    return mongo_universe_contributors(universe, limit);
+  } else {
+    console.warn(`Fetching contributors data from API...`);
+    return get_ndjson(`https://${universe}.r-universe.dev/stats/contributors?all=1&limit=${limit}`);
+  }
+}
+
+export function get_universe_contributions(universe, limit){
+  if(production){
+    return mongo_universe_contributions(universe, limit);
+  } else {
+    console.warn(`Fetching contributions data from API...`);
+    return get_ndjson(`https://${universe}.r-universe.dev/stats/contributions?limit=${limit}`);
+  }
+}
+
 export function get_repositories(){
   if(production){
     return mongo_all_universes()
@@ -609,6 +666,8 @@ export function get_all_universes(){
   if(production){
     return universes;
   } else {
-    throw "Not implemented for devel";
+    return get_json('https://r-universe.dev/api/universes').then(function(data){
+      return data.map(x => x.universe);
+    });
   }
 }

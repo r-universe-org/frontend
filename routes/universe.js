@@ -1,6 +1,6 @@
 import express from 'express';
 import url from 'node:url';
-import {get_universe_packages, get_universe_vignettes, get_package_info} from '../src/db.js';
+import {get_universe_packages, get_universe_vignettes, get_package_info, get_universe_contributors, get_universe_contributions} from '../src/db.js';
 const router = express.Router();
 
 function sort_by_package(x,y){
@@ -91,6 +91,33 @@ function retry_url(x){
   return `https://${x._user}.r-universe.dev/api/packages/${x.Package}/${retryversion}/${retrytype}`;
 }
 
+function get_contrib_data(user, max = 20){
+  const p1 = get_universe_contributors(user, 1000);
+  const p2 = get_universe_contributions(user, 1000);
+  return Promise.all([p1, p2]).then(function([contributors, contributions]){
+    if(contributions.length == 0){
+      return contributors.slice(0,max); //org users dont make contributions themselves
+    }
+    var data = contributors.map(function(x){
+      x.contributions = 0;
+      x.packages = [];
+      return x;
+    });
+    contributions.forEach(function(x, i){
+      x.maintainers.forEach(function(maintainer){
+        var rec = data.find(y => y.login == maintainer);
+        if(!rec){
+          rec = {login: maintainer, total: 0, contributions: 0, repos: [], packages: []};
+          data.push(rec);
+        }
+        rec.contributions = rec.contributions + x.contributions;
+        rec.packages = rec.packages.concat(x.packages);
+      });
+    });
+    return data.sort(function(x,y){return (x.total + x.contributions > y.total + y.contributions) ? -1 : 1}).filter(x => x.login != user).slice(0,max);
+  });
+}
+
 /* Langing page (TODO) */
 router.get('/', function(req, res, next) {
   //res.render('index');
@@ -179,7 +206,9 @@ router.get("/datasets", function(req, res, next){
 });
 
 router.get("/contributors", function(req, res, next){
-  res.render('contributors', {});
+  return get_contrib_data(res.locals.universe).then(function(contributors){
+    res.render('contributors', {contributors: contributors});
+  });
 });
 
 router.get("/articles", function(req, res, next){
