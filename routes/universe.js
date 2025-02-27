@@ -1,6 +1,7 @@
 import express from 'express';
 import url from 'node:url';
-import {get_universe_packages, get_universe_vignettes, get_package_info, get_universe_contributors, get_universe_contributions} from '../src/db.js';
+import {get_universe_packages, get_universe_vignettes, get_package_info,
+        get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
 const router = express.Router();
 
 function sort_by_package(x,y){
@@ -94,10 +95,8 @@ function retry_url(x){
 function get_contrib_data(user, max = 20){
   const p1 = get_universe_contributors(user, 1000);
   const p2 = get_universe_contributions(user, 1000);
-  return Promise.all([p1, p2]).then(function([contributors, contributions]){
-    if(contributions.length == 0){
-      return contributors.slice(0,max); //org users dont make contributions themselves
-    }
+  const p3 = get_all_universes();
+  return Promise.all([p1, p2, p3]).then(function([contributors, contributions, universes]){
     var data = contributors.map(function(x){
       x.contributions = 0;
       x.packages = [];
@@ -114,7 +113,12 @@ function get_contrib_data(user, max = 20){
         rec.packages = rec.packages.concat(x.packages);
       });
     });
-    return data.sort(function(x,y){return (x.total + x.contributions > y.total + y.contributions) ? -1 : 1}).filter(x => x.login != user).slice(0,max);
+    return data.filter(function(x){
+      var skiplist = [user, 'pachadotdev'];
+      return universes.includes(x.login) && !skiplist.includes(x.login);
+    }).sort(function(x,y){
+      return (x.total + x.contributions > y.total + y.contributions) ? -1 : 1}
+    ).slice(0, max);
   });
 }
 

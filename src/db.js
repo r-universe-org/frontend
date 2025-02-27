@@ -666,6 +666,7 @@ export function get_all_universes(){
   if(production){
     return universes;
   } else {
+    //TODO: this does not include maintainer-only universes, but production does
     return get_json('https://r-universe.dev/api/universes').then(function(data){
       return data.map(x => x.universe);
     });
