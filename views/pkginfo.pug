@@ -174,12 +174,20 @@ block content
               u.ms-1
                 a.text-dark(href=`https://bioconductor.org/packages/${rls.branch}/bioc/html/${Package}.html`) #{Package}-#{rls.version}
               span.ms-1.text-muted (bioc #{rls.bioc})
-        else if _user !== "cran"
+        else
           span.release-title On CRAN:
           u
             a.mx-1.release-version.text-dark
           span.release-date.text-black-50
           span.release-comment
+
+          p.d-none.conda-forge Conda:
+            u
+              a.mx-1.conda-version.text-dark
+            span.conda-date.text-black-50
+            small
+              a.text-decoration-none.fa-solid.fa-hammer.text-success(target='_blank' href=`https://github.com/conda-forge/r-${Package}-feedstock`)
+
       if ! _bugtracker
         p.mb-2.package-details-notracker.text-danger
           i

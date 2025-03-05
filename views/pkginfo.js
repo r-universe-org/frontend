@@ -91,6 +91,17 @@ function update_cran_status(){
   });
 }
 
+function update_conda_status(){
+  const lowpkg = package.toLowerCase();
+  return get_json(`${server}/shared/condastatus/${lowpkg}`).then(function(conda){
+    if(conda.version){
+      $('.conda-version').text(`r-${lowpkg}-${conda.version}`).attr('href', conda.url);
+      $('.conda-date').text(`(${conda.date.substring(0,10)}) `);
+      $('.conda-forge').removeClass('d-none');
+    }
+  }).catch(() => console.log('Failed to lookup condaforge status'))
+}
+
 function show_data_download(x){
   $('#download-data-modal h5').text(x.title);
   $('#download-data-modal .modal-body').empty().text("Loading...")
@@ -324,6 +335,7 @@ function update_contributor_tooltips(){
 $(function(){ 
   update_copy_gist();
   update_cran_status();
+  update_conda_status();
   update_open_issues();
   update_dataset_onclick();
   enable_default_tooltips();
