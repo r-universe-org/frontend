@@ -1,0 +1,21 @@
+doctype xml
+ListBucketResult(xmlns="http://s3.amazonaws.com/doc/2006-03-01/")
+  Name #{universe}.r-universe.dev
+  Prefix #{Prefix}
+  NextContinuationToken #{NextContinuationToken}
+  KeyCount #{files.length + commonprefixes.length}
+  MaxKeys #{MaxKeys}
+  IsTruncated #{IsTruncated}
+  if StartAfter
+    StartAfter #{StartAfter}
+  each x in commonprefixes
+    CommonPrefixes
+      Prefix #{x}
+  each x in files
+    Contents
+      Key #{x.Key}
+      LastModified #{x.LastModified}
+      if x.ETag
+        ETag "#{x.ETag}"
+      if x.Size
+        Size #{x.Size}

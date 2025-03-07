@@ -174,3 +174,31 @@ export function match_macos_arch(platform){
   }
   throw createError(404, `Unsupported MacOS version: ${platform}`);
 }
+
+export function doc_to_paths(doc){
+  var type = doc._type;
+  if(type == 'src'){
+    return [`src/contrib/${doc.Package}_${doc.Version}.tar.gz`];
+  }
+  var built = doc.Built && doc.Built.R && doc.Built.R.substring(0,3);
+  if(type == 'win'){
+    return [`bin/windows/contrib/${built}/${doc.Package}_${doc.Version}.zip`];
+  }
+  if(type == 'mac'){
+    var intel = `bin/macosx/big-sur-x86_64/contrib/${built}/${doc.Package}_${doc.Version}.tgz`;
+    var arm = `bin/macosx/big-sur-arm64/contrib/${built}/${doc.Package}_${doc.Version}.tgz`;
+    if(doc.Built.Platform){
+      return [doc.Built.Platform.match("x86_64") ? intel : arm];
+    } else {
+      return [intel, arm];
+    }
+  }
+  if(type == 'linux'){
+    var distro = doc._distro || doc.Distro || 'linux';
+    return [`bin/linux/${distro}/${built}/src/contrib/${doc.Package}_${doc.Version}.tar.gz`];
+  }
+  if(type == 'wasm'){
+    return [`bin/emscripten/contrib/${built}/${doc.Package}_${doc.Version}.tgz`];
+  }
+  throw `Unsupported type: ${type}`;
+}

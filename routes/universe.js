@@ -1,6 +1,7 @@
 import express from 'express';
 import url from 'node:url';
-import {get_universe_packages, get_universe_vignettes, get_package_info,
+import createError from 'http-errors';
+import {get_universe_packages, get_universe_files, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
 const router = express.Router();
 
@@ -122,12 +123,47 @@ function get_contrib_data(user, max = 20){
   });
 }
 
-/* Langing page (TODO) */
+//See https://github.com/r-universe-org/help/issues/574
+function send_s3_list(req, res){
+  var universe = res.locals.universe;
+  var delimiter = req.query['delimiter'];
+  var start_after = req.query['start-after'] || req.query['continuation-token'];
+  var max_keys = parseInt(req.query['max-keys'] || 1000);
+  var prefix = req.query['prefix'] || "";
+  return get_universe_files(universe, prefix, start_after).then(function(files){
+    if(delimiter){
+      var subpaths = files.map(x => x.Key.substring(prefix.length));
+      var dirnames = subpaths.filter(x => x.includes('/')).map(x => prefix + x.split('/')[0]);
+      var commonprefixes = [...new Set(dirnames)];
+      files = files.filter(x => x.Key.substring(prefix.length).includes('/') == false);
+    } else {
+       var commonprefixes = [];
+    }
+    var IsTruncated = files.length > max_keys;
+    files = files.slice(0, max_keys);
+    return res.type('application/xml').render('S3List', {
+      Prefix: prefix,
+      MaxKeys: max_keys,
+      IsTruncated: IsTruncated,
+      NextContinuationToken: IsTruncated ? files[files.length -1].Key : undefined,
+      commonprefixes: commonprefixes,
+      files: files
+    });
+  });
+}
+
 router.get('/', function(req, res, next) {
   //res.render('index');
+  if(req.query['x-id'] == 'ListBuckets'){
+    throw createError(400, "Please use virtual-hosted-style bucket on r-universe.dev TLD");
+  }
+  if(req.query['list-type']){
+    return send_s3_list(req, res);
+  }
   res.set('Cache-control', 'private, max-age=604800'); // Vary does not work in cloudflare currently
   const accept = req.headers['accept'];
   if(accept && accept.includes('html')){
+    /* Langing page (TODO) */
     res.redirect(`/builds`);
   } else {
     res.send(`Welcome to the ${res.locals.universe} universe!`);

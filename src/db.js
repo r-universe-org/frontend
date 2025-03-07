@@ -1,6 +1,7 @@
 import {MongoClient, GridFSBucket} from 'mongodb';
 import {Readable} from  "node:stream";
-import {pkgfields} from './tools.js';
+import path from 'node:path';
+import {pkgfields, doc_to_paths} from './tools.js';
 import createError from 'http-errors';
 
 const HOST = process.env.CRANLIKE_MONGODB_SERVER || '127.0.0.1';
@@ -225,6 +226,46 @@ function mongo_universe_binaries(user, type){
     {$group:{_id: {type: "$_type", R: "$Built.R", Platform: "$Built.Platform"}, count: { $sum: 1 }}}
   ]).project({_id: 0, count: 1, type: "$_id.type", R: "$_id.R", Platform: "$_id.Platform"});
   return cursor.toArray();
+}
+
+function mongo_universe_files(user, prefix, start_after){
+  var query = {_user: user, _registered: true, _type: {'$ne': 'failure'}};
+  var proj = {Package:1, Version:1, Built:1, _distro:1, _type:1, _id:1, _published:1, _filesize:1};
+  return mongo_find(query).sort({_id: 1}).project(proj).toArray().then(function(docs){
+    if(!docs.length) //should not happen because we checked earlier
+      throw createError(404, `No packages found in ${universe}`);
+    var files = [];
+    var indexes = {};
+    docs.forEach(function(doc){
+      doc_to_paths(doc).forEach(function(fpath){
+        if(!prefix || fpath.startsWith(prefix)) {
+          files.push({
+            Key: fpath,
+            ETag: doc._id,
+            LastModified: doc._published.toISOString(),
+            Size: doc._filesize
+          });
+          var repodir = path.dirname(fpath);
+          if(!(indexes[repodir] > doc._published)){
+            indexes[repodir] = doc._published;
+          }
+        }
+      });
+    });
+
+    for (const [path, date] of Object.entries(indexes)) {
+      files.push({ Key: path + '/PACKAGES', LastModified: date.toISOString()});
+      files.push({ Key: path + '/PACKAGES.gz', LastModified: date.toISOString()});
+    }
+
+    if(start_after){
+      var index = files.findIndex(x => x.Key == start_after);
+      if(index > -1){
+        files = files.slice(index + 1);
+      }
+    }
+    return files;
+  });
 }
 
 /* NB Contributions are grouped by upstream url instead of package namme to avoid duplicate counting
@@ -533,6 +574,14 @@ export function get_universe_contributions(universe, limit){
   } else {
     console.warn(`Fetching contributions data from API...`);
     return get_ndjson(`https://${universe}.r-universe.dev/stats/contributions?limit=${limit}`);
+  }
+}
+
+export function get_universe_files(universe, prefix, start_after){
+  if(production){
+    return mongo_universe_files(universe, prefix, start_after);
+  } else {
+    throw "Not implemented for devel";
   }
 }
 
