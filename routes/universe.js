@@ -2,6 +2,7 @@ import express from 'express';
 import url from 'node:url';
 import {get_universe_packages, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
+import {doc_to_paths} from './tools.js';
 const router = express.Router();
 
 function sort_by_package(x,y){
@@ -122,12 +123,21 @@ function get_contrib_data(user, max = 20){
   });
 }
 
-/* Langing page (TODO) */
 router.get('/', function(req, res, next) {
   //res.render('index');
+  if(req.query['list-type'] == '2'){
+    //TODO: support 'delimiter' and 'prefix' and 'max-keys' and 'continuation-token' and 'start-after'
+    //Sort by _id ascending and use _id as 'continuation-token'. start-after is a file path.
+    //See https://github.com/r-universe-org/help/issues/574
+    return get_universe_files(res.locals.universe).then(function(files){
+      files.forEach((x) => {x.paths = doc_to_paths(x)});
+      res.render('S3List', {files: files});
+    });
+  }
   res.set('Cache-control', 'private, max-age=604800'); // Vary does not work in cloudflare currently
   const accept = req.headers['accept'];
   if(accept && accept.includes('html')){
+    /* Langing page (TODO) */
     res.redirect(`/builds`);
   } else {
     res.send(`Welcome to the ${res.locals.universe} universe!`);
