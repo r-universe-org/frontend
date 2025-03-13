@@ -1,26 +1,9 @@
 import express from 'express';
-import zlib from 'node:zlib';
 import createError from 'http-errors';
-import {doc_to_dcf, match_macos_arch} from '../src/tools.js';
+import {doc_to_dcf, match_macos_arch, doc_to_ndjson, cursor_stream} from '../src/tools.js';
 import {get_universe_binaries, get_packages_index, get_package_hash} from '../src/db.js';
 
 const router = express.Router();
-
-function doc_to_ndjson(x){
-  return JSON.stringify(x) + '\n';
-}
-
-// Somehow node:stream/promises does not catch input on-error callbacks properly
-// so we promisify ourselves. See https://github.com/r-universe-org/help/issues/540
-function cursor_stream(cursor, output, transform, gzip){
-  return new Promise(function(resolve, reject) {
-    var input = cursor.stream({transform: transform}).on('error', reject);
-    if(gzip){
-      input = input.pipe(zlib.createGzip()).on('error', reject);
-    }
-    input.pipe(output).on('finish', resolve).on('error', reject);
-  });
-}
 
 function packages_index(query, req, res, mixed = false){
   query._user = res.locals.universe;
