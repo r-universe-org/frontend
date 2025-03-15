@@ -128,9 +128,18 @@ function array_first(key){
 }
 
 function build_projection(fields){
+  if(!fields || !fields.length) return {_id:0};
   var projection = {Package:1, _type:1, _user:1, _indexed: 1, _id:0};
   fields.forEach(function (f) {
-    projection[f] = 1;
+    if(f == '_binaries'){
+      projection['Built'] = 1;
+      projection['_status'] = 1;
+      projection['_check'] = 1;
+      if(!fields.includes("_commit"))
+        projection['_commit.id'] = 1;
+    } else {
+      projection[f] = 1;
+    }
   });
   return projection;
 }
@@ -162,9 +171,10 @@ function mongo_package_hash(query){
   });
 }
 
-//TODO: this is heavy because we also query all binaries which we dont use currently
-function mongo_universe_packages(user, fields, limit){
-  var query = {'_universes': user};
+//TODO: because _universe is only set for source package,
+//Using all:true implies no binaries are included.
+function mongo_universe_packages(user, fields, limit, all = true){
+  var query = all ? {'_universes': user} : {'_user': user};
   var projection = build_projection(fields);
   var postmatch = {'$or': [{indexed: true}, {'_id.user': user}]};
   if(user == 'cran'){
@@ -228,9 +238,9 @@ function mongo_universe_binaries(user, type){
   return cursor.toArray();
 }
 
-function mongo_universe_files(user, prefix, start_after){
+function mongo_universe_s3_index(user, prefix, start_after){
   var query = {_user: user, _registered: true, _type: {'$ne': 'failure'}};
-  var proj = {Package:1, Version:1, Built:1, _distro:1, _type:1, _id:1, _published:1, _filesize:1};
+  var proj = {MD5sum:1, Package:1, Version:1, Built:1, _distro:1, _type:1, _id:1,  _published:1, _filesize:1};
   return mongo_find(query).sort({_id: 1}).project(proj).toArray().then(function(docs){
     if(!docs.length) //should not happen because we checked earlier
       throw createError(404, `No packages found in ${universe}`);
@@ -241,7 +251,7 @@ function mongo_universe_files(user, prefix, start_after){
         if(!prefix || fpath.startsWith(prefix)) {
           files.push({
             Key: fpath,
-            ETag: doc._id,
+            ETag: doc.MD5sum,
             LastModified: doc._published.toISOString(),
             Size: doc._filesize
           });
@@ -541,9 +551,9 @@ export function get_universe_vignettes(universe){
   }
 }
 
-export function get_universe_packages(universe, fields, limit = 5000){
+export function get_universe_packages(universe, fields, limit = 5000, all = true){
   if(production){
-    return mongo_universe_packages(universe, fields, limit)
+    return mongo_universe_packages(universe, fields, limit, all)
   } else {
     console.warn(`Fetching ${universe} packages from API...`)
     var apiurl = `https://${universe}.r-universe.dev/api/packages?stream=1&all=true&limit=${limit}&fields=${fields.join()}`;
@@ -577,9 +587,9 @@ export function get_universe_contributions(universe, limit){
   }
 }
 
-export function get_universe_files(universe, prefix, start_after){
+export function get_universe_s3_index(universe, prefix, start_after){
   if(production){
-    return mongo_universe_files(universe, prefix, start_after);
+    return mongo_universe_s3_index(universe, prefix, start_after);
   } else {
     throw "Not implemented for devel";
   }

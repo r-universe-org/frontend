@@ -1,7 +1,7 @@
 import express from 'express';
 import url from 'node:url';
 import createError from 'http-errors';
-import {get_universe_packages, get_universe_files, get_universe_vignettes, get_package_info,
+import {get_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
 const router = express.Router();
 
@@ -130,7 +130,7 @@ function send_s3_list(req, res){
   var start_after = req.query['start-after'] || req.query['continuation-token'];
   var max_keys = parseInt(req.query['max-keys'] || 1000);
   var prefix = req.query['prefix'] || "";
-  return get_universe_files(universe, prefix, start_after).then(function(files){
+  return get_universe_s3_index(universe, prefix, start_after).then(function(files){
     if(delimiter){
       var subpaths = files.map(x => x.Key.substring(prefix.length));
       var dirnames = subpaths.filter(x => x.includes('/')).map(x => prefix + x.split('/')[0]);
