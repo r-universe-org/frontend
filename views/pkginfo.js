@@ -268,6 +268,7 @@ function release_annotations(tags, activity_data){
 }
 
 function update_commit_chart(){
+  if($('#package-updates-canvas').length == 0) return;//skip for cran-universe
   const ctx = $('#package-updates-canvas').empty().attr('height', '300').height(300);
   const data = activity_data(pkginfo.updates.map(x => ({total:x.n, week:x.week})));
   const tags = release_annotations(pkginfo.releases || [], data);
