@@ -1,6 +1,5 @@
 import express from 'express';
 import gunzip from 'gunzip-maybe';
-import tar from 'tar-stream';
 import createError from 'http-errors';
 import {get_bucket_stream, bucket_find} from '../src/db.js';
 import {index_files_from_stream} from '../src/tools.js';
