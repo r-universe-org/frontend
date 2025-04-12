@@ -11,7 +11,7 @@ block content
           th Version
           th Maintainer
           th Vignettes
-          th.text-nowrap R-4.5 | R-4.4 | R-4.3
+          th.text-nowrap R-4.6 | R-4.5 | R-4.4
       tbody
         each x in packages
           tr
@@ -38,14 +38,14 @@ block content
                   i.fa-fw.fa-solid.fa-box-archive
             td
               a(href=x.src.url target='_blank').text-secondary.noline
-                | !{x.check_icon_html('4.5', 'linux')}
+                | !{x.check_icon_html('4.6', 'linux')}
+                | !{x.check_icon_html('4.6', 'win')}
+                | |
                 | !{x.check_icon_html('4.5', 'win')}
+                | !{x.check_icon_html('4.5', 'mac')}
                 | |
                 | !{x.check_icon_html('4.4', 'win')}
                 | !{x.check_icon_html('4.4', 'mac')}
-                | |
-                | !{x.check_icon_html('4.3', 'win')}
-                | !{x.check_icon_html('4.3', 'mac')}
 
 block after_head
   link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
