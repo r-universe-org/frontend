@@ -15,7 +15,7 @@ block content
             if universe == 'ropensci'
               th#thdocs(scope='col') Docs
             th(scope='col') Src
-            th.text-nowrap(scope='col') Binaries
+            th.text-nowrap(scope='col') R-dev | R-rel | R-old
             th.d-none.d-xl-table-cell.text-nowrap(scope='col') Built
         tbody#packages-table-body
           each row in pkgdata
@@ -59,47 +59,23 @@ block content
                 a(href = row._buildurl)
                   if row._status && row._status.match(/succ/i)
                     i.fa-fw.fa-solid.fa-box-archive.color_ok
-                  else
+                  else if row._status
                     i.fa-fw.fa-solid.fa-box-archive.color_bad
+                  else
+                    i.fa-fw.fa-solid.fa-xmark.text-danger
 
               td.text-nowrap
-                a(href = row._buildurl)
-                  if row._linuxdevel === 'success'
-                    i.fa-fw.fab.fa-linux.color_ok
-                  else if  row._linuxdevel === 'failure'
-                    i.fa-fw.fab.fa-linux.color_bad
-                  else if row._linuxdevel === 'skipped'
-                    i.fa-fw.fa-solid.fa-minus.color_meh
-                  else
-                    i.fa-fw.fa-solid.fa-xmark.color_bad
+                | !{row.check_icon_html('linux-devel')}
+                | !{row.check_icon_html('windows-devel')}
+                | |
+                | !{row.check_icon_html('macos-release-arm64')}
+                | !{row.check_icon_html('windows-release')}
+                | |
+                | !{row.check_icon_html('macos-oldrel-arm64')}
+                | !{row.check_icon_html('windows-oldrel')}
 
-                  if row._windevel === 'success'
-                    i.fa-fw.fab.fa-windows.color_ok
-                  else if row._windevel == 'failure'
-                    i.fa-fw.fab.fa-windows.color_bad
-                  else if row._windevel === 'skipped' || row.OS_type === 'unix'
-                    i.fa-fw.fa-solid.fa-minus.color_meh
-                  else
-                    i.fa-fw.fa-solid.fa-xmark.color_bad
-
-                  if row._macbinary === 'success'
-                    i.fa-fw.fab.fa-apple.color_ok
-                  else if row._macbinary === 'failure'
-                    i.fa-fw.fab.fa-apple.color_bad
-                  else if row._macbinary === 'arm64-failure'
-                    i.fa-fw.fab.fa-apple.color_bad
-                  else if row._macbinary === 'skipped'
-                    i.fa-fw.fa-solid.fa-minus.color_meh
-                  else
-                    i.fa-fw.fa-solid.fa-xmark.color_bad
-
-                  if row._wasmbinary === 'success'
-                    i.fa-fw.fab.fa-chrome.color_ok
-                  else
-                    i.fa-fw.fab.fa-chrome.color_meh
-
-                  if !all_ok(row)
-                    a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=build_url(row) data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row._failure ? row._failure.version : row.Version}`)
+                if !all_ok(row)
+                  a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=build_url(row) data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row._failure ? row._failure.version : row.Version}`)
               td.text-nowrap.d-none.d-xl-table-cell.text-secondary #{format_time_since(row._failure ? row._failure.date : row._created)}
 
 block after_scripts
