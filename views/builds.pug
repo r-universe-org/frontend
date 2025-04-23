@@ -46,24 +46,12 @@ block content
                 else
                   span.text-secondary #{row._maintainer.name}
               if universe == 'ropensci'
-                td
-                  if row._pkgdocs === 'skipped'
+                if row._registered
+                  td !{row.check_icon_html('pkgdown')}
+                else
+                  td
                     span.ms-1 –
-                  else if row._pkgdocs === 'success'
-                    a.ms-1(href=`https://docs.ropensci.org/${row.Package}` target='_blank')
-                      i.fa.fa-book.color_ok
-                  else
-                    a.ms-1(href=row._buildurl target='_blank')
-                      i.fa.fa-book.color_bad
-              td
-                a(href = row._buildurl)
-                  if row._status && row._status.match(/succ/i)
-                    i.fa-fw.fa-solid.fa-box-archive.color_ok
-                  else if row._status
-                    i.fa-fw.fa-solid.fa-box-archive.color_bad
-                  else
-                    i.fa-fw.fa-solid.fa-xmark.text-danger
-
+              td !{row.check_icon_html('source')}
               td.text-nowrap
                 | !{row.check_icon_html('linux-devel')}
                 | !{row.check_icon_html('windows-devel')}

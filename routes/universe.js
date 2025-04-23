@@ -26,6 +26,10 @@ function os_icon(job){
   var config = job.config || "";
   if(job.check == 'FAIL')
     return 'fa fa-xmark';
+  if(config.includes('pkgdown'))
+    return 'fa fa-book';
+  if(config.includes('source'))
+    return 'fa fa-box-archive';
   if(config.startsWith('win'))
     return 'fab fa-windows';
   if(config.startsWith('linux'))
@@ -104,17 +108,8 @@ function format_time_since(x){
   }
 }
 
-function is_ok(status){
-  return ['success', 'skipped', 'pending'].includes(status);
-}
-
 function all_ok(pkg){
-  if(pkg._user == 'ropensci' && pkg._pkgdocs === 'failure'){
-    return false;
-  }
-  if(!pkg._status || pkg._status != 'success'){
-    return false;
-  }
+  // this now includes 'pkgdown' and 'source' jobs
   for (const job of pkg._jobs || []) {
     if((job.check == 'FAIL' || job.check == 'ERROR') && !job.config.includes('wasm')){
       return false;

@@ -5,6 +5,6 @@ else
 mongoconfig="/usr/local/etc/mongod.conf"
 fi
 export NODE_ENV=production
-export UNIVERSE=bioc
+export UNIVERSE=ropensci
 DEBUG=cranlike:* mongod --config $mongoconfig & sleep 2 & npm start
 
