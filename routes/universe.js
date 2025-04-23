@@ -264,6 +264,10 @@ router.get("/articles", function(req, res, next){
   });
 });
 
+router.get("/articles/:package", function(req, res, next){
+  res.redirect('/articles');
+});
+
 router.get("/articles/:package/:vignette", function(req, res, next){
   return get_package_info(req.params.package, req.universe).then(function(pkgdata){
     var article = pkgdata._vignettes && pkgdata._vignettes.find(x => x.filename == req.params.vignette);
