@@ -77,7 +77,7 @@ function prepare_checks(pkgdata){
 }
 
 function summarize_checks(pkgdata){
-  var results = pkgdata._jobs.map(x => x.check).reduce((ac,a) => (ac[a] = ac[a] + 1 || 1,ac),{});
+  var results = (pkgdata._jobs || []).map(x => x.check).reduce((ac,a) => (ac[a] = ac[a] + 1 || 1,ac),{});
   return Object.entries(results).map(([k,v]) => `${v} ${k}`).join(", ");
 }
 

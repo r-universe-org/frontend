@@ -1,7 +1,8 @@
 #!/bin/sh
 echo "use cranlike\ndb.dropDatabase()" | mongosh
-curl -L "https://ropensci.r-universe.dev/api/dbdump?everything=1" -o ropensci.bson
-curl -L "https://bioc.r-universe.dev/api/dbdump?everything=1" -o bioc.bson
-mongorestore -d cranlike -c packages ropensci.bson
-mongorestore -d cranlike -c packages bioc.bson
-rm -f ropensci.bson bioc.bson
+for user in ropensci bioc jeroen; do
+  echo "Copying data for $user"
+  curl -L "https://$user.r-universe.dev/api/dbdump?everything=1" -o $user.bson
+  mongorestore -d cranlike -c packages $user.bson
+  rm -f $user.bson
+done
