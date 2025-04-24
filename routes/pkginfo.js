@@ -39,22 +39,47 @@ function format_count(count){
   return count;
 }
 
-function summarize_checks(pkgdata){
-  var results = pkgdata._status.match('suc') ? {OK:1} : {ERROR:1};
-  pkgdata._binaries.filter(x => x.check).forEach(function(bin){
-    if(bin.commit != pkgdata._commit.id)
-      bin.check = 'FAILURE';
-    if(!results[bin.check]){
-      results[bin.check] = 1
-    } else {
-      results[bin.check]++;
-    }
-  });
-  var out = [];
-  for (const [key, value] of Object.entries(results)) {
-    out.push(`${value} ${key}`)
+function job_sort(config){
+  var score = 0;
+  if(config.includes('oldrel'))
+    score += 2;
+  if(config.includes('release'))
+    score += 1;
+  if(config.includes('wasm'))
+    score += 30;
+  if(config.includes('windows'))
+    score += 20;
+  if(config.includes('mac'))
+    score += 10;
+  if(config.includes('intel'))
+    score += 5;
+  return score;
+}
+
+function job_info(job){
+  if(job.config == 'source'){
+    job.config = 'source / vignettes';
   }
-  return out.join(", ");
+  if(job.config == 'pkgdown'){
+    job.config = 'pkgdown docs';
+  }
+  if(job.check == 'OK' || job.check == 'NOTE' ){
+    job.color = 'primary';
+  } else if(job.check == 'WARNING'){
+    job.color = 'warning';
+  } else {
+    job.color = 'danger'
+  }
+  return job;
+}
+
+function prepare_checks(pkgdata){
+  return (pkgdata._jobs || []).sort((x,y) => job_sort(x.config) < job_sort(y.config) ? -1 : 1).map(job_info);
+}
+
+function summarize_checks(pkgdata){
+  var results = pkgdata._jobs.map(x => x.check).reduce((ac,a) => (ac[a] = ac[a] + 1 || 1,ac),{});
+  return Object.entries(results).map(([k,v]) => `${v} ${k}`).join(", ");
 }
 
 function group_binaries(x){
@@ -246,7 +271,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._universe_name = pkgdata._userbio.name;
     pkgdata._universe_bio = pkgdata._userbio.description;
     pkgdata._reviewdata = pkgdata._metadata && pkgdata._metadata.review;
-    pkgdata._checks = pkgdata._binaries.filter(x => x.check).sort((x,y) => `${x.r}${x.os}` < `${y.r}${y.os}` ? 1 : -1);
+    pkgdata._checks = prepare_checks(pkgdata)
     pkgdata._checksummary = summarize_checks(pkgdata);
     pkgdata._enable_tour = true;
     res.render('pkginfo', pkgdata);
