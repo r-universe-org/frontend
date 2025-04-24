@@ -1,5 +1,6 @@
 import express from 'express';
 import {get_builds, get_organizations, get_repositories, get_articles, get_scores, get_sysdeps, get_datasets} from '../src/db.js';
+import {check_to_color} from '../src/tools.js';
 const router = express.Router();
 
 function rnd(max){
@@ -18,21 +19,6 @@ function cleanup_sysdep_desc(str){
   if(!str) return "";
   var str = str.charAt(0).toUpperCase() + str.slice(1);
   return str.replace(/\(.*\)$/, '').replace('SASL -', 'SASL').replace(/[-,]+ .*(shared|runtime|binary|library|legacy|precision|quantum).*$/i, '');
-}
-
-function check_to_color(check){
-  switch (check) {
-    case 'ERROR':
-      return 'text-danger';
-    case 'WARNING':
-      return 'text-warning';
-    case 'NOTE':
-      return 'text-success';
-    case 'OK':
-      return 'text-success';
-    default:
-      return 'text-dark';
-  }
 }
 
 function os_icon(type){

@@ -2,6 +2,8 @@ import express from 'express';
 import createError from 'http-errors';
 import url from 'node:url';
 import {get_package_info, get_all_universes} from '../src/db.js';
+import {check_to_color} from '../src/tools.js';
+
 const router = express.Router();
 
 function avatar_url(login, size){
@@ -63,12 +65,9 @@ function job_info(job){
   if(job.config == 'pkgdown'){
     job.config = 'pkgdown docs';
   }
-  if(job.check == 'OK' || job.check == 'NOTE' ){
-    job.color = 'primary';
-  } else if(job.check == 'WARNING'){
-    job.color = 'warning';
-  } else {
-    job.color = 'danger'
+  job.color = check_to_color(job.check);
+  if(job.check == 'OK' || job.check == 'NOTE'){
+    delete job.color;
   }
   return job;
 }

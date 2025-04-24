@@ -3,24 +3,8 @@ import url from 'node:url';
 import createError from 'http-errors';
 import {get_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
+import {check_to_color} from '../src/tools.js';
 const router = express.Router();
-
-function check_to_color(job){
-  var check = job.check || "";
-  switch (check) {
-    case 'ERROR':
-    case 'FAIL':
-      return 'text-danger';
-    case 'WARNING':
-      return 'text-warning';
-    case 'NOTE':
-      return 'text-success';
-    case 'OK':
-      return 'text-success';
-    default:
-      return 'text-dark';
-  }
-}
 
 function os_icon(job){
   var config = job.config || "";
@@ -214,7 +198,7 @@ router.get('/builds', function(req, res, next) {
       row.check_icon_html = function(target){
         var job = (row._jobs || []).find(x => x.config.includes(target));
         if(job){
-          return `<a href="${row._buildurl}/job/${job.job}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job)}"></i></a>`;
+          return `<a href="${row._buildurl}/job/${job.job}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
         } else if(!target.includes('linux') && row.user == 'cran'){
           return '<i class="grow-on-over fa-fw fa-solid fa-minus"></i>';
         } else {

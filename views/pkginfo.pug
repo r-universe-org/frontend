@@ -260,7 +260,7 @@ block content
               td #{job.config}
               td
                 a(target="_blank" href=`${_buildurl}/job/${job.job}`)
-                  b(class=`text-${job.color}`) #{job.check}
+                  b(class=job.color) #{job.check}
               td.text-secondary #{job.time}
 
       if _exports
