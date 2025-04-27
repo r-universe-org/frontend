@@ -259,7 +259,7 @@ block content
             tr
               td #{job.config}
               td
-                a(target="_blank" href=`${_buildurl}/job/${job.job}`)
+                a(target="_blank" href=`${_buildurl}/job/${job.job || '..'}`)
                   b(class=job.color) #{job.check}
               td.text-secondary #{job.time}
 

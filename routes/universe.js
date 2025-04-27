@@ -198,7 +198,7 @@ router.get('/builds', function(req, res, next) {
       row.check_icon_html = function(target){
         var job = (row._jobs || []).find(x => x.config.includes(target));
         if(job){
-          return `<a href="${row._buildurl}/job/${job.job}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
+          return `<a href="${row._buildurl}/job/${job.job || '..'}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
         } else if(!target.includes('linux') && row.user == 'cran'){
           return '<i class="grow-on-over fa-fw fa-solid fa-minus"></i>';
         } else {

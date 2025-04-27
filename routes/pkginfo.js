@@ -73,11 +73,12 @@ function job_info(job){
 }
 
 function prepare_checks(pkgdata){
-  return (pkgdata._jobs || []).sort((x,y) => job_sort(x.config) < job_sort(y.config) ? -1 : 1).map(job_info);
+  var checks = pkgdata._jobs || [];
+  return checks.sort((x,y) => job_sort(x.config) < job_sort(y.config) ? -1 : 1).map(job_info);
 }
 
-function summarize_checks(pkgdata){
-  var results = (pkgdata._jobs || []).map(x => x.check).reduce((ac,a) => (ac[a] = ac[a] + 1 || 1,ac),{});
+function summarize_checks(checks){
+  var results = checks.map(x => x.check).reduce((ac,a) => (ac[a] = ac[a] + 1 || 1,ac),{});
   return Object.entries(results).map(([k,v]) => `${v} ${k}`).join(", ");
 }
 
@@ -270,8 +271,8 @@ router.get('/:package', function(req, res, next) {
     pkgdata._universe_name = pkgdata._userbio.name;
     pkgdata._universe_bio = pkgdata._userbio.description;
     pkgdata._reviewdata = pkgdata._metadata && pkgdata._metadata.review;
-    pkgdata._checks = prepare_checks(pkgdata)
-    pkgdata._checksummary = summarize_checks(pkgdata);
+    pkgdata._checks = prepare_checks(pkgdata);
+    pkgdata._checksummary = summarize_checks(pkgdata._checks);
     pkgdata._enable_tour = true;
     res.render('pkginfo', pkgdata);
   });
