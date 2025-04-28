@@ -257,7 +257,7 @@ block content
         tbody
           each job in _checks
             tr
-              td #{job.config}
+              td #{job.name}
               td
                 a(target="_blank" href=`${_buildurl}/job/${job.job || '..'}`)
                   b(class=job.color) #{job.check}
@@ -279,7 +279,7 @@ block content
       if _status === 'failure'
         .vignette-failure-alert.alert.alert-warning.m-0(role='alert')
           | Vignettes and/or manual for this package failed to build, some documents may be unavailable. Please inspect the
-          a.ms-1.vignette-failure-url(target='_blank' href=_buildurl) build logs
+          a.ms-1.vignette-failure-url(target='_blank' href=`${_buildurl}/job/${_srcjob.job || '..'}`) build logs
           |  for more information.
       if _vignettes
         each article in _vignettes

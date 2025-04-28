@@ -59,11 +59,12 @@ function job_sort(config){
 }
 
 function job_info(job){
-  if(job.config == 'source'){
-    job.config = 'source / vignettes';
+  job.name = job.config;
+  if(job.name == 'source'){
+    job.name = 'source / vignettes';
   }
-  if(job.config == 'pkgdown'){
-    job.config = 'pkgdown docs';
+  if(job.name == 'pkgdown'){
+    job.name = 'pkgdown docs';
   }
   job.color = check_to_color(job.check);
   if(job.check == 'OK' || job.check == 'NOTE'){
@@ -273,6 +274,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._reviewdata = pkgdata._metadata && pkgdata._metadata.review;
     pkgdata._checks = prepare_checks(pkgdata);
     pkgdata._checksummary = summarize_checks(pkgdata._checks);
+    pkgdata._srcjob = pkgdata._checks.find(x => x.config == 'source') || {};
     pkgdata._enable_tour = true;
     res.render('pkginfo', pkgdata);
   });
