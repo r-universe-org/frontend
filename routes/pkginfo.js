@@ -43,18 +43,20 @@ function format_count(count){
 
 function job_sort(config){
   var score = 0;
-  if(config.includes('oldrel'))
-    score += 2;
-  if(config.includes('release'))
-    score += 1;
-  if(config.includes('wasm'))
-    score += 30;
-  if(config.includes('windows'))
-    score += 20;
-  if(config.includes('mac'))
-    score += 10;
-  if(config.includes('intel'))
-    score += 5;
+  if(config){
+    if(config.includes('oldrel'))
+      score += 2;
+    if(config.includes('release'))
+      score += 1;
+    if(config.includes('wasm'))
+      score += 30;
+    if(config.includes('windows'))
+      score += 20;
+    if(config.includes('mac'))
+      score += 10;
+    if(config.includes('intel'))
+      score += 5;
+  }
   return score;
 }
 
