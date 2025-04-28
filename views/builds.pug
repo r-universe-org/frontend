@@ -15,7 +15,7 @@ block content
             if universe == 'ropensci'
               th#thdocs(scope='col') Docs
             th(scope='col') Src
-            th.text-nowrap(scope='col') R-dev | R-rel | R-old
+            th.text-nowrap(scope='col') R-dev | R-release | R-old
             th.d-none.d-xl-table-cell.text-nowrap(scope='col') Built
         tbody#packages-table-body
           each row in pkgdata
@@ -56,6 +56,7 @@ block content
                 | !{row.check_icon_html('linux-devel')}
                 | !{row.check_icon_html('windows-devel')}
                 | |
+                | !{row.check_icon_html('linux-release')}
                 | !{row.check_icon_html('macos-release-arm64')}
                 | !{row.check_icon_html('windows-release')}
                 | |
