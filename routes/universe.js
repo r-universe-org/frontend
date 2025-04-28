@@ -3,7 +3,28 @@ import url from 'node:url';
 import createError from 'http-errors';
 import {get_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
+import {check_to_color} from '../src/tools.js';
 const router = express.Router();
+
+function os_icon(job){
+  var config = job.config || "";
+  if(job.check == 'FAIL')
+    return 'fa fa-xmark';
+  if(config.includes('pkgdown'))
+    return 'fa fa-book';
+  if(config.includes('source'))
+    return 'fa fa-box-archive';
+  if(config.startsWith('win'))
+    return 'fab fa-windows';
+  if(config.startsWith('linux'))
+    return 'fab fa-linux';
+  if(config.startsWith('mac'))
+    return 'fab fa-apple';
+  if(config.startsWith('wasm'))
+    return 'fab fa-chrome';
+  return 'fa-question';
+}
+
 
 function sort_by_package(x,y){
   return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
@@ -71,16 +92,14 @@ function format_time_since(x){
   }
 }
 
-function is_ok(status){
-  return ['success', 'skipped', 'pending'].includes(status);
-}
-
 function all_ok(pkg){
-  if(pkg._user == 'ropensci' && pkg._pkgdocs === 'failure'){
-    return false;
+  // this now includes 'pkgdown' and 'source' jobs
+  for (const job of pkg._jobs || []) {
+    if((job.check == 'FAIL' || job.check == 'ERROR') && !job.config.includes('wasm')){
+      return false;
+    }
   }
-  return (!pkg._failure) && is_ok(pkg._status) && is_ok(pkg._macbinary) && is_ok(pkg._linuxdevel) &&
-    is_ok(pkg._wasmbinary) && (is_ok(pkg._winbinary) || pkg.OS_type === 'unix')
+  return true;
 }
 
 function build_url(x){
@@ -172,9 +191,21 @@ router.get('/', function(req, res, next) {
 
 router.get('/builds', function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
-    '_maintainer', '_upstream', '_registered', '_created', '_linuxdevel', '_winbinary', '_windevel',
-    '_macbinary', '_wasmbinary', '_pkgdocs', '_status', '_buildurl', '_failure'];
+    '_maintainer', '_upstream', '_registered', '_created', '_jobs',
+    '_status', '_buildurl', '_failure'];
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+    pkgdata.forEach(function(row){
+      row.check_icon_html = function(target){
+        var job = (row._jobs || []).find(x => x.config.includes(target));
+        if(job){
+          return `<a href="${row._buildurl}/job/${job.job || '..'}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
+        } else if(!target.includes('linux') && row.user == 'cran'){
+          return '<i class="grow-on-over fa-fw fa-solid fa-minus"></i>';
+        } else {
+          return `<a href="${row._buildurl}"><i class="grow-on-over fa-fw fa-solid fa-xmark text-danger"></i></a>`;
+        }
+      };
+    });
     res.render('builds', {
       format_yymmdd: format_yymmdd,
       format_time_since: format_time_since,

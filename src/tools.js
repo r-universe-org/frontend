@@ -202,3 +202,19 @@ export function doc_to_paths(doc){
   }
   throw `Unsupported type: ${type}`;
 }
+
+export function check_to_color(check){
+  switch (check || "") {
+    case 'ERROR':
+    case 'FAIL':
+      return 'text-danger';
+    case 'WARNING':
+      return 'text-warning';
+    case 'NOTE':
+      return 'text-success';
+    case 'OK':
+      return 'text-success';
+    default:
+      return 'text-dark';
+  }
+}

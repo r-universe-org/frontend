@@ -248,40 +248,20 @@ block content
           else
             a.ms-1.link-underline-dark.text-success.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
           | . Indexed: #{_indexed ? 'yes' : 'no'}.
-      table#checktable.noanim.collapse.table.table-sm.table-bordered.border-primary-subtle(style="max-width: 400px")
+      table#checktable.noanim.collapse.table.table-sm.table-bordered.border-primary-subtle.table-hover(style="max-width: 400px")
         thead
           tr
             th Target
             th Result
-            th Latest binary
+            th Total time
         tbody
-          tr
-            td Doc / Vignettes
-            td
-              a(target="_blank" href=_buildurl)
-                if _status.match('suc')
-                  span.text-dark OK
-                else
-                  span.text-danger FAIL
-            td #{date_to_string(_created)}
-          each bin in _checks
+          each job in _checks
             tr
-              td R-#{bin.r.substring(0,3)}-#{bin.os}#{bin.arch ? `-${bin.arch}` : '' }
+              td #{job.config}
               td
-                a(target="_blank" href=_buildurl)
-                  if _commit.id != bin.commit
-                    span.text-danger OUTDATED
-                  else if bin.check == 'ERROR'
-                    span.text-danger #{bin.check}
-                  else if bin.check == 'WARNING'
-                    span.text-warning #{bin.check}
-                  else
-                    span.text-dark #{bin.check}
-              td
-                a.text-dark(target="_blank" href=bin.buildurl) #{date_to_string(bin.date)}
-
-
-
+                a(target="_blank" href=`${_buildurl}/job/${job.job || '..'}`)
+                  b(class=job.color) #{job.check}
+              td.text-secondary #{job.time}
 
       if _exports
         p#exportlist.card-text.clearfix.noanim.collapse
