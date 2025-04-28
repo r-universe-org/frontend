@@ -196,7 +196,7 @@ router.get('/builds', function(req, res, next) {
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata.forEach(function(row){
       row.check_icon_html = function(target){
-        var job = (row._jobs || []).find(x => x.config && x.config.includes(target));
+        var job = (row._jobs || []).find(x => x.config.includes(target));
         if(job){
           return `<a href="${row._buildurl}/job/${job.job || '..'}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
         } else if(!target.includes('linux') && row.user == 'cran'){
