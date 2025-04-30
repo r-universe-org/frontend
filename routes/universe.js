@@ -93,11 +93,14 @@ function format_time_since(x){
 }
 
 function all_ok(pkg){
-  // this now includes 'pkgdown' and 'source' jobs
+  // this now includes 'pkgdown' and 'source' jobs, but not yet failures
   for (const job of pkg._jobs || []) {
     if((job.check == 'FAIL' || job.check == 'ERROR') && !job.config.includes('wasm')){
       return false;
     }
+  }
+  if(pkg._failure){
+    return false;
   }
   return true;
 }
