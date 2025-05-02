@@ -1,13 +1,21 @@
 import express from 'express';
 import zlib from 'node:zlib';
 import createError from 'http-errors';
-import {doc_to_dcf, match_macos_arch} from '../src/tools.js';
+import {doc_to_dcf} from '../src/tools.js';
 import {get_universe_binaries, get_packages_index, get_package_hash} from '../src/db.js';
 
 const router = express.Router();
 
 function doc_to_ndjson(x){
   return JSON.stringify(x) + '\n';
+}
+
+function parse_arch(x){
+  var arch = x.split('-').pop();
+  if(arch == 'arm64'){
+    return 'aarch64';
+  }
+  return arch;
 }
 
 // Somehow node:stream/promises does not catch input on-error callbacks properly
@@ -38,7 +46,7 @@ function packages_index(query, req, res, mixed = false){
     case 'PACKAGES.gz':
       return cursor_stream(cursor, res.type('application/x-gzip'), doc_to_dcf, true);
     case 'PACKAGES.json':
-      return cursor_stream(cursor, res.type('text/plain'), doc_to_ndjson);      
+      return cursor_stream(cursor, res.type('text/plain'), doc_to_ndjson);
   }
   throw createError(404, 'Unknown PACKAGES format: ' + format);
 }
@@ -69,54 +77,53 @@ router.get('/src/contrib/:pkg.tar.gz', function(req, res, next) {
   return send_binary(query, req, res);
 });
 
-router.get('/bin/windows/contrib/:built/:pkg.zip', function(req, res, next) {
+router.get('/bin/windows/contrib/:major/:pkg.zip', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'win', 'Built.R' : {$regex: '^' + req.params.built},
-    Package: pkg, Version: version};
+  var query = {_type: 'win', _major: req.params.major, Package: pkg, Version: version};
   return send_binary(query, req, res);
 });
 
-router.get('/bin/macosx/:arch/contrib/:built/:pkg.tgz', function(req, res, next) {
+router.get('/bin/macosx/:platform/contrib/:major/:pkg.tgz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'mac', 'Built.R' : {$regex: '^' + req.params.built},
-    Package: pkg, Version: version, 'Built.Platform' : match_macos_arch(req.params.arch)};
+  var query = {_type: 'mac', _major: req.params.major, Package: pkg,
+    Version: version, _arch: parse_arch(req.params.platform)}
   return send_binary(query, req, res);
 });
 
-router.get('/bin/linux/:distro/:built/src/contrib/:pkg.tar.gz', function(req, res, next) {
+router.get('/bin/linux/:distro/:major/src/contrib/:pkg.tar.gz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var query = {Package: pkg, Version: version, '$or': [
     {_type: 'src'},
-    {_type: 'linux', '_distro': req.params.distro, 'Built.R' : {$regex: '^' + req.params.built}},
+    {_type: 'linux', '_distro': req.params.distro, _major : req.params.major},
   ]};
   return send_binary(query, req, res);
 });
 
-router.get('/bin/emscripten/contrib/:built/:pkg.tgz', function(req, res, next) {
+router.get('/bin/emscripten/contrib/:major/:pkg.tgz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'wasm', 'Built.R' : {$regex: '^' + req.params.built},
+  var query = {_type: 'wasm', _major : req.params.major,
     Package: pkg, Version: version};
   return send_binary(query, req, res);
 });
 
 /* Some legacy endpoints for webR 4.3. remove for R-4.5  */
-router.get('/bin/emscripten/contrib/:built/:pkg.data.gz', function(req, res, next) {
+router.get('/bin/emscripten/contrib/:major/:pkg.data.gz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'wasm', 'Built.R' : {$regex: '^' + req.params.built},
+  var query = {_type: 'wasm', _major : req.params.major,
     Package: pkg, Version: version};
   return send_binary(query, req, res);
 });
 
-router.get('/bin/emscripten/contrib/:built/:pkg.data', function(req, res, next) {
+router.get('/bin/emscripten/contrib/:major/:pkg.data', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'wasm', 'Built.R' : {$regex: '^' + req.params.built},
+  var query = {_type: 'wasm', _major : req.params.major,
     Package: pkg, Version: version};
   return send_binary(query, req, res, `/decompress`);
 });
 
-router.get('/bin/emscripten/contrib/:built/:pkg.js.metadata', function(req, res, next) {
+router.get('/bin/emscripten/contrib/:major/:pkg.js.metadata', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'wasm', 'Built.R' : {$regex: '^' + req.params.built},
+  var query = {_type: 'wasm', _major : req.params.major,
     Package: pkg, Version: version};
   return send_binary(query, req, res, `/index`);
 });
@@ -127,41 +134,41 @@ router.get('/src/contrib{/:format}', function(req, res, next) {
   return packages_index({_type: 'src'}, req, res);
 });
 
-router.get('/bin/windows/contrib/:built{/:format}', function(req, res, next) {
+router.get('/bin/windows/contrib/:major{/:format}', function(req, res, next) {
   var query = {
-    _type: 'win', 
-    'Built.R' : {$regex: '^' + req.params.built}
+    _type: 'win',
+    _major : req.params.major,
   };
   return packages_index(query, req, res);
 });
 
-router.get('/bin/macosx/:arch/contrib/:built{/:format}', function(req, res, next) {
+router.get('/bin/macosx/:platform/contrib/:major{/:format}', function(req, res, next) {
   var query = {
-    _type: 'mac', 
-    'Built.R' : {$regex: '^' + req.params.built},
-    'Built.Platform': match_macos_arch(req.params.arch)
+    _type: 'mac',
+    _major: req.params.major,
+    _arch: parse_arch(req.params.platform)
   };
   return packages_index(query, req, res);
 });
 
 /* Linux binaries with fallback on source packages */
-router.get('/bin/linux/:distro/:built/src/contrib{/:format}', function(req, res, next) {
+router.get('/bin/linux/:distro/:major/src/contrib{/:format}', function(req, res, next) {
   var query = {'$or': [
     {_type: 'src'},
-    {_type: 'linux', '_distro': req.params.distro, 'Built.R' : {$regex: '^' + req.params.built}},
+    {_type: 'linux', '_distro': req.params.distro, _major: req.params.major},
   ]};
   return packages_index(query, req, res, true);
 });
 
-router.get('/bin/emscripten/contrib/:built{/:format}', function(req, res, next) {
+router.get('/bin/emscripten/contrib/:major{/:format}', function(req, res, next) {
   var query = {
-    _type: 'wasm', 
-    'Built.R' : {$regex: '^' + req.params.built}
+    _type: 'wasm',
+    _major: req.params.major
   };
   return packages_index(query, req, res);
 });
 
-/* Some helper redirects and stats */ 
+/* Some helper redirects and stats */
 router.get('/bin/windows', function(req, res, next) {
   res.redirect('/bin/windows/contrib');
 });
@@ -170,12 +177,12 @@ router.get('/bin/emscripten', function(req, res, next) {
   res.redirect('/bin/emscripten/contrib');
 });
 
-router.get(['/bin/macosx', '/bin/macosx/:arch'], function(req, res, next) {
-  res.redirect('/bin/macosx/big-sur-arm64/contrib');
+router.get(['/bin/macosx', '/bin/macosx/:platform'], function(req, res, next) {
+  res.redirect(`/bin/macosx/${req.params.platform}/contrib`);
 });
 
-router.get('/bin/linux/:distro/:built', function(req, res, next) {
-  res.redirect(`/bin/linux/${req.params.distro}/${req.params.built}/src/contrib`);
+router.get('/bin/linux/:distro/:major', function(req, res, next) {
+  res.redirect(`/bin/linux/${req.params.distro}/${req.params.major}/src/contrib`);
 });
 
 router.get('/src', function(req, res, next) {
