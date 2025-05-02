@@ -165,16 +165,6 @@ export function doc_to_dcf(doc){
   }).join("\n") + "\n\n";
 }
 
-export function match_macos_arch(platform){
-  if(platform.match("arm64|aarch64")){
-    return {$not : /x86_64/};
-  }
-  if(platform.match("x86_64")){
-    return {$not : /aarch64/};
-  }
-  throw createError(404, `Unsupported MacOS version: ${platform}`);
-}
-
 export function doc_to_paths(doc){
   var type = doc._type;
   if(type == 'src'){
