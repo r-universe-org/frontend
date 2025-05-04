@@ -10,12 +10,15 @@ function doc_to_ndjson(x){
   return JSON.stringify(x) + '\n';
 }
 
-function parse_arch(x){
-  var arch = x.split('-').pop();
-  if(arch == 'arm64'){
-    return 'aarch64';
+//If distro is not postfixed with -arm64 or -x86_64, we assume x86_64.
+function parse_distro(x){
+  var input = x.replace('arm64', 'aarch64').split('-');
+  var tail = input.pop();
+  if(tail == 'aarch64' || tail == 'x86_64'){
+    return [input.join('-'), tail];
+  } else {
+    return [x, 'x86_64'];
   }
-  return arch;
 }
 
 // Somehow node:stream/promises does not catch input on-error callbacks properly
@@ -83,18 +86,20 @@ router.get('/bin/windows/contrib/:major/:pkg.zip', function(req, res, next) {
   return send_binary(query, req, res);
 });
 
-router.get('/bin/macosx/:platform/contrib/:major/:pkg.tgz', function(req, res, next) {
+router.get('/bin/macosx/:distro/contrib/:major/:pkg.tgz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
+  var [distro, arch] = parse_distro(req.params.distro);
   var query = {_type: 'mac', _major: req.params.major, Package: pkg,
-    Version: version, _arch: parse_arch(req.params.platform)}
+    Version: version, _arch: arch}
   return send_binary(query, req, res);
 });
 
 router.get('/bin/linux/:distro/:major/src/contrib/:pkg.tar.gz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
+  var [distro, arch] = parse_distro(req.params.distro);
   var query = {Package: pkg, Version: version, '$or': [
     {_type: 'src'},
-    {_type: 'linux', '_distro': req.params.distro, _major : req.params.major},
+    {_type: 'linux', _distro: distro, _arch: arch, _major : req.params.major},
   ]};
   return send_binary(query, req, res);
 });
@@ -142,20 +147,22 @@ router.get('/bin/windows/contrib/:major{/:format}', function(req, res, next) {
   return packages_index(query, req, res);
 });
 
-router.get('/bin/macosx/:platform/contrib/:major{/:format}', function(req, res, next) {
+router.get('/bin/macosx/:distro/contrib/:major{/:format}', function(req, res, next) {
+  var [distro, arch] = parse_distro(req.params.distro);
   var query = {
     _type: 'mac',
     _major: req.params.major,
-    _arch: parse_arch(req.params.platform)
+    _arch: arch
   };
   return packages_index(query, req, res);
 });
 
 /* Linux binaries with fallback on source packages */
 router.get('/bin/linux/:distro/:major/src/contrib{/:format}', function(req, res, next) {
+  var [distro, arch] = parse_distro(req.params.distro);
   var query = {'$or': [
     {_type: 'src'},
-    {_type: 'linux', '_distro': req.params.distro, _major: req.params.major},
+    {_type: 'linux', _distro: distro, _arch: arch, _major: req.params.major},
   ]};
   return packages_index(query, req, res, true);
 });
