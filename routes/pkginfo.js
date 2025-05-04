@@ -104,9 +104,10 @@ function group_binaries(x){
   });
   var linux = binaries.filter(x => x.os == 'linux').map(function(binary){
     var build = binary.r.substring(0,3);
-    var distro = binary.distro || "unknown";
+    var arch = (binary.arch || "any").replace("aarch64", "arm64");
     var filename = `${pkg}_${binary.version}.tar.gz`;
-    var repo = `r-${build}-${distro}`;
+    var distro = `${binary.distro}-${binary.arch || 'x86_64'}`
+    var repo = `r-${build}-${arch}`;
     var url = `/bin/linux/${distro}/${build}/src/contrib/${filename}`;
     return {filename: filename, repo: repo, url: url};
   });
