@@ -38,6 +38,10 @@ function sort_by_score(x,y){
   return x._score > y._score ? -1 : 1
 }
 
+function sort_by_config(x,y){
+  return x.config < y.config ? -1 : 1
+}
+
 function format_count(count){
   if(count > 1000000) {
     var val = count/1000000;
@@ -199,7 +203,8 @@ router.get('/builds', function(req, res, next) {
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata.forEach(function(row){
       row.check_icon_html = function(target){
-        var job = (row._jobs || []).find(x => x.config.includes(target));
+        //sort_by_config makes arm64 be preferred over x86_64
+        var job = (row._jobs || []).sort(sort_by_config).find(x => x.config.includes(target));
         if(job){
           return `<a href="${row._buildurl}/job/${job.job || '..'}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
         } else if(!target.includes('linux') && row.user == 'cran'){
