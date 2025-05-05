@@ -8,6 +8,6 @@ COPY . /frontend
 
 WORKDIR /frontend
 
-RUN npm install .
+RUN npm --loglevel info install .
 
 ENTRYPOINT [ "tini", "--", "/frontend/entrypoint.sh"]
