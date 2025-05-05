@@ -90,7 +90,7 @@ export function cheerio_hljs(html, pkgname, universe){
       var input = el.text().replace(matcher, `# $&\ninstall.packages("${pkgname}", repos = c('https://${universe}.r-universe.dev', 'https://cloud.r-project.org'))`)
       var out = hljs.highlight(input, {language: lang}).value
       el.addClass("hljs").empty().append(out);
-    } catch (e) {console.log(e) }
+    } catch (e) { /*console.log(e)*/}
   });
   return $.html();
 }
