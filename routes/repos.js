@@ -49,7 +49,7 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
   var cursor = get_packages_index(query, fields, mixed);
   function doc_to_dcf_wrap(x){
     if(x._type == 'linux' && override_arch){
-      x.Platform = `${override_arch}-pc-linux-gnu`; //pak cannot identify multi-arch binaries
+      x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
     }
     return doc_to_dcf(x)
   }
