@@ -36,6 +36,10 @@ function cursor_stream(cursor, output, transform, gzip){
 function packages_index(query, req, res, mixed = false){
   query._user = res.locals.universe;
   var format = req.params.format || "PACKAGES.json";
+  if(format.startsWith("sha256:")){
+    //On r-universe.dev we redirect sha256:* with a cloudflare rule, so this is only for local use.
+    return res.redirect(301, `https://cdn.r-universe.dev/${format.substring(7)}`);
+  }
   if(format == 'PACKAGES.rds'){
     return res.status(404).send("PACKAGES.rds format not supported for now.");
   } else if(format !== 'PACKAGES' && format !== 'PACKAGES.gz' && format !== 'PACKAGES.json'){

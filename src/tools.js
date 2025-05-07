@@ -152,7 +152,8 @@ export function doc_to_dcf(doc){
   if(_type == 'linux'){
     x.Platform = 'x86_64-pc-linux-gnu' //pak likes this to identify binaries
   }
-  x.MD5sum = MD5sum; //workaround for https://github.com/r-lib/pak/issues/733
+  //x.MD5sum = MD5sum; //workaround for https://github.com/r-lib/pak/issues/733
+  x.File = `sha256:${x.SHA256}`;
   let keys = Object.keys(x);
   return keys.map(function(key){
     let val = x[key];
