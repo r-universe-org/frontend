@@ -33,7 +33,7 @@ function cursor_stream(cursor, output, transform, gzip){
   });
 }
 
-function packages_index(query, req, res, mixed = false){
+function packages_index(query, req, res, mixed = false, override_arch = false){
   query._user = res.locals.universe;
   var format = req.params.format || "PACKAGES.json";
   if(format.startsWith("sha256:")){
@@ -47,11 +47,17 @@ function packages_index(query, req, res, mixed = false){
   }
   var fields = req.query.fields ? req.query.fields.split(",") : [];
   var cursor = get_packages_index(query, fields, mixed);
+  function doc_to_dcf_wrap(x){
+    if(x._type == 'linux' && override_arch){
+      x.Platform = `${override_arch}-pc-linux-gnu`; //pak cannot identify multi-arch binaries
+    }
+    return doc_to_dcf(x)
+  }
   switch (format) {
     case 'PACKAGES':
-      return cursor_stream(cursor, res.type('text/plain'), doc_to_dcf);
+      return cursor_stream(cursor, res.type('text/plain'), doc_to_dcf_wrap);
     case 'PACKAGES.gz':
-      return cursor_stream(cursor, res.type('application/x-gzip'), doc_to_dcf, true);
+      return cursor_stream(cursor, res.type('application/x-gzip'), doc_to_dcf_wrap, true);
     case 'PACKAGES.json':
       return cursor_stream(cursor, res.type('text/plain'), doc_to_ndjson);
   }
@@ -168,7 +174,7 @@ router.get('/bin/linux/:distro/:major/src/contrib{/:format}', function(req, res,
     {_type: 'src'},
     {_type: 'linux', _distro: distro, _arch: arch, _major: req.params.major},
   ]};
-  return packages_index(query, req, res, true);
+  return packages_index(query, req, res, true, arch);
 });
 
 router.get('/bin/emscripten/contrib/:major{/:format}', function(req, res, next) {
