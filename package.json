@@ -13,7 +13,7 @@
     "gunzip-maybe": "^1.4.2",
     "highlight.js": "^11.10.0",
     "http-errors": "*",
-    "mongodb": "6.15.0",
+    "mongodb": "^6.16.0",
     "morgan": "^1.10.0",
     "pug": "^3.0.3",
     "tar-stream": "^3.1.7"
