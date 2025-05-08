@@ -678,9 +678,10 @@ export function get_packages_index(query, fields = [], mixed = false){
       {$sort: {_type: 1}},
       {$group : {
         _id : {'Package': '$Package'},
+        _sysdeps: { $addToSet: "$_sysdeps"},
         doc: { '$first': '$$ROOT' }
       }},
-      {$replaceRoot: { newRoot: '$doc' }}
+      {$replaceRoot: { newRoot: {$mergeObjects: ['$doc', { _sysdeps: { '$first' : '$_sysdeps'}}]}}}
     ]) : mongo_find(query);
     return cursor.project(projection).sort({"Package" : 1});
   } else {

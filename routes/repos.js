@@ -46,6 +46,10 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
     throw createError(404, 'Unsupported PACKAGES format: ' + format);
   }
   var fields = req.query.fields ? req.query.fields.split(",") : [];
+  if(res.locals.universe != 'cran'){
+    //To help pak, but for CRAN sysreqs the P3M API works better.
+    fields.push('_sysdeps');
+  }
   var cursor = get_packages_index(query, fields, mixed);
   function doc_to_dcf_wrap(x){
     if(x._type == 'linux' && override_arch){

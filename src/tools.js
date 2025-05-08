@@ -148,13 +148,16 @@ function unpack_deps(x){
 
 export function doc_to_dcf(doc){
   //this clones 'doc' and then deletes some fields
-  const { _id, _fileid, _type, Distro, MD5sum, ...x } = unpack_deps(doc);
+  const { _id, _fileid, _type, _sysdeps, Distro, MD5sum, ...x } = unpack_deps(doc);
   //if(_type == 'linux'){
   //  x.Platform = 'x86_64-pc-linux-gnu' //pak likes this to identify binaries
   //}
   //x.MD5sum = MD5sum; //workaround for https://github.com/r-lib/pak/issues/733
   x.File = `sha256:${x.SHA256}`;
-  x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
+  //x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
+  if(Array.isArray(_sysdeps)){
+    x.SystemRequirements = Array.from(new Set(_sysdeps.map(x => x.name))).join(', ');
+  }
   let keys = Object.keys(x);
   return keys.map(function(key){
     let val = x[key];
