@@ -154,6 +154,7 @@ export function doc_to_dcf(doc){
   //}
   //x.MD5sum = MD5sum; //workaround for https://github.com/r-lib/pak/issues/733
   x.File = `sha256:${x.SHA256}`;
+  x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
   let keys = Object.keys(x);
   return keys.map(function(key){
     let val = x[key];
