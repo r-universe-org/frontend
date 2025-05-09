@@ -17,7 +17,7 @@ export default function(req, res, next){
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};
-    var cdn_cache = 3600;
+    var cdn_cache = req.path.includes("_global/builds") ? 60 : 3600;
   } else if (metapage){
     var query = {_universes: universe};
     var cdn_cache = 60;
@@ -34,7 +34,7 @@ export default function(req, res, next){
     res.set('Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 14; // bump to invalidate all caches
+      const revision = 15; // bump to invalidate all caches
       const etag = `W/"${doc._id}${revision}"`;
       const date = new Date(doc._published.getTime() + revision * 1000).toUTCString();
       res.set('ETag', etag);
