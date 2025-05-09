@@ -53,7 +53,7 @@ block content
           each bin in _grouped.linux
             a(href = bin.url) #{bin.filename}
             span.px-1 (#{bin.repo})
-        a.text-dark.linux-binary-help(target='_blank' href='https://github.com/r-universe-org/help#does-r-universe-have-linux-binaries')
+        a.text-dark.linux-binary-help(target='_blank' href='https://docs.r-universe.dev/install/binaries.html')
           i.far.fa-question-circle
         br
         if _grouped.wasm.length
@@ -63,7 +63,7 @@ block content
               each bin in _grouped.wasm
                 a(href = bin.url) #{bin.filename}
                 span.px-1 (#{bin.repo})
-            a.text-dark.wasm-binary-help(target='_blank' href='https://github.com/r-universe-org/help#how-to-use-webassembly-binaries')
+            a.text-dark.wasm-binary-help(target='_blank' href='https://docs.r-universe.dev/install/binaries.html')
               i.far.fa-question-circle
             br
         if _assets.includes("manual.pdf")
@@ -198,7 +198,7 @@ block content
             a.badge.badge-topic.me-1(href=`https://r-universe.dev/search?q=topic%3A${topic}`) #{topic}
       p.metric-icons(data-title='Popularity Metrics' data-intro='Some stats on how much this package is used. These numbers are also used for ranking results in our search engine.')
         if _score
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href='https://github.com/r-universe-org/help#how-is-the-package-rank-score-calculated')
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href='https://docs.r-universe.dev/browse/search.html#rank')
             i.fas.fa-chart-line.text-primary
             |  #{_score.toFixed(2)} score
         if _stars
