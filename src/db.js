@@ -673,17 +673,23 @@ export function get_packages_index(query, fields = [], mixed = false){
       console.log("adding", f)
       projection[f] = 1;
     });
-    var cursor = mixed ? mongo_aggregate([
-      {$match: query},
-      {$sort: {_type: 1}},
-      {$group : {
-        _id : {'Package': '$Package'},
-        _sysdeps: { $addToSet: "$_sysdeps"},
-        doc: { '$first': '$$ROOT' }
-      }},
-      {$replaceRoot: { newRoot: {$mergeObjects: ['$doc', { _sysdeps: { '$first' : '$_sysdeps'}}]}}}
-    ]) : mongo_find(query);
-    return cursor.project(projection).sort({"Package" : 1});
+    if(mixed){
+      //NB: pre-sorting by _type makes sure we prefer binaries for sources.
+      //Sorting final results (after the group) is very slow, we don't do this for now.
+      return mongo_aggregate([
+        {$match: query},
+        {$sort: {_type:1}},
+        {$project: projection},
+        {$group : {
+          _id : '$Package',
+          _sysdeps: { '$last' : '$_sysdeps'}, //src package should match $last here
+          doc: { '$first': '$$ROOT' }
+        }},
+        {$replaceRoot: { newRoot: {$mergeObjects: ['$doc', { _sysdeps: '$_sysdeps'}]}}}
+      ]);
+    } else {
+      return mongo_find(query).project(projection).sort({"Package" : 1});
+    }
   } else {
     throw "Not implemented for devel";
   }
