@@ -17,12 +17,15 @@ export default function(req, res, next){
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};
+    var max_age = req.path.includes("_global/builds") ? 60 : 600;
     var cdn_cache = req.path.includes("_global/builds") ? 60 : 3600;
   } else if (metapage){
     var query = {_universes: universe};
+    var max_age = universe == 'cran' ? 600 : 60;
     var cdn_cache = 60;
   } else {
     var query = {_user: universe, Package: pkg, _registered: true}; //remotes dont have webpage
+    var max_age = 60;
     var cdn_cache = 30;
   }
   return get_latest(query).then(function(doc){
@@ -31,7 +34,7 @@ export default function(req, res, next){
     //res.set('Cloudflare-CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
     //res.set('Cache-Control', 'public, max-age=60');
     //also cache 404 errors below
-    res.set('Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
+    res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
       const revision = 15; // bump to invalidate all caches
