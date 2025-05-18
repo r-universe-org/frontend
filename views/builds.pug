@@ -36,7 +36,7 @@ block content
                 if row.OS_type
                   small.fw-medium.ms-1 (#{row.OS_type} only)
                 if row._failure
-                  a(href=row._failure.buildurl)
+                  a(href=`${row._failure.buildurl}/job/${row._failure.job ? row._failure.job.job : '..'}`)
                     small.fw-bold.ms-1.text-danger (build failure)
               td
                 a.text-dark(href=`${row._upstream}/commit/${row._commit.id}` target='_blank') #{row.Version}

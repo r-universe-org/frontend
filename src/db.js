@@ -68,11 +68,13 @@ function group_package_data(docs){
     }
   }
   if(failure){
+    var job = failure._jobs && failure._jobs.find(x => x.config == 'source') || null;
     src._failure = {
       version: failure.Version,
       commit: failure._commit,
       buildurl: failure._buildurl,
-      date: failure._created
+      date: failure._created,
+      job: job,
     }
   }
   src._binaries = docs.filter(x => x.Built).map(function(x){

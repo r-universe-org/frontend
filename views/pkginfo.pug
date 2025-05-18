@@ -122,7 +122,7 @@ block content
       if _failure
         p.build-failure-alert.alert.alert-danger(role='alert')
           | The latest version of this package failed to build. Look at the
-          a.build-failure-url.ms-1(href=_failure.buildurl target='_blank') build logs
+          a.build-failure-url.ms-1(href=`${_failure.buildurl}/job/${_failure.job ? _failure.job.job : '..'}` target='_blank') build logs
           |  for more information.
       if _reviewdata
         p.package-details-peerreview.mb-2
