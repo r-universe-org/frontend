@@ -207,7 +207,7 @@ router.get('/builds', function(req, res, next) {
         var job = (row._jobs || []).sort(sort_by_config).find(x => x.config.includes(target));
         if(job){
           return `<a href="${row._buildurl}/job/${job.job || '..'}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
-        } else if(!target.includes('linux') && row.user == 'cran'){
+        } else if(!target.includes('linux') && row._user == 'cran'){
           return '<i class="grow-on-over fa-fw fa-solid fa-minus"></i>';
         } else {
           return `<a href="${row._buildurl}"><i class="grow-on-over fa-fw fa-solid fa-xmark text-danger"></i></a>`;
