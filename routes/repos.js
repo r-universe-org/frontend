@@ -111,9 +111,10 @@ router.get('/bin/macosx/:distro/contrib/:major/:pkg.tgz', function(req, res, nex
 router.get('/bin/linux/:distro/:major/src/contrib/:pkg.tar.gz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro);
+  var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
   var query = {Package: pkg, Version: version, '$or': [
     {_type: 'src'},
-    {_type: 'linux', _distro: distro, _arch: arch, _major : req.params.major},
+    {_type: 'linux', _arch: arch, _major : req.params.major, ...target}
   ]};
   return send_binary(query, req, res);
 });
@@ -174,9 +175,10 @@ router.get('/bin/macosx/:distro/contrib/:major{/:format}', function(req, res, ne
 /* Linux binaries with fallback on source packages */
 router.get('/bin/linux/:distro/:major/src/contrib{/:format}', function(req, res, next) {
   var [distro, arch] = parse_distro(req.params.distro);
+  var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
   var query = {'$or': [
     {_type: 'src'},
-    {_type: 'linux', _distro: distro, _arch: arch, _major: req.params.major},
+    {_type: 'linux', _arch: arch, _major: req.params.major, ...target},
   ]};
   return packages_index(query, req, res, true, arch);
 });
