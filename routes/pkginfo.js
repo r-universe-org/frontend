@@ -200,12 +200,6 @@ function prepare_datasets(pkgdata){
   }
 }
 
-function parse_repositories(locals, pkgdata){
-  var universe = locals.vhost ? `https://${locals.vhost}` : `https://${locals.universe}.r-universe.dev`;
-  var add = pkgdata.Additional_repositories && pkgdata.Additional_repositories.match(/https?:\/\/\S*/g) || [];
-  return Array.from(new Set([universe, ...add]));
-}
-
 function fail_status(x){
   return x && ["success", "skipped"].includes(x) == false;
 }
@@ -282,7 +276,6 @@ router.get('/:package', function(req, res, next) {
     pkgdata._checks = prepare_checks(pkgdata);
     pkgdata._checksummary = summarize_checks(pkgdata._checks);
     pkgdata._srcjob = pkgdata._checks.find(x => x.config == 'source') || {};
-    pkgdata._repositories = parse_repositories(res.locals, pkgdata);
     pkgdata._enable_tour = true;
     res.render('pkginfo', pkgdata);
   });

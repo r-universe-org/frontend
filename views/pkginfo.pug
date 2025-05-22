@@ -107,16 +107,14 @@ block content
                   span.pl-k  =
                   span.nocran
                     |  c(
-                    each repo in _repositories
-                      span.pl-s
-                        span.pl-pds &apos;
-                        span.universe-vhost-url #{repo}
-                        span.pl-pds &apos;
-                      | ,
-
+                    span.pl-s
+                      span.pl-pds &apos;
+                      span.universe-vhost-url https://#{vhost || `${universe}.r-universe.dev`}
+                      span.pl-pds &apos;
+                    | ,
                   span.pl-s
                     |
-                    span.pl-pds &apos;
+                    span.pl-pds  &apos;
                     | https://cloud.r-project.org
                     span.pl-pds &apos;
                   | )
