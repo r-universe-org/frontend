@@ -66,10 +66,7 @@ function job_info(job){
   if(job.name == 'pkgdown'){
     job.name = 'pkgdown docs';
   }
-  job.color = check_to_color(job.check);
-  if(job.check == 'OK' || job.check == 'NOTE'){
-    delete job.color;
-  }
+  job.color = check_to_color(job.check, false);
   return job;
 }
 

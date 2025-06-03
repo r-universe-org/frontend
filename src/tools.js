@@ -202,7 +202,7 @@ export function doc_to_paths(doc){
   throw `Unsupported type: ${type}`;
 }
 
-export function check_to_color(check){
+export function check_to_color(check, icons = true){
   switch (check || "") {
     case 'ERROR':
     case 'FAIL':
@@ -210,9 +210,9 @@ export function check_to_color(check){
     case 'WARNING':
       return 'text-warning';
     case 'NOTE':
-      return 'text-success';
+      return icons ? 'text-success' : 'text-primary';
     case 'OK':
-      return 'text-success';
+      return icons ? 'text-success' : 'text-secondary';
     default:
       return 'text-dark';
   }
