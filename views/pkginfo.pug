@@ -82,6 +82,7 @@ block content
             a.fas.fa-file-alt.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
             a.package-details-news(target='_blank' href=`/${Package}/NEWS`) NEWS
             br
+
       #install.row.card.m-0.mb-3.py-1.d-none.d-md-block
         // <link rel="stylesheet" href="https://github.githubassets.com/assets/gist-embed-c77408be8058.css">
         link(rel='stylesheet' href='https://r-universe.dev/static/gist-embed.css')
@@ -119,6 +120,7 @@ block content
                     span.pl-pds &apos;
                   | )
                   span.nocran )
+
       if _failure
         p.build-failure-alert.alert.alert-danger(role='alert')
           | The latest version of this package failed to build. Look at the
@@ -230,11 +232,10 @@ block content
             i.fas.fa-cube.text-danger
             |  #{_rundeps.length} dependencies
 
-      p(data-title="Build and check status" data-intro="Latest commit and check results. Click to expand on check logs for this build.")
-        small.text-dark
-          span.mx-1.package-details-updated Last updated #{_lastupdate}
-          | from:
-          a.ms-1.package-details-sha.link-underline-dark.fw-bold(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id.substring(0,10)}
+      p#status.mb2.text-secondary.small(data-title="Build and check status" data-intro="Latest commit and check results. Click to expand on check logs for this build.")
+          span.package-details-updated Last updated #{_lastupdate}
+          |  from:
+          a.ms-1.package-details-sha.link-underline-dark.text-primary-subtle.fw-bold(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id.substring(0,10)}
           if RemoteRef && RemoteRef !== "HEAD" && !RemoteRef.match(/^[a-f0-9]{40}/i)
             span.package-details-remoteref  (on
               a(target='_blank' href=`${_upstream}/tree/${RemoteRef}`)  #{RemoteRef}
