@@ -255,6 +255,7 @@ block content
             th Target
             th Result
             th Total time
+            th Artifact
         tbody
           each job in _checks
             tr
@@ -263,6 +264,10 @@ block content
                 a(target="_blank" href=`${_buildurl}/job/${job.job || '..'}`)
                   b(class=job.color) #{job.check}
               td.text-secondary #{job.time}
+              td
+                if job.artifact
+                  a(target="_blank" href=`${_buildurl}/artifacts/${job.artifact}`)
+                    i.fas.fa-download
 
       if _exports
         p#exportlist.card-text.clearfix.noanim.collapse
