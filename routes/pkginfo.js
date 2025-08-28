@@ -263,7 +263,6 @@ router.get('/:package', function(req, res, next) {
     pkgdata._sysdeps = filter_sysdeps(pkgdata);
     pkgdata._datasets = prepare_datasets(pkgdata);
     pkgdata._problems = problem_summary(pkgdata);
-    pkgdata._lastupdate = pretty_time_diff(pkgdata._commit.time);
     pkgdata._releases = filter_releases(pkgdata);
     pkgdata._contributors = filter_contributors(pkgdata, universes);
     pkgdata._universe_type = pkgdata._userbio.type;

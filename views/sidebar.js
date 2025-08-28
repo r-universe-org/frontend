@@ -248,11 +248,35 @@ function update_searchbox(){
   })
 }
 
+function pretty_time_diff(ts){
+  var date = new Date(ts);
+  var now = new Date();
+  var diff_time = now.getTime() - date.getTime();
+  var diff_hours = Math.round(diff_time / (1000 * 3600));
+  var diff_days = Math.round(diff_hours / 24);
+  if(diff_hours < 24){
+    return diff_hours + " hours ago"
+  } else if(diff_days < 31){
+    return diff_days + " days ago";
+  } else if (diff_days < 365){
+    return Math.round(diff_days / 30) + " months ago";
+  } else {
+    return Math.round(diff_days / 365) + " years ago";
+  }
+}
+
+function show_timestamps(){
+  $(".package-show-difftime[data-timestamp]").each(function() {
+    $(this).text(pretty_time_diff(this.dataset.timestamp));
+  });
+}
+
 /* Load sidebar and globals */
 $(function(){
   var isdev = window.location.hostname == 'localhost';
   window.server = isdev ? 'https://' + universe + '.r-universe.dev' : "";
   $(".nocran").toggle(universe != 'cran');
+  show_timestamps();
   load_registry_status();
   load_universe_stats();
   load_maintainer_list();
