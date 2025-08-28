@@ -18,7 +18,8 @@ block content
                   small.text-secondary  - #{x.Title}
                 p.card-text.fst-italic #{x.Description}
               p.card-text.pt-2
-                small.text-muted.description-last-updated Last updated #{format_time_since(x._commit.time)}
+                small.text-muted.description-last-updated Last updated
+                  span.ms-1.package-show-difftime(data-timestamp=`${new Date(x._commit.time * 1000).toISOString()}`)
                 if x._topics
                   p.card-text
                     each topic in x._topics

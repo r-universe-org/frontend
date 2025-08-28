@@ -65,7 +65,8 @@ block content
 
                 if !all_ok(row)
                   a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=build_url(row) data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row._failure ? row._failure.version : row.Version}`)
-              td.text-nowrap.d-none.d-xl-table-cell.text-secondary #{format_time_since(row._failure ? row._failure.date : row._created)}
+              td.text-nowrap.d-none.d-xl-table-cell.text-secondary
+                span.package-show-difftime(data-timestamp=`${(row._failure ? row._failure.date : row._created).toISOString()}`)
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js')

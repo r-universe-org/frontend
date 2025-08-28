@@ -233,7 +233,8 @@ block content
             |  #{_rundeps.length} dependencies
 
       p#status.mb2.text-secondary.small(data-title="Build and check status" data-intro="Latest commit and check results. Click to expand on check logs for this build.")
-          span.package-details-updated Last updated #{_lastupdate}
+          span.package-details-updated Last updated
+            span.ms-1.package-show-difftime(data-timestamp=`${new Date(_commit.time * 1000).toISOString()}`)
           |  from:
           a.ms-1.package-details-sha.link-underline-dark.text-primary-subtle.fw-bold(target='_blank' href=`${_upstream}/commit/${_commit.id}`) #{_commit.id.substring(0,10)}
           if RemoteRef && RemoteRef !== "HEAD" && !RemoteRef.match(/^[a-f0-9]{40}/i)
