@@ -23,7 +23,9 @@ block content
               td.text-nowrap #{format_yymmdd(row._commit.time*1000)}
               td
                 if row._registered === false
-                  | #{row.Package} <small>(remote/noindex)</small>
+                  | #{row.Package}
+                  a.ms-1(href=`https://github.com/r-universe/${universe}/blob/HEAD/.remotes.json` target='_blank')
+                    small.text-dark (remote/noindex)
                 else if row._type === 'failure'
                   | #{row.Package}
                 else if row._user === universe && row._owner === universe
