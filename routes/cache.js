@@ -37,7 +37,7 @@ export default function(req, res, next){
     res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 19; // bump to invalidate all caches
+      const revision = 20; // bump to invalidate all caches
       const etag = `W/"${doc._id}${revision}"`;
       const date = new Date(doc._published.getTime() + revision * 1000).toUTCString();
       res.set('ETag', etag);

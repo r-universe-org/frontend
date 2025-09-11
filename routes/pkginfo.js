@@ -274,6 +274,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._checksummary = summarize_checks(pkgdata._checks);
     pkgdata._srcjob = pkgdata._checks.find(x => x.config == 'source') || {};
     pkgdata._enable_tour = true;
+    delete pkgdata.Date //This masks the Date() function!
     res.render('pkginfo', pkgdata);
   });
 });
