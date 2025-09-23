@@ -31,8 +31,10 @@ block content
           | Authors:
           span.card-text.text-dark.package-details-author.ms-1 #{Author}
       p.d-sm-table.overflow-x-invisible(data-title='Downloads and links' data-intro='We provide binaries for all platforms, rendered documentation, and lots of other data.')
+
         a.fa.fa-file-code.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
         a.package-details-source(href=`/src/contrib/${Package}_${Version}.tar.gz`) #{Package}_#{Version}.tar.gz
+
         br
         if _user !== 'cran'
           span.winmac-binaries
@@ -250,6 +252,13 @@ block content
           else
             a.ms-1.link-underline-dark.text-success.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
           | . Indexed: #{_indexed ? 'yes' : 'no'}.
+
+          if _progress_url
+            br
+            a.my-1.text-secondary.text-decoration-none.fa-solid.fa-cog.fa-spin(href=_progress_url target="_blank")
+            b.ps-1.text-dark A new build is currently
+              a(href=_progress_url)  in progress.
+
       table#checktable.noanim.collapse.table.table-sm.table-bordered.border-primary-subtle.table-hover(style="max-width: 400px")
         thead
           tr
