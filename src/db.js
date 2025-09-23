@@ -25,7 +25,7 @@ console.log("Connected to MongoDB!");
 function mongo_latest(q){
   if(!packages || !packages.find)
     throw new Error("No mongodb connection available.");
-  return packages.findOne(q, {sort:{_id: -1}, project: {_id: 1, _published: 1, _user: 1, Package: 1}});
+  return packages.findOne(q, {sort:{_published: -1}, project: {_id: 1, _published: 1, _user: 1, Package: 1}});
 }
 
 function mongo_find(q){

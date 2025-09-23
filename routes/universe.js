@@ -199,7 +199,7 @@ router.get('/', function(req, res, next) {
 router.get('/builds', function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
     '_maintainer', '_upstream', '_registered', '_created', '_jobs',
-    '_status', '_buildurl', '_failure'];
+    '_status', '_buildurl', '_failure', '_progress_url'];
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata.forEach(function(row){
       row.check_icon_html = function(target){
