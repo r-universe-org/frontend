@@ -34,10 +34,11 @@ export default function(req, res, next){
     //res.set('Cloudflare-CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
     //res.set('Cache-Control', 'public, max-age=60');
     //also cache 404 errors below
-    res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
+    res.set('Cache-Control', `public, max-age=${max_age}`);
+    //res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 20; // bump to invalidate all caches
+      const revision = 21; // bump to invalidate all caches
       const etag = `W/"${doc._id}${revision}"`;
       const date = new Date(doc._published.getTime() + revision * 1000).toUTCString();
       res.set('ETag', etag);
