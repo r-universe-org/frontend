@@ -382,4 +382,10 @@ router.get('/:package/articles/:article', function(req, res, next){
   });
 });
 
+// single package virtual repo
+router.get(['/:package/src/*splat', '/:package/bin/*splat'], function(req, res, next){
+  var pkg = req.params.package;
+  res.redirect(`${req.path.substring(pkg.length + 1)}?filter=${pkg}`);
+});
+
 export default router;

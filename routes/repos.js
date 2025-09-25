@@ -35,6 +35,9 @@ function cursor_stream(cursor, output, transform, gzip){
 
 function packages_index(query, req, res, mixed = false, override_arch = false){
   query._user = res.locals.universe;
+  if(req.query.filter){
+    query.Package = {$in: req.query.filter.split(',')};
+  }
   var format = req.params.format || "PACKAGES.json";
   if(format.startsWith("sha256")){
     //On r-universe.dev we redirect sha256:* with a cloudflare rule, so this is only for local use.
