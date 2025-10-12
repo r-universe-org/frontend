@@ -19,10 +19,10 @@ block content
             td
               a.text-secondary(href=`https://${x.user}.r-universe.dev`) #{x.user}
             td
-              if x.src.status
+              if x.src.status && x.registered !== false
                 a.fw-semibold(href=`https://${x.user}.r-universe.dev/${x.package}`) #{x.package}
               else
-                s #{x.package}
+                | #{x.package}
               if x.failure
                 a.ms-1.text-danger.fw-semibold(href=`${x.failure.url}` target='_blank') (build failure)
             td
