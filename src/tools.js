@@ -157,9 +157,9 @@ export function doc_to_dcf(doc){
   //x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
   if(Array.isArray(_sysdeps)){
     x.SystemRequirements = Array.from(new Set(_sysdeps.map(x => x.name))).join(', ');
-    var headers = Array.from(new Set(_sysdeps.filter(x => x.headers).map(x => x.headers))).join(' ');
-    if(headers){
-      x.SystemRequirements = `${x.SystemRequirements} (${headers})`;
+    var libnames = _sysdeps.filter(x => x.headers).map(x => x.shlib || x.headers.replace("-dev", ""));
+    if(libnames && libnames.length){
+      x.SystemRequirements = `${x.SystemRequirements} (${Array.from(new Set(libnames)).join(' ')})`;
     }
   }
   let keys = Object.keys(x);
