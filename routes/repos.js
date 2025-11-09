@@ -58,7 +58,8 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
     if(x._type == 'linux' && override_arch){
       x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
     }
-    return doc_to_dcf(x)
+    var use_sha_file = req.headers['user-agent'].match(/rclone/) ? false : true;
+    return doc_to_dcf(x, use_sha_file)
   }
   switch (format) {
     case 'PACKAGES':

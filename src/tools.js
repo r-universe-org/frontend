@@ -146,14 +146,16 @@ function unpack_deps(x){
   return x;
 }
 
-export function doc_to_dcf(doc){
+export function doc_to_dcf(doc, use_sha_file = true){
   //this clones 'doc' and then deletes some fields
   const { _id, _fileid, _type, _sysdeps, Distro, MD5sum, ...x } = unpack_deps(doc);
   //if(_type == 'linux'){
   //  x.Platform = 'x86_64-pc-linux-gnu' //pak likes this to identify binaries
   //}
   //x.MD5sum = MD5sum; //workaround for https://github.com/r-lib/pak/issues/733
-  x.File = `sha256-${x.SHA256}`;
+  if(use_sha_file){
+    x.File = `sha256-${x.SHA256}`;
+  }
   //x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
   if(Array.isArray(_sysdeps)){
     x.SystemRequirements = Array.from(new Set(_sysdeps.map(x => x.name))).join(', ');
