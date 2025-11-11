@@ -317,7 +317,7 @@ function avatar_url(login, size){
   if(typeof login === 'number'){
     return `https://avatars.githubusercontent.com/u/${login}${param}`;
   }
-  if(login == 'bioc') login = 'bioconductor';
+  if(login == 'bioc' || login == 'bioc-release') login = 'bioconductor';
   if(login.startsWith('gitlab-')) login = 'gitlab';
   if(login.startsWith('bitbucket-')) login = 'atlassian';
   login = login.replace('[bot]', '');

@@ -28,7 +28,7 @@ block content
                     small.text-dark (remote/noindex)
                 else if row._type === 'failure'
                   | #{row.Package}
-                else if row._user === universe && row._owner === universe
+                else if row._user === universe && (row._owner === universe || universe == 'bioc-release')
                   a(href=`/${row.Package}`) #{row.Package}
                 else if row._user === universe
                   a(href=`/${row.Package}`) #{row._owner}/#{row.Package}
