@@ -27,6 +27,17 @@ function os_icon(job){
   return 'fa-question';
 }
 
+function job_link(job){
+  if(!job.job) return '..';
+  if(job.check == 'WARNING' || job.check == 'NOTE'){
+    var config = job.config || "";
+    if(config.includes('bioc'))
+      return `${job.job}#step:5:1`;
+    if(config.startsWith('win') || config.startsWith('mac') || config.startsWith('linux'))
+      return `${job.job}#step:6:1`;
+  }
+  return job.job;
+}
 
 function sort_by_package(x,y){
   return x.Package.toLowerCase() < y.Package.toLowerCase() ? -1 : 1
@@ -209,7 +220,7 @@ router.get('/builds', function(req, res, next) {
         var job = (row._jobs || []).sort(sort_by_config).find(x => x.config.includes(target));
         if(job){
           var tooltip = `${job.config}: ${job.check}`;
-          return `<a data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}/job/${job.job || '..'}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
+          return `<a data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}/job/${job_link(job)}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
         } else if(!target.includes('linux') && row._user == 'cran'){
           return '<i class="grow-on-over fa-fw fa-solid fa-minus"></i>';
         } else {
