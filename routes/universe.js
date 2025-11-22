@@ -10,6 +10,8 @@ function os_icon(job){
   var config = job.config || "";
   if(job.check == 'FAIL')
     return 'fa fa-xmark';
+  if(config.includes('bioc'))
+    return 'fa fa-circle-check';
   if(config.includes('pkgdown'))
     return 'fa fa-book';
   if(config.includes('source'))

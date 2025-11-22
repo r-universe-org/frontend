@@ -13,7 +13,9 @@ block content
             th(scope='col') Version
             th(scope='col') Maintainer
             if universe == 'ropensci'
-              th#thdocs(scope='col') Docs
+              th(scope='col') Docs
+            if universe == 'bioc' || universe == 'bioc-release'
+              th(scope='col') BiocCheck
             th(scope='col') Src
             th.text-nowrap(scope='col') R-dev | R-release | R-old
             th.d-none.d-xl-table-cell.text-nowrap(scope='col') Built
@@ -50,6 +52,12 @@ block content
               if universe == 'ropensci'
                 if row._registered
                   td !{row.check_icon_html('pkgdown')}
+                else
+                  td
+                    span.ms-1 –
+              if universe == 'bioc' || universe == 'bioc-release'
+                if row._registered
+                  td !{row.check_icon_html('bioc-checks')}
                 else
                   td
                     span.ms-1 –
