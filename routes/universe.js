@@ -3,7 +3,7 @@ import url from 'node:url';
 import createError from 'http-errors';
 import {get_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
-import {check_to_color} from '../src/tools.js';
+import {check_to_color, job_link} from '../src/tools.js';
 const router = express.Router();
 
 function os_icon(job){
@@ -25,18 +25,6 @@ function os_icon(job){
   if(config.startsWith('wasm'))
     return 'fab fa-chrome';
   return 'fa-question';
-}
-
-function job_link(job){
-  if(!job.job) return '..';
-  if(job.check == 'WARNING' || job.check == 'NOTE'){
-    var config = job.config || "";
-    if(config.includes('bioc'))
-      return `${job.job}#step:5:1`;
-    if(config.startsWith('win') || config.startsWith('mac') || config.startsWith('linux'))
-      return `${job.job}#step:6:1`;
-  }
-  return job.job;
 }
 
 function sort_by_package(x,y){

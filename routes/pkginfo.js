@@ -2,7 +2,7 @@ import express from 'express';
 import createError from 'http-errors';
 import url from 'node:url';
 import {get_package_info, get_all_universes} from '../src/db.js';
-import {check_to_color} from '../src/tools.js';
+import {check_to_color, job_link} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -255,6 +255,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata.avatar_url = avatar_url;
     pkgdata.description_to_html = description_to_html;
     pkgdata.date_to_string = date_to_string;
+    pkgdata.job_link = job_link;
     pkgdata.title = `${pkgdata.Package}: ${pkgdata.Title}`;
     pkgdata.Author = normalize_authors(pkgdata.Author);
     pkgdata._created = date_to_string(pkgdata._created);

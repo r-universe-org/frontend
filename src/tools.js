@@ -225,3 +225,15 @@ export function check_to_color(check, icons = true){
       return 'text-dark';
   }
 }
+
+export function job_link(job){
+  if(!job.job) return '..';
+  if(job.check == 'WARNING' || job.check == 'NOTE'){
+    var config = job.config || "";
+    if(config.includes('bioc'))
+      return `${job.job}#step:5:1`;
+    if(config.startsWith('win') || config.startsWith('mac') || config.startsWith('linux'))
+      return `${job.job}#step:6:1`;
+  }
+  return job.job;
+}
