@@ -82,13 +82,17 @@ export function index_files_from_stream(input){
 
 export function cheerio_hljs(html, pkgname, universe){
   const $ = cheerio_load(html, null, false);
+  const mentions_universe = html.includes(`${universe}.r-universe.dev`);
   $('code[class^="language-"]').each(function(i, el){
     try { //hljs errors for unsupported languages
       var el = $(el)
       var lang = el.attr('class').substring(9).replace(/{(.*)}/, '$1').trim();
-      var matcher = new RegExp(`([a-z]+::)?(install_github|pak|pkg_install)\\(.${universe}/${pkgname}.\\)`, "i");
-      var input = el.text().replace(matcher, `# $&\ninstall.packages("${pkgname}", repos = c('https://${universe}.r-universe.dev', 'https://cloud.r-project.org'))`)
-      var out = hljs.highlight(input, {language: lang}).value
+      var input = el.text();
+      if(!mentions_universe){
+        var matcher = new RegExp(`([a-z]+::)?(install_github|pak|pkg_install)\\(.${universe}/${pkgname}.\\)`, "i");
+        input = input.replace(matcher, `# $&\ninstall.packages("${pkgname}", repos = c('https://${universe}.r-universe.dev', 'https://cloud.r-project.org'))`);
+      }
+      var out = hljs.highlight(input, {language: lang}).value;
       el.addClass("hljs").empty().append(out);
     } catch (e) { /*console.log(e)*/}
   });
