@@ -1,26 +1,32 @@
 # Front-end
 
-New front-end in express with some SSR.
+R-universe express front-end stack.
 
-## How to test
+## Requirements
 
-Clone the repo, cd into it and run `npm install .` once to get dependencies. After that run:
-
-```sh
-npm start
-```
-
-And that will start a webserver. Then go to `http://localhost:3000/jsonlite` (or any other package) to preview.
-
-In development mode (the default) the server automatically guesses the universe for a given package and uses `ropensci` otherwise. This makes it easy to quickly test changes.
-
-To test the front-end using a specific universe set the `UNIVERSE` environment variable:
+We need NodeJS and MongoDB. On homebrew you would do:
 
 ```sh
-UNIVERSE=tidyverse npm start
+brew install node mongodb/brew/mongodb-community
 ```
 
-This will mimic `localhost` to be `tidyverse.r-universe.dev`.
+## Testing locally with dummy data
+
+Clone the repo, cd into it and run `npm install .` once to get dependencies.
+
+To run a local test server that mimics a given universe e.g. `tidyverse` you can use:
+
+```sh
+./run-local.sh tidyverse --download
+```
+
+Then open `http://localhost:3000/` in your browser which should look a lot like `https://tidyverse.r-universe.dev`.
+
+The `--download` flag copies some real dummy data from https://r-universe.dev into a local database so we have something to test with. The data will persist if you restart the script so you only have to do this once. Subsequent runs you can simply use:
+
+```sh
+./run-local.sh tidyverse
+```
 
 ### Global pages
 
