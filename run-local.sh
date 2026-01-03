@@ -4,14 +4,13 @@
 # ./run-local.sh tidyverse
 # ./run-local.sh tidyverse --download
 export UNIVERSE="${1:-ropensci}"
-export NODE_ENV=production
 
 # Kill child process on exit
 trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
 # Start dummy server on port 3993
 mkdir -p /tmp/runiverse
-DEBUG=cranlike:* mongod --bind_ip_all --port 3993 --dbpath /tmp/runiverse --logpath mongo.log & sleep 1
+DEBUG=cranlike:* mongod --bind_ip_all --port 3993 --dbpath /tmp/runiverse --logpath mongo.log --logappend & sleep 1
 
 # If --download is given download some data
 if [ "$2" = "--download" ]; then

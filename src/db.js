@@ -14,12 +14,12 @@ const production = process.env.NODE_ENV == 'production';
 
 /* Connect to database */
 console.log("Connecting to database....")
-const client = production && await MongoClient.connect(URL);
-const db = production && client.db('cranlike');
-const bucket = production && new GridFSBucket(db, {bucketName: 'files'});
-const packages = production && db.collection('packages');
-const chunks = production && db.collection('files.chunks');
-const universes = production && packages.distinct('_universes');
+const client = await MongoClient.connect(URL);
+const db = client.db('cranlike');
+const bucket = new GridFSBucket(db, {bucketName: 'files'});
+const packages = db.collection('packages');
+const chunks = db.collection('files.chunks');
+const universes = packages.distinct('_universes');
 console.log("Connected to MongoDB!");
 
 function mongo_latest(q){
@@ -493,51 +493,30 @@ function mongo_package_stream(pkg, universe){
 }
 
 export function get_bucket_stream(hash){
-  if(production){
-    return bucket.find({_id: hash}, {limit:1}).next().then(function(pkg){
-      if(!pkg)
-        throw createError(410, `File ${hash} not available (anymore)`);
-      pkg.stream = bucket.openDownloadStream(hash);
-      pkg.stream.on('error', function(err){
-        throw `Mongo stream error for ${hash}`;
-      });
-      return pkg;
+  return bucket.find({_id: hash}, {limit:1}).next().then(function(pkg){
+    if(!pkg)
+      throw createError(410, `File ${hash} not available (anymore)`);
+    pkg.stream = bucket.openDownloadStream(hash);
+    pkg.stream.on('error', function(err){
+      throw `Mongo stream error for ${hash}`;
     });
-  } else {
-    throw "Not implemented for devel";
-  }
+    return pkg;
+  });
 }
 
 export function get_package_info(pkg, universe){
-  if(production){
-    return mongo_package_info(pkg, universe);
-  } else {
-    console.warn(`Fetching ${pkg} info from API...`)
-    if(universe){
-      return get_json(`https://${universe}.r-universe.dev/api/packages/${pkg}`);
-    } else {
-      return get_json(`https://cran.dev/${pkg}/json`);
-    }
-  }
+  return mongo_package_info(pkg, universe);
 }
 
 export function list_package_files(pkg, universe){
-  if(production){
-    return mongo_package_files(pkg, universe);
-  } else {
-    console.warn(`Fetching ${pkg} files from API...`)
-    if(universe){
-      return get_json(`https://${universe}.r-universe.dev/${pkg}/files`);
-    } else {
-      return get_json(`https://cran.dev/${pkg}/files`);
-    }
-  }
+  return mongo_package_files(pkg, universe);
 }
 
 export function get_package_stream(pkg, universe){
   if(production){
     return mongo_package_stream(pkg, universe);
   } else {
+    console.warn(`Fetching ${universe}/${pkg} content from server...`);
     return get_package_info(pkg, universe).then(function(x){
       return get_url(`https://cdn.r-universe.dev/${x._fileid}`).then(res => Readable.fromWeb(res.body));
     });
@@ -545,198 +524,103 @@ export function get_package_stream(pkg, universe){
 }
 
 export function get_universe_vignettes(universe){
-  if(production){
-    return mongo_universe_vignettes(universe)
-  } else {
-    console.warn(`Fetching ${universe} vignettes from API...`)
-    return get_ndjson(`https://${universe}.r-universe.dev/stats/vignettes?all=true`)
-  }
+  return mongo_universe_vignettes(universe)
 }
 
 export function get_universe_packages(universe, fields, limit = 5000, all = true){
-  if(production){
-    return mongo_universe_packages(universe, fields, limit, all)
-  } else {
-    console.warn(`Fetching ${universe} packages from API...`)
-    var apiurl = `https://${universe}.r-universe.dev/api/packages?stream=1&all=true&limit=${limit}&fields=${fields.join()}`;
-    return get_ndjson(apiurl)
-  }
+  return mongo_universe_packages(universe, fields, limit, all)
 }
 
 export function get_universe_binaries(universe, type){
-  if(production){
-    return mongo_universe_binaries(universe, type);
-  } else {
-    throw "Not implemented for devel";
-  }
+  return mongo_universe_binaries(universe, type);
 }
 
 export function get_universe_contributors(universe, limit){
-  if(production){
-    return mongo_universe_contributors(universe, limit);
-  } else {
-    console.warn(`Fetching contributors data from API...`);
-    return get_ndjson(`https://${universe}.r-universe.dev/stats/contributors?all=1&limit=${limit}`);
-  }
+  return mongo_universe_contributors(universe, limit);
 }
 
 export function get_universe_contributions(universe, limit){
-  if(production){
-    return mongo_universe_contributions(universe, limit);
-  } else {
-    console.warn(`Fetching contributions data from API...`);
-    return get_ndjson(`https://${universe}.r-universe.dev/stats/contributions?limit=${limit}`);
-  }
+  return mongo_universe_contributions(universe, limit);
 }
 
 export function get_universe_s3_index(universe, prefix, start_after){
-  if(production){
-    return mongo_universe_s3_index(universe, prefix, start_after);
-  } else {
-    throw "Not implemented for devel";
-  }
+  return mongo_universe_s3_index(universe, prefix, start_after);
 }
 
 export function get_repositories(){
-  if(production){
-    return mongo_all_universes()
-  } else {
-    console.warn(`Fetching universes data from API...`);
-    return get_ndjson(`https://r-universe.dev/api/universes?stream=1`);
-  }
+  return mongo_all_universes()
 }
 
 export function get_scores(){
-  if(production){
-    return mongo_all_scores()
-  } else {
-    console.warn(`Fetching scores data from API...`);
-    return get_ndjson(`https://r-universe.dev/api/scores?stream=1`);
-  }
+  return mongo_all_scores()
 }
 
 export function get_organizations(){
-  if(production){
-    return mongo_all_universes(true);
-  } else {
-    console.warn(`Fetching universes data from API...`);
-    return get_ndjson(`https://r-universe.dev/api/universes?type=organization&skipcran=1&stream=1`);
-  }
+  return mongo_all_universes(true);
 }
 
 export function get_sysdeps(){
-  if(production){
-    return mongo_all_sysdeps()
-  } else {
-    console.warn(`Fetching sysdeps data from API...`);
-    return get_ndjson(`https://r-universe.dev/stats/sysdeps?all=1`);
-  }
+  return mongo_all_sysdeps();
 }
 
 export function get_builds(){
-  if(production){
-    return mongo_recent_builds()
-  } else {
-    console.warn(`Fetching builds data from API...`);
-    return get_ndjson(`https://r-universe.dev/stats/builds?limit=1000`);
-  }
+  return mongo_recent_builds();
 }
 
 export function get_articles(){
-  if(production){
-    return mongo_all_articles()
-  } else {
-    console.warn(`Fetching articles data from API...`);
-    return get_ndjson(`https://r-universe.dev/api/articles?stream=1`);
-  }
+  return mongo_all_articles();
 }
 
 export function get_datasets(){
-  if(production){
-    return mongo_all_datasets()
-  } else {
-    console.warn(`Fetching datasets from API...`);
-    return get_ndjson(`https://r-universe.dev/api/datasets?stream=1`);
-  }
+  return mongo_all_datasets()
 }
 
 export function get_latest(query){
-  if(production){
-    return mongo_latest(query);
-  } else {
-    throw "Not implemented for devel";
-  }
+  return mongo_latest(query);
 }
 
 export function get_packages_index(query, fields = [], mixed = false){
-  if(production){
-    let projection = {...pkgfields};
-    fields.forEach(function (f) {
-      console.log("adding", f)
-      projection[f] = 1;
-    });
-    if(mixed){
-      //NB: pre-sorting by _type makes sure we prefer binaries for sources.
-      //Sorting final results (after the group) is very slow, we don't do this for now.
-      return mongo_aggregate([
-        {$match: query},
-        {$sort: {_type:1}},
-        {$project: projection},
-        {$group : {
-          _id : '$Package',
-          _sysdeps: { '$last' : '$_sysdeps'}, //src package should match $last here
-          doc: { '$first': '$$ROOT' }
-        }},
-        {$replaceRoot: { newRoot: {$mergeObjects: ['$doc', { _sysdeps: '$_sysdeps'}]}}}
-      ]);
-    } else {
-      return mongo_find(query).project(projection).sort({"Package" : 1});
-    }
+  let projection = {...pkgfields};
+  fields.forEach(function (f) {
+    //console.log("adding", f)
+    projection[f] = 1;
+  });
+  if(mixed){
+    //NB: pre-sorting by _type makes sure we prefer binaries for sources.
+    //Sorting final results (after the group) is very slow, we don't do this for now.
+    return mongo_aggregate([
+      {$match: query},
+      {$sort: {_type:1}},
+      {$project: projection},
+      {$group : {
+        _id : '$Package',
+        _sysdeps: { '$last' : '$_sysdeps'}, //src package should match $last here
+        doc: { '$first': '$$ROOT' }
+      }},
+      {$replaceRoot: { newRoot: {$mergeObjects: ['$doc', { _sysdeps: '$_sysdeps'}]}}}
+    ]);
   } else {
-    throw "Not implemented for devel";
+    return mongo_find(query).project(projection).sort({"Package" : 1});
   }
 }
 
 export function get_package_hash(query){
-  if(production){
-    return mongo_package_hash(query);
-  } else {
-    throw "Not implemented for devel";
-  }
+  return mongo_package_hash(query);
 }
 
 export function get_distinct(key, query){
-  if(production){
-    return mongo_distinct(key, query);
-  } else {
-    throw "Not implemented for devel";
-  }
+  return mongo_distinct(key, query);
 }
 
 export function ls_packages(universe){
-  if(production){
-    return mongo_ls_packages(universe);
-  } else {
-    throw "Not implemented for devel";
-  }
+  return mongo_ls_packages(universe);
 }
 
 export function bucket_find(query, options = {}){
-  if(production){
-    return bucket.find(query, options);
-  } else {
-    throw "Not implemented for devel";
-  }
+  return bucket.find(query, options);
 }
 
 //use cached result because we dont want any delay for this
 export function get_all_universes(){
-  if(production){
-    return universes;
-  } else {
-    //TODO: this does not include maintainer-only universes, but production does
-    return get_json('https://r-universe.dev/api/universes').then(function(data){
-      return data.map(x => x.universe);
-    });
-  }
+  return universes;
 }
