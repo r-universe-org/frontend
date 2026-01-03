@@ -202,6 +202,7 @@ router.get('/builds', function(req, res, next) {
     '_maintainer', '_upstream', '_registered', '_created', '_jobs',
     '_status', '_buildurl', '_failure', '_progress_url'];
   return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+    pkgdata.sort((x,y) => y._registered - x._registered)
     pkgdata.forEach(function(row){
       row.check_icon_html = function(target){
         //sort_by_config makes arm64 be preferred over x86_64
