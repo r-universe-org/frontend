@@ -64,6 +64,8 @@ block content
               td !{row.check_icon_html('source')}
               td.text-nowrap
                 | !{row.check_icon_html('linux-devel')}
+                if universe == 'bioc' || universe == 'bioc-release'
+                  | !{row.check_icon_html('macos-devel-arm64')}
                 | !{row.check_icon_html('windows-devel')}
                 | |
                 | !{row.check_icon_html('linux-release')}
