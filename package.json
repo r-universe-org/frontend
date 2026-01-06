@@ -7,14 +7,14 @@
   },
   "dependencies": {
     "badgen": "^3.2.3",
-    "cheerio": "^1.0.0",
+    "cheerio": "^1.1.2",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "gunzip-maybe": "^1.4.2",
-    "highlight.js": "^11.10.0",
-    "http-errors": "*",
+    "highlight.js": "^11.11.1",
+    "http-errors": "^2.0.1",
     "mongodb": "^6.21.0",
-    "morgan": "^1.10.0",
+    "morgan": "^1.10.1",
     "pug": "^3.0.3",
     "tar-stream": "^3.1.7"
   }
