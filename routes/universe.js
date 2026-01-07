@@ -210,11 +210,9 @@ router.get('/builds', function(req, res, next) {
         if(job){
           var tooltip = `${job.config}: ${job.check}`;
           return `<a data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}/job/${job_link(job)}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
-        } else if(!target.includes('linux') && row._user == 'cran'){
-          return '<i class="grow-on-over fa-fw fa-solid fa-minus"></i>';
         } else {
-          var tooltip = `Failure for ${target}`;
-          return `<a data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}"><i class="grow-on-over fa-fw fa-solid fa-xmark text-danger"></i></a>`;
+          var tooltip = `Missing/skipped ${target}`;
+          return `<a data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}"><i class="grow-on-over fa-fw fa-solid fa-minus text-dark"></i></a>`;
         }
       };
     });
