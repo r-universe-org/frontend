@@ -1,13 +1,20 @@
 # Front-end
 
-R-universe express front-end stack.
+R-universe express front-end stack. This runs the website and cranlike repositories from https://r-universe.dev 
 
 ## Requirements
 
-We need NodeJS and MongoDB. On homebrew you would do:
+We need __NodeJS__ and __MongoDB__. On homebrew you would do:
 
 ```sh
 brew install node mongodb/brew/mongodb-community
+```
+
+On Ubuntu, `nodejs` can be installed from `apt` but you need instructions from the [mongodb website](https://www.mongodb.com/docs/v8.0/tutorial/install-mongodb-on-ubuntu/) to install `mongodb-org`.
+
+```sh
+apt-get update
+apt-get install nodejs mongodb-org
 ```
 
 ## Testing locally with dummy data
