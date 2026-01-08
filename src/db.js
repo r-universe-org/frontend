@@ -504,6 +504,10 @@ export function get_bucket_stream(hash){
   });
 }
 
+export function mongo_indexes(){
+  return packages.indexes();
+}
+
 export function get_package_info(pkg, universe){
   return mongo_package_info(pkg, universe);
 }
@@ -602,6 +606,23 @@ export function get_packages_index(query, fields = [], mixed = false){
   } else {
     return mongo_find(query).project(projection).sort({"Package" : 1});
   }
+}
+
+export function find_cran_package(pkgname){
+  var pkgname = pkgname.toLowerCase();
+  return packages.findOne({_nocasepkg : pkgname, _type : 'src', _user : 'cran'}).then(function(x){
+    if(x) return x;
+    return packages.findOne({_nocasepkg : pkgname, _type : 'src', _indexed : true}).then(function(y){
+      if(y && y._realowner == y['_user']) return y;
+      return packages.findOne({_nocasepkg : pkgname, _type : 'failure', _user : 'cran'}).then(function(failure){
+        if(failure){
+          throw createError(404, `CRAN package ${failure.Package} failed to build on r-universe: ${failure._buildurl}`);
+        } else {
+          throw createError(404, `Package ${pkgname} not found on CRAN.`);
+        }
+      });
+    });
+  });
 }
 
 export function get_package_hash(query){

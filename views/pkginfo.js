@@ -49,7 +49,7 @@ function compare_url(giturl, cran){
 function update_cran_status(){
   var upstream = pkginfo.upstream;
   if(universe == 'cran' || universe == 'bioc' || universe == 'bioc-release') return;
-  get_json(`${server}/shared/cranstatus/${package}`).then(function(craninfo){
+  get_json(`https://r-universe.dev/cranstatus/${package}`).then(function(craninfo){
     if(craninfo.version){
       var versiontxt = craninfo.version === 'archived' ? `${package} (archived)` : `${package}-${craninfo.version}`;
       $('.release-version').text(versiontxt).attr('href', `https://cran.r-project.org/package=${package}`);
@@ -90,7 +90,7 @@ function update_cran_status(){
 
 function update_conda_status(){
   const lowpkg = package.toLowerCase();
-  return get_json(`${server}/shared/condastatus/${lowpkg}`).then(function(conda){
+  return get_json(`https://r-universe.dev/condastatus/${lowpkg}`).then(function(conda){
     if(conda.version){
       $('.conda-version').text(`r-${lowpkg}-${conda.version}`).attr('href', conda.url);
       $('.conda-date').text(`(${conda.date.substring(0,10)}) `);

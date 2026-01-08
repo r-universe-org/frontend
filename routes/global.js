@@ -1,6 +1,6 @@
 import express from 'express';
-import {get_builds, get_organizations, get_repositories, get_articles, get_scores, get_sysdeps, get_datasets} from '../src/db.js';
-import {check_to_color} from '../src/tools.js';
+import {get_builds, get_organizations, get_repositories, get_articles, get_scores, get_sysdeps, get_datasets, mongo_indexes, find_cran_package} from '../src/db.js';
+import {check_to_color, get_cran_desc} from '../src/tools.js';
 const router = express.Router();
 
 function rnd(max){
@@ -32,6 +32,14 @@ function os_icon(type){
     default:
       return 'fa-question';
   }
+}
+
+function unsplat(x){
+  if(!x || !x.length) return "";
+  if(Array.isArray(x)){
+    return x.map(val => `/${val}`).join("");
+  }
+  return x;
 }
 
 router.get("/search", function(req, res, next){
@@ -159,6 +167,43 @@ router.get('/sitemap{s}.*ext', function(req, res, next) {
 
 router.get(["/index.xml", "/feed.xml"], function(req, res, next){
   res.status(404).send("Global feeds are no longer supported.");
+});
+
+
+/* previously under /shared */
+router.get('/condastatus/:package', function(req, res, next) {
+  return fetch(`https://api.anaconda.org/package/conda-forge/r-${req.params.package}`).then(function(response){
+    res.set('Cache-Control', 'max-age=3600, public');
+    if (response.ok) {
+      return response.json().then(function(conda){
+        return res.send({
+          name: conda.full_name, url: conda.html_url, version: conda.latest_version, date: conda.modified_at
+        });
+      });
+    } else { //always send HTTP 200 to ensure caching
+      res.send({error: "Failed"});
+    }
+  });
+});
+
+router.get('/mongostatus', function(req, res, next) {
+  return mongo_indexes().then(function(indexes){
+    var out = {indexes: indexes}
+    res.send(out);
+  });
+});
+
+router.get('/cranstatus/:package', function(req, res, next) {
+  return get_cran_desc(req.params.package).then(function(info){
+    return res.set('Cache-Control', 'max-age=3600, public').send(info);
+  });
+});
+
+router.get('/redirect/:package{/*path}', function(req, res, next) {
+  return find_cran_package(req.params.package).then(function(x){
+    var path = req.headers.host == 'docs.cran.dev' ? '/doc/manual.html' : unsplat(req.params.path);
+    res.redirect(`https://${x._realowner || 'cran'}.r-universe.dev/${x.Package}${path}`);
+  });
 });
 
 /* Prevent fall-through */

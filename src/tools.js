@@ -241,3 +241,54 @@ export function job_link(job){
   }
   return job.job;
 }
+
+function get_cran_url(path){
+  var mirror1 = `https://cloud.r-project.org/${path}`;
+  var mirror2 = `http://cran.r-project.org/${path}`;
+  return fetch(mirror1).then(function(res){
+    if(res.status == 200 || res.status == 404){
+      return res;
+    }
+    throw("Unexpected response from cran mirror; trying fallback");
+  }).catch(function(){
+    // Fallback when something is wrong with cloud mirror
+    return fetch(mirror2);
+  });
+}
+
+function parse_description(desc){
+  var fields = desc.replace(/\n[\t ]+/g, ' ').split("\n")
+  var pkg = fields.find(x => x.match(/^Package:/i));
+  var version = fields.find(x => x.match(/^Version:/i));
+  var date = fields.find(x => x.match(/^Date\/Publication:/i));
+  var urls = fields.find(x => x.match(/^URL:/i));
+  var bugreports = fields.find(x => x.match(/^BugReports:/i));
+  var strings = `${urls} ${bugreports}`.trim().split(/[,\s]+/);
+  var urlarray = strings.filter(x => x.match("https?://.*(github|gitlab|bitbucket|codeberg)"))
+    .map(x => x.replace('http://', 'https://'))
+    .map(x => x.replace(/#.*/, ''));
+  return {
+    package: pkg ? pkg.substring(9) : "parse failure",
+    version: version ? version.substring(9) : "parse failure",
+    date: date ? date.substring(18) : "parse failure",
+    urls: [...new Set(urlarray.map(x => x.replace(/\/issues$/, "")))]
+  }
+}
+
+export function get_cran_desc(pkg){
+  return get_cran_url(`/web/packages/${pkg}/DESCRIPTION`).then(function(response){
+    if (response.ok) {
+      return response.text().then(parse_description);
+    } else if(response.status == 404) {
+      return get_cran_url(`/src/contrib/Archive/${pkg}/`).then(function(res2){
+        if(res2.ok){
+          return {package:pkg, version: "archived"};
+        }
+        if(res2.status == 404){
+          return {package:pkg, version: null};
+        }
+      });
+    }
+    throw "Failed to lookup CRAN version";
+  });
+}
