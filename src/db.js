@@ -508,6 +508,10 @@ export function mongo_indexes(){
   return packages.indexes();
 }
 
+export function mongo_dump(query){
+  return packages.find(query, {raw: true});
+}
+
 export function get_package_info(pkg, universe){
   return mongo_package_info(pkg, universe);
 }

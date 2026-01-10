@@ -1,6 +1,7 @@
 import express from 'express';
 import url from 'node:url';
-import {ls_packages, get_universe_packages, get_package_info} from '../src/db.js';
+import {ls_packages, get_universe_packages, get_package_info, mongo_dump} from '../src/db.js';
+import {cursor_stream} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -32,6 +33,15 @@ router.get('/api/packages/:package', function(req, res, next) {
   return get_package_info(req.params.package, res.locals.universe).then(function(x){
     res.send(x);
   });
+});
+
+router.get("/api/dbdump", function(req, res, next) {
+  var query = {_user: res.locals.universe};
+  if(!req.query.everything){
+    query._type = 'src'
+  }
+  var cursor = mongo_dump(query);
+  return cursor_stream(cursor, res.type("application/bson"));
 });
 
 export default router;

@@ -292,3 +292,29 @@ export function get_cran_desc(pkg){
     throw "Failed to lookup CRAN version";
   });
 }
+
+// Somehow node:stream/promises does not catch input on-error callbacks properly
+// so we promisify ourselves. See https://github.com/r-universe-org/help/issues/540
+export function cursor_stream(cursor, output, transform, gzip){
+  return new Promise(function(resolve, reject) {
+    var input = cursor.stream({transform: transform}).on('error', reject);
+    if(gzip){
+      input = input.pipe(zlib.createGzip()).on('error', reject);
+    }
+    input.pipe(output).on('finish', resolve).on('error', reject);
+  });
+}
+
+export function send_results(cursor, res, stream = false, transform = (x) => x){
+  //We only use hasNext() to catch broken queries and promisify response
+  return cursor.hasNext().then(function(has_next){
+    if(stream){
+      return cursor_stream(cursor, res.type('text/plain'), doc => doc_to_ndjson(transform(doc)));
+    } else {
+      return cursor.toArray().then(function(out){
+        return res.send(out.filter(x => x).map(transform));
+      });
+    }
+  });
+}
+
