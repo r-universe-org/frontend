@@ -415,6 +415,8 @@ function mongo_universe_contributors(user, limit = 20){
   var query = {_type: 'src', '_registered' : true};
   if(user){
     query._universes = user;
+  } else {
+    query._indexed = true;
   }
   var cursor = mongo_aggregate([
     {$match: query},
