@@ -19,7 +19,7 @@ apt-get install nodejs mongodb-org
 
 ## Testing locally with dummy data
 
-Clone the repo, cd into it and run `npm install .` once to get dependencies.
+Clone this repo and run `npm install .` __once__ to download dependencies.
 
 ```sh
 # Only need to do this once
@@ -36,11 +36,9 @@ To run a local test server that mimics a given universe e.g. `ropensci` you can 
 
 Now you can open `http://localhost:3000/` in your browser which should look a lot like `https://ropensci.r-universe.dev`.
 
-The first time you run this script, it will automatically download some dummy data into the local directory `dummydata-$universe` so we have something to test with. This data will persist if you restart the script, so the second time you run this script this will be skipped. If you want to refresh your dummy data, just delete the `dummydata-$universe` folder. Or you can test with another universe:
+### About the dummy data
 
-```sh
-./run-local.sh tidyverse
-```
+The first time you run this script, it will automatically download some dummy data into the local directory `dummydata-{universe}` so we have something to test with. This data will persist if you restart the script, so the second time you run this script this will be skipped. If you want to refresh your dummy data, just delete the `dummydata-{universe}` folder and restart the `./run-local.sh`  script.
 
 ### Global pages
 
