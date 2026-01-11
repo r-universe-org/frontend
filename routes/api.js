@@ -1,7 +1,7 @@
 import express from 'express';
 import url from 'node:url';
-import {ls_packages, get_universe_packages, get_package_info, mongo_dump, mongo_search, mongo_everyone} from '../src/db.js';
-import {cursor_stream, build_query} from '../src/tools.js';
+import {ls_packages, get_universe_packages, get_package_info, mongo_dump, mongo_search, mongo_everyone, mongo_all_files} from '../src/db.js';
+import {cursor_stream, build_query, send_results} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -57,6 +57,15 @@ router.get("/api/dbdump", function(req, res, next) {
   }
   var cursor = mongo_dump(query);
   return cursor_stream(cursor, res.type("application/bson"));
+});
+
+router.get('/api/files', function(req, res, next){
+  var cursor = mongo_all_files(res.locals.universe, req.query.type, req.query.before, req.query.fields);
+  return send_results(cursor, res.type('text/plain'), true);
+});
+
+router.get("/stats/files", function(req, res, next) {
+  res.redirect(req.url.replace("stats/files", "api/files"))
 });
 
 export default router;

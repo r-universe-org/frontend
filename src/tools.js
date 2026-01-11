@@ -293,6 +293,10 @@ export function get_cran_desc(pkg){
   });
 }
 
+function doc_to_ndjson(x){
+  return JSON.stringify(x) + '\n';
+}
+
 // Somehow node:stream/promises does not catch input on-error callbacks properly
 // so we promisify ourselves. See https://github.com/r-universe-org/help/issues/540
 export function cursor_stream(cursor, output, transform, gzip){

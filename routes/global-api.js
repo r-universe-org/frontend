@@ -1,6 +1,6 @@
 import express from 'express';
-import {get_repositories, mongo_dump, mongo_search, mongo_everyone} from '../src/db.js';
-import {cursor_stream, build_query} from '../src/tools.js';
+import {get_repositories, mongo_dump, mongo_search, mongo_everyone, mongo_all_files} from '../src/db.js';
+import {cursor_stream, build_query, send_results} from '../src/tools.js';
 const router = express.Router();
 
 router.get("/api/universes", function(req, res, next) {
@@ -33,9 +33,20 @@ router.get('/api/everyone', function(req, res, next){
   return mongo_everyone(query).then(x => res.send(x));
 });
 
+
+router.get('/api/files', function(req, res, next){
+  var cursor = mongo_all_files(null, req.query.type, req.query.before, req.query.fields);
+  return send_results(cursor, res.type('text/plain'), true);
+});
+
 /* Legacy redirects */
 router.get("/stats/everyone", function(req, res, next) {
   res.redirect(req.url.replace("stats/everyone", "api/everyone"))
 });
+
+router.get("/stats/files", function(req, res, next) {
+  res.redirect(req.url.replace("stats/files", "api/files"))
+});
+
 
 export default router;

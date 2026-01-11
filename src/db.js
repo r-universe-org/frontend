@@ -152,6 +152,34 @@ function build_projection(fields){
   return projection;
 }
 
+export function mongo_all_files(universe, type, before, fields){
+  var query = {};
+  if(universe){
+    query['_user'] = universe;
+  }
+  if(type){
+    query['_type'] = type;
+  }
+  if(before){
+    query['_created'] = {'$lt': new Date(before)};
+  }
+  var projection = {
+    _id: 0,
+    type: '$_type',
+    user: '$_user',
+    package: '$Package',
+    version: '$Version',
+    r: '$Built.R',
+    published: { $dateToString: { format: "%Y-%m-%d", date: "$_created" } }
+  }
+  if(fields){
+    fields.split(",").forEach(function (f) {
+      projection[f] = 1;
+    });
+  }
+  return packages.find(query).project(projection);
+}
+
 function mongo_package_files(pkg, universe){
   return mongo_find({_user: universe, Package: pkg, _registered: true}).toArray();
 }
