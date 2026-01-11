@@ -1,5 +1,5 @@
 import express from 'express';
-import {get_builds, get_organizations, get_repositories, get_articles, get_scores, get_sysdeps, get_datasets, mongo_indexes, find_cran_package} from '../src/db.js';
+import {get_builds, get_organizations, get_repositories, get_articles, get_scores, get_sysdeps, get_datasets, mongo_indexes, find_cran_package, mongo_universe_updates, get_universe_contributors} from '../src/db.js';
 import {check_to_color, get_cran_desc} from '../src/tools.js';
 const router = express.Router();
 
@@ -49,8 +49,13 @@ router.get("/search", function(req, res, next){
 });
 
 router.get("/activity", function(req, res, next){
-  res.render("global/activity", {
-    title: "R-universe - leaderboard"
+  var p1 = mongo_universe_updates().toArray();
+  var p2 = get_universe_contributors("", 50);
+  return Promise.all([p1, p2]).then(function([updates, contributors]){
+    res.render("global/activity", {
+      title: "R-universe - leaderboard",
+      updates: updates, contributors: contributors
+    });
   });
 });
 

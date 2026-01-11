@@ -67,7 +67,6 @@ function activity_data(updates){
 }
 
 function make_activity_chart(universe){
-  return get_ndjson(`https://${universe && universe + "." || ""}r-universe.dev/stats/updates`).then(function(updates){
     const data = activity_data(updates);
     const ctx = document.getElementById('activity-canvas');
     const myChart = new Chart(ctx, {
@@ -119,12 +118,10 @@ function make_activity_chart(universe){
         }
       }
     });
-  });
 }
 
 function make_contributor_chart(universe, max, imsize){
   max = max || 100;
-  return get_ndjson(`https://${universe && universe + "." || ""}r-universe.dev/stats/contributors?all=true&limit=${max}`).then(function(contributors){
     const size = imsize || 50;
     //contributors = contributors.sort(function(x,y){return x.repos.length < y.repos.length ? 1 : -1});
     contributors = contributors.filter(x => x.login != 'nturaga') //this is a bot from BioConductor
@@ -239,7 +236,6 @@ function make_contributor_chart(universe, max, imsize){
     });
     // in case images were still downloading when chart was rendered
     Promise.all(promises).then(() => render_avatars());
-  });
 }
 
 make_activity_chart('');

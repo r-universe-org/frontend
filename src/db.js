@@ -412,7 +412,10 @@ function mongo_universe_s3_index(user, prefix, start_after){
 /* NB Contributions are grouped by upstream url instead of package namme to avoid duplicate counting
  * of contributions in repos with many packages, e.g. https://github.com/r-forge/ctm/tree/master/pkg */
 function mongo_universe_contributors(user, limit = 20){
-  var query = {_universes: user, _type: 'src', '_registered' : true};
+  var query = {_type: 'src', '_registered' : true};
+  if(user){
+    query._universes = user;
+  }
   var cursor = mongo_aggregate([
     {$match: query},
     {$project: {

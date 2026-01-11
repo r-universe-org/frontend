@@ -45,11 +45,6 @@ router.get('/api/everyone', function(req, res, next){
   return mongo_everyone(query).then(x => res.send(x));
 });
 
-router.get('/api/updates', function(req, res, next){
-  var cursor = mongo_universe_updates();
-  return send_results(cursor, res.type('text/plain'), req.query.stream);
-});
-
 router.get('/api/topics', function(req, res, next){
   var min =  parseInt(req.query.min) || 5;
   var limit =  parseInt(req.query.limit) || 200;
@@ -77,10 +72,6 @@ router.get("/stats/files", function(req, res, next) {
 
 router.get("/stats/summary", function(req, res, next) {
   res.redirect(req.url.replace("stats/summary", "api/summary"));
-});
-
-router.get("/stats/updates", function(req, res, next) {
-  res.redirect(req.url.replace("stats/updates", "api/updates?stream=true"));
 });
 
 router.get("/stats/topics", function(req, res, next) {

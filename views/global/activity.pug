@@ -15,4 +15,8 @@ block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.1/chartjs-adapter-moment.min.js')
   script
+    | window.updates=!{JSON.stringify(updates)}
+  script
+    | window.contributors=!{JSON.stringify(contributors)}
+  script
     include activity.js
