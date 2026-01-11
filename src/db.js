@@ -778,6 +778,18 @@ export function bucket_find(query, options = {}){
   return bucket.find(query, options);
 }
 
+export function mongo_everyone(query){
+  var p1 = packages.distinct('_user', query);
+  var p2 = packages.distinct('_maintainer.login', query);
+  return Promise.all([p1, p2]).then((values) => {
+    const out = {
+      universes: values[0].sort(),
+      maintainers: values[1].sort()
+    };
+    return out;
+  });
+}
+
 //use cached result because we dont want any delay for this
 export function get_all_universes(){
   return universes;

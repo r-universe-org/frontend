@@ -1,6 +1,6 @@
 import express from 'express';
 import url from 'node:url';
-import {ls_packages, get_universe_packages, get_package_info, mongo_dump, mongo_search} from '../src/db.js';
+import {ls_packages, get_universe_packages, get_package_info, mongo_dump, mongo_search, mongo_everyone} from '../src/db.js';
 import {cursor_stream, build_query} from '../src/tools.js';
 
 const router = express.Router();
@@ -43,6 +43,11 @@ router.get("/api/search", function(req, res, next) {
     build_query(query, req.query.q || "");
     return mongo_search(query, limit, skip).then(x => res.send(x));
   });
+});
+
+router.get('/api/everyone', function(req, res, next){
+  var query = {_type: {$in: ['src', 'failure']}, _registered : true, _user: res.locals.universe};
+  return mongo_everyone(query).then(x => res.send(x));
 });
 
 router.get("/api/dbdump", function(req, res, next) {

@@ -21,18 +21,25 @@ apt-get install nodejs mongodb-org
 
 Clone the repo, cd into it and run `npm install .` once to get dependencies.
 
+```sh
+# Only need to do this once
+git clone https://github.com/r-universe-org/frontend
+cd frontend
+npm install .
+```
+
 To run a local test server that mimics a given universe e.g. `ropensci` you can use:
 
 ```sh
-./run-local.sh ropensci --download
+./run-local.sh ropensci
 ```
 
-Then open `http://localhost:3000/` in your browser which should look a lot like `https://ropensci.r-universe.dev`.
+Now you can open `http://localhost:3000/` in your browser which should look a lot like `https://ropensci.r-universe.dev`.
 
-The `--download` flag copies some real dummy data from https://r-universe.dev into a local database so we have something to test with. The data will persist if you restart the script so you only have to do this once. Subsequent runs you can simply use:
+The first time you run this script, it will automatically download some dummy data into the local directory `dummydata-$universe` so we have something to test with. This data will persist if you restart the script, so the second time you run this script this will be skipped. If you want to refresh your dummy data, just delete the `dummydata-$universe` folder. Or you can test with another universe:
 
 ```sh
-./run-local.sh ropensci
+./run-local.sh tidyverse
 ```
 
 ### Global pages
