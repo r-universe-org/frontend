@@ -22,6 +22,12 @@ const chunks = db.collection('files.chunks');
 const universes = packages.distinct('_universes');
 console.log("Connected to MongoDB!");
 
+//removes and recreates all indexes
+if(process.env.REBUILD_INDEXES){
+  console.log("REBUILDING INDEXES!")
+  mongo_rebuild_indexes();
+}
+
 function mongo_latest(q){
   if(!packages || !packages.find)
     throw new Error("No mongodb connection available.");
@@ -170,6 +176,53 @@ function mongo_package_hash(query){
     if(!x)
       throw createError(404, 'Package not found for query: ' + JSON.stringify(query));
     return x;
+  });
+}
+
+export function mongo_search(query, limit = 100, skip = 0){
+  var project = {
+    Package: 1,
+    Title: 1,
+    Description:1,
+    _user:1,
+    _score: 1,
+    _usedby: 1,
+    _searchresults: 1,
+    _uuid: '$_userbio.uuid',
+    maintainer: '$_maintainer',
+    updated: '$_commit.time',
+    stars: '$_stars',
+    topics: '$_topics'
+  };
+  if(query['$text']){
+    project.match = {$meta: "textScore"};
+    project.rank = {$multiply:[{ $min: [{$meta: "textScore"}, 150]}, '$_score']};
+  } else {
+    project.rank = '$_score';
+  }
+  var cursor = packages.aggregate([
+    { $match: query},
+    { $project: project},
+    { $sort: {rank: -1}},
+    { $facet: {
+        results: [{ $skip: skip }, { $limit: limit }],
+        stat: [{$count: 'total'}]
+      }
+    }
+  ]);
+  return cursor.next().then(function(out){
+    out.query = query;
+    out.skip = skip;
+    out.limit = limit;
+    if(out.stat && out.stat.length){
+      out.total = out.stat[0].total;
+    }
+    //remove fields unrelated to the search
+    delete out.query._type;
+    delete out.query._registered;
+    delete out.query._indexed;
+    delete out.stat;
+    return out;
   });
 }
 
@@ -627,6 +680,86 @@ export function find_cran_package(pkgname){
       });
     });
   });
+}
+
+export async function mongo_rebuild_indexes(){
+  //print (or drop) indexes
+  var indexes = await packages.indexes();
+  for (let x of indexes) {
+    if (x.name == '_id_') continue;
+    console.log("Dropping index: " + x.name);
+    await packages.dropIndex(x.name).catch(console.log);
+  };
+
+  function make_index(query){
+    return packages.createIndex(query).then(() => console.log(`Created index: ${JSON.stringify(query)}`));
+  }
+
+  /* Speed up common query fields */
+  /* NB: Dont use indexes with low cardinality (few unique values) */
+  await make_index("Package");
+  await make_index("_fileid");
+  await make_index("_user");
+  await make_index("_type");
+  await make_index("_published");
+  await make_index("_nocasepkg");
+  await make_index("_commit.time");
+  await make_index("_universes");
+  await make_index("_topics");
+  await make_index("_exports");
+  await make_index("_score");
+  await make_index({"_universes":1, "_commit.time":1});
+  await make_index({"_universes":1, "Package":1});
+  await make_index({"_user":1, "Package":1, "Version":1});
+  await make_index({"_user":1, "_type":1, "Package":1});
+  await make_index({"_user":1, "_type":1, "Package":1, "_arch": 1, "_major": 1});
+  await make_index({"_user":1, "_type":1, "_distro":1, "_arch": 1, "_major": 1});
+  await make_index({"_user":1, "_type":1, "_portable":1, "_arch": 1, "_major": 1});
+  await make_index({"_user":1, "_commit.id":1, "Package":1});
+  await make_index({"_user":1, "_type":1, "_commit.time":1});
+  await make_index({"_user":1, "_type":1, "_registered":1, "_commit.time":1});
+  await make_index({"_type":1, "_rundeps":1});
+  await make_index({"_type":1, "_dependencies.package":1});
+  await make_index({"_type":1, "_contributors.user":1});
+
+  /* The text search index (only one is allowed) */
+  //await packages.dropIndex("textsearch").catch(console.log);
+  await packages.createIndex({
+    _type:1,
+    Package: "text",
+    _owner: "text",
+    Title: "text",
+    Author: "text",
+    Description: "text",
+    '_vignettes.title': "text",
+    '_vignettes.headings': "text",
+    '_maintainer.name': "text",
+    '_topics': "text",
+    '_sysdeps.name': "text",
+    '_exports' : "text",
+    '_help.title' : "text",
+    '_datasets.title' : "text"
+  },{
+    weights: {
+      Package: 100,
+      _owner: 20,
+      Title: 5,
+      Author: 3,
+      Description: 1,
+      '_vignettes.title': 5,
+      '_vignettes.headings': 2,
+      '_maintainer.name': 10,
+      '_topics': 10,
+      '_sysdeps.name': 20,
+      '_exports' : 3,
+      '_help.title' : 3,
+      '_datasets.title' : 3
+    },
+    name: "textsearch"
+  }).then(() => console.log(`Created index: text-search`));
+  var indexes = await packages.indexes();
+  console.log(indexes.map(x => x.name));
+  console.log("rebuild_indexes complete!")
 }
 
 export function get_package_hash(query){

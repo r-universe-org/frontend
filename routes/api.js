@@ -1,7 +1,7 @@
 import express from 'express';
 import url from 'node:url';
-import {ls_packages, get_universe_packages, get_package_info, mongo_dump} from '../src/db.js';
-import {cursor_stream} from '../src/tools.js';
+import {ls_packages, get_universe_packages, get_package_info, mongo_dump, mongo_search} from '../src/db.js';
+import {cursor_stream, build_query} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -32,6 +32,16 @@ router.get('/api/packages', function(req, res, next) {
 router.get('/api/packages/:package', function(req, res, next) {
   return get_package_info(req.params.package, res.locals.universe).then(function(x){
     res.send(x);
+  });
+});
+
+router.get("/api/search", function(req, res, next) {
+  var query = {_type: 'src', _registered : true, _universes: res.locals.universe};
+  var limit = parseInt(req.query.limit) || 100;
+  var skip = parseInt(req.query.skip) || 0;
+  return Promise.resolve().then(() => {
+    build_query(query, req.query.q || "");
+    return mongo_search(query, limit, skip).then(x => res.send(x));
   });
 });
 

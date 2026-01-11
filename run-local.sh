@@ -18,6 +18,7 @@ if [ "$2" = "--download" ]; then
   curl -L "https://$UNIVERSE.r-universe.dev/api/dbdump?everything=1" -o $UNIVERSE.bson
   mongorestore --port 3993 -d cranlike --drop -c packages $UNIVERSE.bson
   rm -fv $UNIVERSE.bson
+  export REBUILD_INDEXES=1
 else
   echo "Tip: run this script one time with --download to download dummy data for this universe"
 fi

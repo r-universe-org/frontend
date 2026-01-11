@@ -318,3 +318,65 @@ export function send_results(cursor, res, stream = false, transform = (x) => x){
   });
 }
 
+/* NB: regex queries are slow because not indexable! */
+export function build_query(query, str){
+  function substitute(name, field, insensitive, partial){
+    var re = new RegExp(`${name}:(\\S*)`, "i"); //the name is insensitive e.g.: "Package:jsonlite"
+    var found = str.match(re);
+    if(found && !found[1]){
+      throw createError(400, `Invalid search query: "${name}:" is followed by whitespace`);
+    }
+    if(found && found[1]){
+      var search = found[1];
+      if(insensitive || partial){
+        search = search.replaceAll("+", "."); //search for: "author:van+buuren" or "topic:open+data"
+        var regex = partial ? search : `^${search}$`;
+        var opt = insensitive ? 'i' : '';
+        query[field] = {$regex: regex, $options: opt}
+      } else if (field == '_nocasepkg'){
+        query[field] = search.toLowerCase();
+      } else {
+        query[field] = search;
+      }
+      str = str.replace(re, "");
+    }
+  }
+  function match_exact(name, field){
+    substitute(name, field)
+  }
+  function match_insensitive(name, field){
+    substitute(name, field, true)
+  }
+  function match_partial(name, field){
+    substitute(name, field, true, true)
+  }
+  function match_exists(name, field){
+    var re = new RegExp(`${name}:(\\S+)`, "i");
+    var found = str.match(re);
+    if(found && found[1]){
+      var findfield = found[1].toLowerCase(); //GH logins are normalized to lowercase
+      query[`${field}.${findfield}`] = { $exists: true };
+      str = str.replace(re, "");
+    }
+  }
+  match_partial('author', 'Author');
+  match_partial('maintainer', 'Maintainer');
+  match_exact('needs', '_rundeps');
+  match_exact('package', '_nocasepkg'); //always case insenstive
+  match_exact('contributor', '_contributors.user');
+  match_exact('topic', '_topics');
+  match_exact('exports', '_exports');
+  match_exact('owner', '_owner');
+  match_exact('user', '_user');
+  match_exact('fileid', '_fileid')
+  match_exact('universe', '_universes');
+  match_partial('data', '_datasets.title');
+  str = str.trim();
+  var unknown = str.match("(\\S+):(\\S+)");
+  if(unknown && unknown[1]){
+    throw createError(400, `Invalid search query: "${unknown[1]}:" is not a supported field.`);
+  }
+  if(str){
+    query['$text'] = { $search: str, $caseSensitive: false};
+  }
+}

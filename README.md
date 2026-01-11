@@ -21,18 +21,18 @@ apt-get install nodejs mongodb-org
 
 Clone the repo, cd into it and run `npm install .` once to get dependencies.
 
-To run a local test server that mimics a given universe e.g. `tidyverse` you can use:
+To run a local test server that mimics a given universe e.g. `ropensci` you can use:
 
 ```sh
-./run-local.sh tidyverse --download
+./run-local.sh ropensci --download
 ```
 
-Then open `http://localhost:3000/` in your browser which should look a lot like `https://tidyverse.r-universe.dev`.
+Then open `http://localhost:3000/` in your browser which should look a lot like `https://ropensci.r-universe.dev`.
 
 The `--download` flag copies some real dummy data from https://r-universe.dev into a local database so we have something to test with. The data will persist if you restart the script so you only have to do this once. Subsequent runs you can simply use:
 
 ```sh
-./run-local.sh tidyverse
+./run-local.sh ropensci
 ```
 
 ### Global pages
