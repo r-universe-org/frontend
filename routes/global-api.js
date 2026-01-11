@@ -9,6 +9,7 @@ router.get('/api/revdeps/:package', function(req, res, next){
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
 
+// This omits empty (failure-only) universes; use /api/everyone to get these
 router.get("/api/universes", function(req, res, next) {
   var limit = parseInt(req.query.limit) || 100000;
   var cursor = mongo_all_universes(req.params.type == 'organization', limit);

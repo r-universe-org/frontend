@@ -119,7 +119,7 @@ function add_maintainer_icon(maintainer){
 }
 
 function load_maintainer_list(){
-  get_ndjson(server + '/stats/maintainers?limit=25&all=true').then(function(x){
+  get_json('/api/maintainers?limit=25').then(function(x){
     x.forEach(function(maintainer){
       if(maintainer.login == universe && maintainer.orcid){
         $("#github-user-orcid").removeClass("d-none").attr('href', 'https://orcid.org/' + maintainer.orcid);
@@ -184,7 +184,7 @@ function load_registry_status(){
 }
 
 function load_universe_stats(){
-  return get_json(`${server}/stats/summary?all=true`).then(function(stats){
+  return get_json(`/api/summary`).then(function(stats){
     for (const [key, value] of Object.entries(stats)) {
       $(`#github-user-${key} .content`).text(`${value || 0} ${key}`);
       if(!value){

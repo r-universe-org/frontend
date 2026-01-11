@@ -1,5 +1,5 @@
 function make_activity_chart(){
-  return get_ndjson(`${server}/stats/updates?all=true`).then(function(updates){
+  return get_json('/api/updates').then(function(updates){
     const data = activity_data(updates);
     const ctx = document.getElementById('activity-canvas');
     const myChart = new Chart(ctx, {

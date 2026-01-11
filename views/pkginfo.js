@@ -193,7 +193,7 @@ function update_readme_html(){
 
 function update_package_revdeps(){
   var revdepdiv = $(".package-details-revdeps");
-  return get_ndjson(`https://r-universe.dev/stats/usedbyorg?package=${package}`).then(function(revdeps){
+  return get_json(`https://r-universe.dev/api/revdeps/${package}`).then(function(revdeps){
     function make_link(pkg, owner){
       return $("<a>").text(pkg).addClass('text-dark').attr('href', `https://${owner}.r-universe.dev/${pkg}`);
     }
