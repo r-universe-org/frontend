@@ -135,6 +135,34 @@ function array_first(key){
   return {$cond: [{ $isArray: key }, {$first: key}, null ]};
 }
 
+function summary_count(k, q) {
+  return packages.aggregate([
+    {$match:q},
+    {$unwind: `$${k.split('.')[0]}`},
+    {$count: "total"}
+  ]);
+}
+
+function summary_unique(k, q) {
+  return packages.aggregate([
+    {$match:q},
+    {$unwind: `$${k.split('.')[0]}`},
+    {$group: {_id: { $toHashedIndexKey: `$${k}`}}},
+    {$count: "total"}
+  ]);
+}
+
+function summary_object(k, q) {
+  return packages.aggregate([
+    {$match:q},
+    {$project: {x: {$objectToArray:`$${k}`}}},
+    {$unwind: "$x"},
+    {$group: {_id: "$x.k"}},
+    {$count: "total"}
+  ]);
+}
+
+
 function build_projection(fields){
   if(!fields || !fields.length) return {_id:0};
   var projection = {Package:1, _type:1, _user:1, _indexed: 1, _id:0};
@@ -455,6 +483,32 @@ export function mongo_universe_maintainers(user, limit = 100){
     {$limit: limit}
   ]);
   return cursor;
+}
+
+export function mongo_summary(universe){
+  var query = {_type: 'src'};;
+  if(universe){
+    query._user = universe;
+  }
+  var p1 = summary_unique('Package', query);
+  var p2 = summary_unique('_maintainer.email', query);
+  var p3 = summary_count('_vignettes.source', query);
+  var p4 = summary_count('_datasets.name', query);
+  var p5 = summary_unique('_user', {'_userbio.type': 'organization', ...query});
+  var p6 = summary_unique('_contributors.user', query);
+  var promises = [p1, p2, p3, p4, p5, p6].map(function(p){
+    return p.next().then(res => res ? res.total : 0);
+  })
+  return Promise.all(promises).then(function([packages, maintainers, articles, datasets, orgs, contributors]){
+    return {
+      packages: packages,
+      maintainers: maintainers,
+      articles: articles,
+      datasets: datasets,
+      organizations: orgs,
+      contributors: contributors
+    };
+  });
 }
 
 function mongo_all_universes(organizations_only){

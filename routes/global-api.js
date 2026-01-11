@@ -1,5 +1,5 @@
 import express from 'express';
-import {get_repositories, mongo_dump, mongo_search, mongo_everyone, mongo_all_files} from '../src/db.js';
+import {get_repositories, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 const router = express.Router();
 
@@ -39,6 +39,10 @@ router.get('/api/files', function(req, res, next){
   return send_results(cursor, res.type('text/plain'), true);
 });
 
+router.get('/api/summary', function(req, res, next){
+  return mongo_summary().then(x => res.send(x));
+});
+
 /* Legacy redirects */
 router.get("/stats/everyone", function(req, res, next) {
   res.redirect(req.url.replace("stats/everyone", "api/everyone"))
@@ -48,5 +52,8 @@ router.get("/stats/files", function(req, res, next) {
   res.redirect(req.url.replace("stats/files", "api/files"))
 });
 
+router.get("/stats/summary", function(req, res, next) {
+  res.redirect(req.url.replace("stats/summary", "api/summary"))
+});
 
 export default router;

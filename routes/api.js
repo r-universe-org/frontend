@@ -1,7 +1,7 @@
 import express from 'express';
 import url from 'node:url';
 import {ls_packages, get_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, 
-  mongo_search, mongo_everyone, mongo_all_files} from '../src/db.js';
+  mongo_search, mongo_everyone, mongo_all_files, mongo_summary} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 
 const router = express.Router();
@@ -59,7 +59,7 @@ router.get('/api/everyone', function(req, res, next){
 });
 
 router.get("/api/dbdump", function(req, res, next) {
-  var query = {_user: res.locals.universe};
+  var query = {_universes: res.locals.universe}; //this will also dump cross referenced packages
   if(!req.query.everything){
     query._type = 'src'
   }
@@ -72,8 +72,18 @@ router.get('/api/files', function(req, res, next){
   return send_results(cursor, res.type('text/plain'), true);
 });
 
+router.get('/api/summary', function(req, res, next){
+  return mongo_summary(res.locals.universe).then(x => res.send(x));
+});
+
+/* Legacy redirects */
+
 router.get("/stats/files", function(req, res, next) {
   res.redirect(req.url.replace("stats/files", "api/files"))
+});
+
+router.get("/stats/summary", function(req, res, next) {
+  res.redirect(req.url.replace("stats/summary", "api/summary"))
 });
 
 router.get("/stats/maintainers", function(req, res, next) {
