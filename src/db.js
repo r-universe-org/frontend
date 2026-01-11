@@ -655,6 +655,26 @@ function mongo_all_datasets(){
   return cursor.toArray();
 }
 
+export function mongo_universe_topics(universe, min = 1, limit = 100){
+  var query = {_type: 'src'};
+  if(universe){
+    query._universes = universe;
+  }
+  var cursor = packages.aggregate([
+    {$match: query},
+    {$unwind: '$_topics'},
+    {$group: {
+      _id : '$_topics',
+      packages: { $addToSet: '$Package' }
+    }},
+    {$project: {_id: 0, topic: '$_id', packages: '$packages', count: { $size: "$packages" }}},
+    {$match:{count: {$gte: min}}},
+    {$sort:{count: -1}},
+    {$limit: limit}
+  ]);
+  return cursor;
+}
+
 function mongo_recent_builds(days = 7){
   var query = {'_commit.time' : {'$gt': days_ago(days)}};
   var cursor = mongo_aggregate([
