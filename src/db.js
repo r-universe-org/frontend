@@ -531,6 +531,24 @@ export function mongo_summary(universe){
   });
 }
 
+export function mongo_usedbyorg(pkgname, universe){
+  var query = {_type: 'src', '_dependencies.package': pkgname, '_indexed': true};
+  if(universe){
+    query._universes = universe;
+  }
+  var cursor = packages.aggregate([
+    {$match : query},
+    {$group : {
+      _id: "$_user",
+      packages : { $addToSet: { package: "$Package", maintainer :'$_maintainer.login', stars: '$_stars'}},
+      allstars: { $sum: '$_stars'},
+    }},
+    {$project:{_id: 0, owner: "$_id", packages: 1, allstars:1}},
+    {$sort : {allstars : -1}},
+  ]);
+  return cursor;
+}
+
 function mongo_all_universes(organizations_only){
   var query = {_type: 'src', _registered: true};
   if(organizations_only){

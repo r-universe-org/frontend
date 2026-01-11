@@ -1,8 +1,13 @@
 import express from 'express';
 import {get_repositories, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary, 
-  mongo_universe_updates, mongo_universe_topics} from '../src/db.js';
+  mongo_universe_updates, mongo_universe_topics, mongo_usedbyorg} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 const router = express.Router();
+
+router.get('/api/revdeps/:package', function(req, res, next){
+  var cursor = mongo_usedbyorg(req.params.package);
+  return send_results(cursor, res.type('text/plain'), req.query.stream);
+});
 
 router.get("/api/universes", function(req, res, next) {
   return get_repositories().then(function(data){
@@ -55,23 +60,27 @@ router.get('/api/summary', function(req, res, next){
 
 /* Legacy redirects */
 router.get("/stats/everyone", function(req, res, next) {
-  res.redirect(req.url.replace("stats/everyone", "api/everyone"))
+  res.redirect(req.url.replace("stats/everyone", "api/everyone"));
 });
 
 router.get("/stats/files", function(req, res, next) {
-  res.redirect(req.url.replace("stats/files", "api/files"))
+  res.redirect(req.url.replace("stats/files", "api/files"));
 });
 
 router.get("/stats/summary", function(req, res, next) {
-  res.redirect(req.url.replace("stats/summary", "api/summary"))
+  res.redirect(req.url.replace("stats/summary", "api/summary"));
 });
 
 router.get("/stats/updates", function(req, res, next) {
-  res.redirect(req.url.replace("stats/updates", "api/updates?stream=true"))
+  res.redirect(req.url.replace("stats/updates", "api/updates?stream=true"));
 });
 
 router.get("/stats/topics", function(req, res, next) {
-  res.redirect(req.url.replace("stats/topics", "api/topics?stream=true"))
+  res.redirect(req.url.replace("stats/topics", "api/topics?stream=true"));
+});
+
+router.get("/stats/usedbyorg", function(req, res, next) {
+  res.redirect(req.url.replace("stats/usedbyorg", `api/revdeps/${req.query.package}?stream=true`));
 });
 
 export default router;

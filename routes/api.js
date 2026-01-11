@@ -1,6 +1,6 @@
 import express from 'express';
 import url from 'node:url';
-import {ls_packages, get_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, 
+import {ls_packages, get_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 
@@ -34,6 +34,11 @@ router.get('/api/packages/:package', function(req, res, next) {
   return get_package_info(req.params.package, res.locals.universe).then(function(x){
     res.send(x);
   });
+});
+
+router.get('/api/revdeps/:package', function(req, res, next){
+  var cursor = mongo_usedbyorg(req.params.package, res.locals.universe);
+  return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
 
 router.get('/api/maintainers', function(req, res, next) {
@@ -89,23 +94,27 @@ router.get('/api/summary', function(req, res, next){
 /* Legacy redirects */
 
 router.get("/stats/files", function(req, res, next) {
-  res.redirect(req.url.replace("stats/files", "api/files"))
+  res.redirect(req.url.replace("stats/files", "api/files"));
 });
 
 router.get("/stats/summary", function(req, res, next) {
-  res.redirect(req.url.replace("stats/summary", "api/summary"))
+  res.redirect(req.url.replace("stats/summary", "api/summary"));
 });
 
 router.get("/stats/updates", function(req, res, next) {
-  res.redirect(req.url.replace("stats/updates", "api/updates?stream=true"))
+  res.redirect(req.url.replace("stats/updates", "api/updates?stream=true"));
 });
 
 router.get("/stats/topics", function(req, res, next) {
-  res.redirect(req.url.replace("stats/topics", "api/topics?stream=true"))
+  res.redirect(req.url.replace("stats/topics", "api/topics?stream=true"));
 });
 
 router.get("/stats/maintainers", function(req, res, next) {
-  res.redirect(req.url.replace("stats/maintainers", "api/maintainers?stream=true"))
+  res.redirect(req.url.replace("stats/maintainers", "api/maintainers?stream=true"));
+});
+
+router.get("/stats/usedbyorg", function(req, res, next) {
+  res.redirect(req.url.replace("stats/usedbyorg", `api/revdeps/${req.query.package}?stream=true`));
 });
 
 export default router;
