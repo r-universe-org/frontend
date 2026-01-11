@@ -349,6 +349,26 @@ function mongo_universe_binaries(user, type){
   return cursor.toArray();
 }
 
+export function mongo_universe_updates(universe){
+  var query = {_type: 'src', '_registered' : true};
+  if(universe){
+    query._universes = universe;
+  }
+  var cursor = packages.aggregate([
+    {$match: query},
+    {$project: {
+      _id: 0,
+      package: '$Package',
+      updates: '$_updates'
+    }},
+    {$unwind: "$updates"},
+    {$group: {_id: "$updates.week", total: {$sum: '$updates.n'}, packages: {$addToSet: {k:'$package', v:'$updates.n'}}}},
+    {$project: {_id:0, week: '$_id', total: '$total', packages: {$arrayToObject:{$sortArray: { input: "$packages", sortBy: { v: -1 } }}}}},
+    {$sort:{ week: 1}}
+  ]);
+  return cursor;
+}
+
 function mongo_universe_s3_index(user, prefix, start_after){
   var query = {_user: user, _registered: true, _type: {'$ne': 'failure'}};
   var proj = {MD5sum:1, Package:1, Version:1, Built:1, _distro:1, _type:1, _id:1,  _published:1, _filesize:1};

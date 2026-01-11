@@ -1,7 +1,7 @@
 import express from 'express';
 import url from 'node:url';
 import {ls_packages, get_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, 
-  mongo_search, mongo_everyone, mongo_all_files, mongo_summary} from '../src/db.js';
+  mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 
 const router = express.Router();
@@ -67,9 +67,15 @@ router.get("/api/dbdump", function(req, res, next) {
   return cursor_stream(cursor, res.type("application/bson"));
 });
 
+router.get('/api/updates', function(req, res, next){
+  var stream = req.query.stream;
+  var cursor = mongo_universe_updates(res.locals.universe);
+  return send_results(cursor, res.type('text/plain'), stream);
+});
+
 router.get('/api/files', function(req, res, next){
   var cursor = mongo_all_files(res.locals.universe, req.query.type, req.query.before, req.query.fields);
-  return send_results(cursor, res.type('text/plain'), true);
+  return send_results(cursor, res.type('text/plain'), true); //always stream
 });
 
 router.get('/api/summary', function(req, res, next){
@@ -84,6 +90,10 @@ router.get("/stats/files", function(req, res, next) {
 
 router.get("/stats/summary", function(req, res, next) {
   res.redirect(req.url.replace("stats/summary", "api/summary"))
+});
+
+router.get("/stats/updates", function(req, res, next) {
+  res.redirect(req.url.replace("stats/updates", "api/updates?stream=true"))
 });
 
 router.get("/stats/maintainers", function(req, res, next) {

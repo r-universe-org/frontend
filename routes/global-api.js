@@ -1,5 +1,5 @@
 import express from 'express';
-import {get_repositories, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary} from '../src/db.js';
+import {get_repositories, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 const router = express.Router();
 
@@ -33,6 +33,11 @@ router.get('/api/everyone', function(req, res, next){
   return mongo_everyone(query).then(x => res.send(x));
 });
 
+router.get('/api/updates', function(req, res, next){
+  var stream = req.query.stream;
+  var cursor = mongo_universe_updates();
+  return send_results(cursor, res.type('text/plain'), stream);
+});
 
 router.get('/api/files', function(req, res, next){
   var cursor = mongo_all_files(null, req.query.type, req.query.before, req.query.fields);
@@ -54,6 +59,10 @@ router.get("/stats/files", function(req, res, next) {
 
 router.get("/stats/summary", function(req, res, next) {
   res.redirect(req.url.replace("stats/summary", "api/summary"))
+});
+
+router.get("/stats/updates", function(req, res, next) {
+  res.redirect(req.url.replace("stats/updates", "api/updates?stream=true"))
 });
 
 export default router;
