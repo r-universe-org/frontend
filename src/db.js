@@ -400,6 +400,63 @@ function mongo_universe_contributions(user, limit = 20){
   return cursor.toArray();
 }
 
+export function mongo_universe_maintainers(user, limit = 100){
+  var query = {_user: user, _type: 'src', _registered : true};
+   //We assume $natural sort such that the last matches have most recent email-login mapping.
+  var cursor = packages.aggregate([
+    {$match: query},
+    {$group: {
+      _id : '$_maintainer.email',
+      updated: { $max: '$_commit.time'},
+      name : { $first: '$_maintainer.name'},
+      uuid : { $addToSet: '$_maintainer.uuid'}, //can be null
+      login : { $addToSet: '$_maintainer.login'}, //can be null
+      orcid : { $addToSet: '$_maintainer.orcid'}, //can be null
+      mastodon : { $addToSet: '$_maintainer.mastodon'}, //can be null
+      bluesky : { $addToSet: '$_maintainer.bluesky'}, //can be null
+      linkedin : { $addToSet: '$_maintainer.linkedin'}, //can be null
+      orgs: { $push:  { "k": "$_user", "v": true}},
+      scores : { $sum: '$_score' },
+      count : { $sum: 1 },
+    }},
+    {$set: {orgs: {$arrayToObject: '$orgs'}, orcid: {$last: '$orcid'}, mastodon: {$last: '$mastodon'}, bluesky: {$last: '$bluesky'}, linkedin: {$last: '$linkedin'}, uuid: {$last: '$uuid'}, login: {$last: '$login'}}},
+    {$group: {
+      _id : { $ifNull: [ "$login", "$_id" ]},
+      uuid: { $last: '$uuid'},
+      login: { $last: '$login'},
+      emails: { $addToSet: '$_id' },
+      updated: { $max: '$updated'},
+      name : { $last: '$name'},
+      orcid : { $addToSet: "$orcid"},
+      bluesky : { $addToSet: "$bluesky"},
+      linkedin : { $addToSet: "$linkedin"},
+      mastodon : { $addToSet: "$mastodon"},
+      scores : { $sum: '$scores' },
+      count : { $sum: '$count'},
+      orgs: {$mergeObjects: '$orgs'}
+    }},
+    {$project: {
+      _id: 0,
+      login: 1,
+      uuid: 1,
+      emails: 1,
+      updated: 1,
+      name: 1,
+      count : 1,
+      scores: 1,
+      orcid: {$last: '$orcid'},
+      bluesky: {$last: '$bluesky'},
+      linkedin: {$last: '$linkedin'},
+      mastodon: {$last: '$mastodon'},
+      orgs: {$objectToArray: "$orgs"}
+    }},
+    {$set: {orgs: '$orgs.k'}},
+    {$sort:{ scores: -1}},
+    {$limit: limit}
+  ]);
+  return cursor;
+}
+
 function mongo_all_universes(organizations_only){
   var query = {_type: 'src', _registered: true};
   if(organizations_only){
