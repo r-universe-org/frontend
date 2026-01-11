@@ -549,7 +549,7 @@ export function mongo_usedbyorg(pkgname, universe){
   return cursor;
 }
 
-function mongo_all_universes(organizations_only){
+export function mongo_all_universes(organizations_only, limit = 999999){
   var query = {_type: 'src', _registered: true};
   if(organizations_only){
     query['_userbio.type'] = 'organization';
@@ -572,9 +572,10 @@ function mongo_all_universes(organizations_only){
     {$project: {_id: 0, universe: '$_id', packages: 1, updated: 1, type: 1, uuid: 1,
       indexed:1, name: 1, type: 1, bio: 1, maintainers: { $size: '$emails' },
     }},
-    {$sort:{ indexed: -1}}
+    {$sort:{ indexed: -1}},
+    {$limit : limit}
   ]);
-  return cursor.toArray();
+  return cursor;
 }
 
 function mongo_all_scores(){
@@ -806,7 +807,7 @@ export function get_universe_s3_index(universe, prefix, start_after){
 }
 
 export function get_repositories(){
-  return mongo_all_universes()
+  return mongo_all_universes().toArray();
 }
 
 export function get_scores(){
@@ -814,7 +815,7 @@ export function get_scores(){
 }
 
 export function get_organizations(){
-  return mongo_all_universes(true);
+  return mongo_all_universes(true).toArray();
 }
 
 export function get_sysdeps(){

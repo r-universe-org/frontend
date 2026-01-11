@@ -1,5 +1,5 @@
 import express from 'express';
-import {get_repositories, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary, 
+import {mongo_all_universes, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary, 
   mongo_universe_updates, mongo_universe_topics, mongo_usedbyorg} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 const router = express.Router();
@@ -10,9 +10,15 @@ router.get('/api/revdeps/:package', function(req, res, next){
 });
 
 router.get("/api/universes", function(req, res, next) {
-  return get_repositories().then(function(data){
-    res.send(data);
-  });
+  var limit = parseInt(req.query.limit) || 100000;
+  var cursor = mongo_all_universes(req.params.type == 'organization', limit);
+  return send_results(cursor, res.type('text/plain'), req.query.stream);
+});
+
+router.get("/api/organizations", function(req, res, next) {
+  var limit = parseInt(req.query.limit) || 100000;
+  var cursor = mongo_all_universes(true, limit);
+  return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
 
 router.get("/api/dbdump", function(req, res, next) {
