@@ -45,7 +45,9 @@ router.get('/api/updates', function(req, res, next){
 });
 
 router.get('/api/topics', function(req, res, next){
-  var cursor = mongo_universe_topics();
+  var min =  parseInt(req.query.min) || 5;
+  var limit =  parseInt(req.query.limit) || 200;
+  var cursor = mongo_universe_topics(null, min, limit);
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
 
