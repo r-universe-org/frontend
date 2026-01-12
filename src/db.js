@@ -1,6 +1,7 @@
 import {MongoClient, GridFSBucket} from 'mongodb';
 import {Readable} from  "node:stream";
 import path from 'node:path';
+import crypto from 'node:crypto';
 import {pkgfields, doc_to_paths} from './tools.js';
 import createError from 'http-errors';
 
@@ -17,7 +18,7 @@ console.log("Connecting to database....")
 const client = await MongoClient.connect(URL);
 const db = client.db('cranlike');
 const bucket = new GridFSBucket(db, {bucketName: 'files'});
-const packages = db.collection('packages');
+export const packages = db.collection('packages');
 const chunks = db.collection('files.chunks');
 const universes = packages.distinct('_universes');
 console.log("Connected to MongoDB!");
@@ -997,7 +998,108 @@ export function mongo_everyone(query){
   });
 }
 
-//use cached result because we dont want any delay for this
 export function get_all_universes(){
-  return universes;
+  return universes; //instant cached result
+}
+
+/*** Write APIs below **/
+
+export function delete_file(key){
+  return packages.findOne({_fileid : key}).then(function(doc){
+    if(doc){
+      console.log("Found other references, not deleting file: " + key);
+    } else {
+      return bucket.delete(key).then(function(){
+        console.log("Deleted file " + key);
+      });
+    }
+  });
+}
+
+export function delete_doc(doc, keep_file_id){
+  if(doc._type === 'failure'){
+    return packages.deleteOne({_id: doc['_id']}); // no file to delete
+  }
+  if(!doc._fileid) {
+    throw "Calling delete_doc without doc._fileid";
+  }
+  return packages.deleteOne({_id: doc['_id']}).then(function(){
+    if(doc._fileid !== keep_file_id){
+      return delete_file(doc._fileid).then(()=>doc);
+    }
+  });
+}
+
+export function delete_by_query(query){
+  return packages.find(query).project({_type: 1, _id:1, _fileid:1, Package:1, Version:1}).toArray().then(function(docs){
+    return Promise.all(docs.map(delete_doc));
+  });
+}
+
+export function store_stream_file(stream, key, filename, metadata){
+  return new Promise(function(resolve, reject) {
+    var upload = bucket.openUploadStreamWithId(key, filename, {metadata: metadata});
+    var hash = crypto.createHash('sha256');
+    var pipe = stream.on('data', data => hash.update(data)).pipe(upload);
+    function cleanup_and_reject(err){
+      /* Reject and clear possible orphaned chunks */
+      console.log(`Error uploading ${key} (${err}). Deleting chunks.`);
+      bucket.delete(key).finally(function(){
+        console.log(`Chunks deleted for ${key}.`);
+        reject("Error in openUploadStreamWithId(): " + err);
+        chunks.deleteMany({files_id: key}).catch(console.log);
+      });
+    }
+    stream.on("error", cleanup_and_reject);
+    pipe.on('error', cleanup_and_reject);
+    pipe.on('finish', function(){
+      db.command({filemd5: key, root: "files"}).catch(function(err){
+        console.log(err); //if mongodb command fails (should never happen)
+        return {};
+      }).then(function(check){
+        var shasum = hash.digest('hex');
+        if(key == shasum && check.md5) {
+          /* These days the sha256 is also the key so maybe we can simplify this */
+          resolve({_id: key, length: upload.length, md5: check.md5, sha256: shasum});
+        } else {
+          bucket.delete(key).finally(function(){
+            console.log(`Checksum for ${filename} did not match`);
+            reject(`Checksum for ${filename} did not match`);
+          });
+        }
+      });
+    });
+  });
+}
+
+export function crandb_store_file(stream, key, filename, metadata){
+  return bucket.find({_id : key}, {limit:1}).next().then(function(x){
+    if(x){
+      console.log(`Already have file ${key} (${filename}). Keeping old one.`);
+      return packages.find({_fileid: key}, {limit:1}).next().then(function(doc){
+        var oldmd5 = doc ? doc.MD5sum : "unknown";
+        return {_id: key, length: x.length, md5: oldmd5, sha256: key};
+      });
+    } else {
+      return store_stream_file(stream, key, filename, metadata);
+    }
+  });
+}
+
+export function mongo_set_progress(universe, pkgname, url){
+  var query = {_user : universe, _type : 'src', Package: pkgname};
+  return packages.find(query).next().then(function(doc){
+    if(doc){
+      return packages.updateOne(
+        { _id: doc['_id'] },
+        { "$set": {"_progress_url": url, "_published": (new Date()) }}
+      );
+    } else {
+      throw createError(404, "No such package yet");
+    }
+  });
+}
+
+export function mongo_download_stream(key){
+  return bucket.openDownloadStream(key)  
 }
