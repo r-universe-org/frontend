@@ -64,9 +64,11 @@ router.get('/api/everyone', function(req, res, next){
 });
 
 router.get("/api/dbdump", function(req, res, next) {
-  var query = {_universes: res.locals.universe}; //this will also dump cross referenced packages
-  if(!req.query.everything){
-    query._type = 'src'
+  if(req.query.binaries){
+    //This still does not find binaries for cross referenced packages, but ok
+    var query = {'$or' : [{_universes: res.locals.universe}, {_user: res.locals.universe}]};
+  } else {
+    var query = {_universes: res.locals.universe};
   }
   var cursor = mongo_dump(query);
   return cursor_stream(cursor, res.type("application/bson"));

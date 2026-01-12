@@ -25,7 +25,7 @@ DEBUG=cranlike:* mongod --bind_ip_all --port 3993 --dbpath "$dbpath" --logpath m
 # If --download is given download some data
 if [ "$DOWNLOAD_DATA" ]; then
   echo "Copying data for $UNIVERSE"
-  curl -L "https://$UNIVERSE.r-universe.dev/api/dbdump?everything=1" -o $UNIVERSE.bson
+  curl -L "https://$UNIVERSE.r-universe.dev/api/dbdump?binaries=1" -o $UNIVERSE.bson
   mongorestore --port 3993 -d cranlike --drop -c packages $UNIVERSE.bson
   rm -fv $UNIVERSE.bson
   export REBUILD_INDEXES=1
