@@ -604,8 +604,11 @@ function mongo_all_scores(){
   return cursor.toArray();
 }
 
-function mongo_all_sysdeps(distro){
+export function mongo_all_sysdeps(universe, distro){
   var query = {_type: 'src', '_sysdeps': {$exists: true}};
+  if(universe){
+    query['_universes'] = universe;
+  }
   if(distro){
     query['_distro'] = distro;
   }
@@ -626,7 +629,7 @@ function mongo_all_sysdeps(distro){
       homepage: { '$first' : '$homepage'}, description: { '$first' : '$description'}, distro:{ '$first' : '$distro'}}},
     {$sort:{ library: 1}}
   ]);
-  return cursor.toArray();
+  return cursor;
 }
 
 function mongo_all_articles(){
@@ -824,7 +827,7 @@ export function get_organizations(){
 }
 
 export function get_sysdeps(){
-  return mongo_all_sysdeps();
+  return mongo_all_sysdeps().toArray();
 }
 
 export function get_builds(){

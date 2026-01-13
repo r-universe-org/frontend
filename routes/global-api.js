@@ -1,6 +1,6 @@
 import express from 'express';
 import {mongo_all_universes, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary, 
-  mongo_universe_updates, mongo_universe_topics, mongo_usedbyorg} from '../src/db.js';
+  mongo_universe_updates, mongo_universe_topics, mongo_usedbyorg, mongo_all_sysdeps} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 const router = express.Router();
 
@@ -53,6 +53,11 @@ router.get('/api/topics', function(req, res, next){
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
 
+router.get('/api/sysdeps{/:distro}', function(req, res, next){
+  var cursor = mongo_all_sysdeps(null,req.params.distro);
+  return send_results(cursor, res.type('text/plain'), req.query.stream);
+});
+
 router.get('/api/files', function(req, res, next){
   var cursor = mongo_all_files(null, req.query.type, req.query.before, req.query.fields);
   return send_results(cursor, res.type('text/plain'), true);
@@ -77,6 +82,10 @@ router.get("/stats/summary", function(req, res, next) {
 
 router.get("/stats/topics", function(req, res, next) {
   res.redirect(req.url.replace("stats/topics", "api/topics?stream=true"));
+});
+
+router.get("/stats/sysdeps", function(req, res, next) {
+  res.redirect(req.url.replace("stats/sysdeps", "api/sysdeps?stream=true"));
 });
 
 router.get("/stats/usedbyorg", function(req, res, next) {
