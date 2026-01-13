@@ -49,7 +49,7 @@ function mongo_aggregate(q){
 function mongo_ls_packages(universe){
   if(!packages || !packages.aggregate)
     throw new Error("No mongodb connection available.");
-  let query = {_type: {$in: ['src', 'failure']}};
+  let query = {_type: {$in: ['src', 'failure']}, _registered: true};
   if(universe != '_global')
     query._user = universe;
   return packages.distinct('Package', query);
