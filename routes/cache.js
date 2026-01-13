@@ -4,6 +4,10 @@ import {get_latest} from '../src/db.js';
 
 // check if package/universe exists and handle caching
 export default function(req, res, next){
+  if(req.method != 'GET' && req.method != 'HEAD'){
+    //do not validate universe existence for new uploads.
+    return next();
+  }
   const production = req.app.get('env') === 'production';
   if(!production){
     res.set('Cache-Control', 'no-cache');
