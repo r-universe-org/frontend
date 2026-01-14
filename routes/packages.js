@@ -478,48 +478,11 @@ router.patch('/api/packages/:package/:version/:type', function(req, res, next) {
   }).catch(err => res.status(400).send(err));
 });
 
-/* HTTP PATCH does not require authentication, so this API is public for now
- * When the front-end has some auth, we can switch to post */
-router.patch("/api/recheck/:target",function(req, res, next) {
-  var user = res.locals.universe;
-  var target = req.params.target;
-  var query = {_user : user, _type : 'src', '_commit.id': target};
-  var now = new Date();
-  return packages.find(query).next().then(function(doc){
-    if(doc['_recheck_date']){
-      var minutes = (doc['_recheck_date'] - now) / 60000;
-      return res.status(429).send(`A recheck of ${doc.Package} was already triggered ${Math.round(minutes)} minutes ago.`);
-    }
-    return trigger_recheck(doc._user, doc.Package).then(function(){
-      return packages.updateOne(
-        { _id: doc['_id'] },
-        { "$set": {"_recheck_date": now }}
-      ).then(function(){
-        res.send("Success");
-      });
-    });
-  });
-});
-
 /* This API is called by the dashboard to request a sync */
-router.patch("/api/sync", multerstore.none(), function(req, res, next) {
+router.patch("/api/sync", function(req, res, next) {
   var user = res.locals.universe;
   return trigger_sync(user).then(function(){
     res.set('Cache-Control', 'max-age=60, public').send("Update OK");
-  });
-});
-
-/* This API is called by the CI to update the status */
-router.post("/api/recheck/:package",function(req, res, next) {
-  var user = res.locals.universe;
-  var query = {_user : user, _type : 'src', Package: req.params.package};
-  return packages.find(query).next().then(function(doc){
-    return packages.updateOne(
-      { _id: doc['_id'] },
-      { "$set": {"_recheck_url": req.body.url }}
-    ).then(function(){
-      res.send("Update OK");
-    });
   });
 });
 
