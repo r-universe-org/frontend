@@ -134,6 +134,14 @@ export function trigger_rebuild(run_path){
   });
 }
 
+export function trigger_sync(user){
+  const url = `https://api.github.com/repos/r-universe/${user}/actions/workflows/sync.yml/dispatches`;
+  return fetch_github(url, {
+    method: 'POST',
+    body: JSON.stringify({ref: 'master'}),
+  });
+}
+
 export function get_submodule_hash(user, submodule){
   const url = `https://api.github.com/repos/r-universe/${user}/git/trees/HEAD`
   return fetch_github(url).then(function(data){
