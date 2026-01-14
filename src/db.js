@@ -49,7 +49,8 @@ function mongo_aggregate(q){
 function mongo_ls_packages(universe){
   if(!packages || !packages.aggregate)
     throw new Error("No mongodb connection available.");
-  let query = {_type: {$in: ['src', 'failure']}, _registered: true};
+  // include remotes here because we use it to identify missing builds
+  let query = {_type: {$in: ['src', 'failure']}};
   if(universe != '_global')
     query._user = universe;
   return packages.distinct('Package', query);
