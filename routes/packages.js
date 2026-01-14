@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 import tar from 'tar-stream';
 import rconstants from 'r-constants';
-import {extract_files_from_stream} from '../src/tools.js';
+import {extract_files_from_stream, trigger_rebuild, get_submodule_hash} from '../src/tools.js';
 import {delete_file, delete_doc, delete_by_query, mongo_download_stream, crandb_store_file, mongo_set_progress, packages} from '../src/db.js';
 import {Buffer} from "node:buffer";
 

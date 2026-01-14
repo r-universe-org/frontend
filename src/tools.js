@@ -127,6 +127,23 @@ export function fetch_github(url, opt = {}){
   });
 }
 
+export function trigger_rebuild(run_path){
+  const url = `https://api.github.com/repos/${run_path}/rerun-failed-jobs`;
+  return fetch_github(url, {
+    method: 'POST'
+  });
+}
+
+export function get_submodule_hash(user, submodule){
+  const url = `https://api.github.com/repos/r-universe/${user}/git/trees/HEAD`
+  return fetch_github(url).then(function(data){
+    var info = data.tree.find(file => file.path == submodule);
+    if(info && info.sha){
+      return info.sha;
+    }
+  });
+}
+
 export function get_registry_info(user){
   const url = 'https://api.github.com/repos/r-universe/' + user + '/actions/workflows/sync.yml/runs?per_page=1&status=completed';
   return fetch_github(url);
