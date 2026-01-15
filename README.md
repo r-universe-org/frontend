@@ -49,6 +49,24 @@ The global (meta) r-universe pages are under `/_global/` for example:
 
 This is not perfect because some of the links assume the root domain, but good enough to hack on the pages.
 
+## Development
+
+### Linting
+
+This project uses [ESLint](https://eslint.org/) for code quality and consistency. To run the linter:
+
+```sh
+# Check for linting issues
+npm run lint
+
+# Automatically fix issues where possible
+npm run lint:fix
+```
+
+The linter is configured in `eslint.config.js` with separate rules for:
+- Node.js server files (routes, app.js, src/)
+- Browser-side files (static/, views/)
+
 ## Endpoints
 
 Currently served URLs:
