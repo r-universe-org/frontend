@@ -286,12 +286,15 @@ export function mongo_search(query, limit = 100, skip = 0){
 
 //TODO: because _universe is only set for source package,
 //Using all:true implies no binaries are included.
-function mongo_universe_packages(user, fields, limit, all = true){
+export function mongo_universe_packages(user, fields, limit = 5000, all = true, skip_remotes = true){
   var query = all ? {'_universes': user} : {'_user': user};
   var projection = build_projection(fields);
   var postmatch = {'$or': [{indexed: true}, {'_id.user': user}]};
   if(user == 'cran'){
     postmatch = {indexed: true}; //only list indexed cran packages
+  }
+  if(skip_remotes){
+    query._registered = true;
   }
   var cursor = mongo_aggregate([
     {$match: query},
@@ -794,10 +797,6 @@ export function get_package_stream(pkg, universe){
 
 export function get_universe_vignettes(universe){
   return mongo_universe_vignettes(universe)
-}
-
-export function get_universe_packages(universe, fields, limit = 5000, all = true){
-  return mongo_universe_packages(universe, fields, limit, all)
 }
 
 export function get_universe_binaries(universe, type){

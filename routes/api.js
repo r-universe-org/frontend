@@ -1,6 +1,6 @@
 import express from 'express';
 import url from 'node:url';
-import {ls_packages, get_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
+import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
 
@@ -19,7 +19,7 @@ router.get('/api/packages', function(req, res, next) {
   var limit = req.query.limit || 2500;
   var all = req.query.all != undefined;
   var stream = req.query.stream;
-  return get_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
+  return mongo_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
     if(stream){
       res.type('text/plain');
       x.forEach(doc => res.write(JSON.stringify(doc)));

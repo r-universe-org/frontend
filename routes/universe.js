@@ -1,7 +1,7 @@
 import express from 'express';
 import url from 'node:url';
 import createError from 'http-errors';
-import {get_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
+import {mongo_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
 import {check_to_color, job_link} from '../src/tools.js';
 const router = express.Router();
@@ -201,7 +201,7 @@ router.get('/builds', function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
     '_maintainer', '_upstream', '_registered', '_created', '_jobs',
     '_status', '_buildurl', '_failure', '_progress_url'];
-  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  return mongo_universe_packages(res.locals.universe, fields, 5000, true, false).then(function(pkgdata){
     pkgdata.sort((x,y) => y._registered - x._registered)
     pkgdata.forEach(function(row){
       row.check_icon_html = function(target){
@@ -230,7 +230,7 @@ router.get('/builds', function(req, res, next) {
 router.get("/packages", function(req, res, next){
   var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time', '_downloads',
     '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_registered', '_searchresults'];
-  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('packages', {
       format_count: format_count,
       format_time_since: format_time_since,
@@ -242,7 +242,7 @@ router.get("/packages", function(req, res, next){
 router.get("/badges", function(req, res, next){
   var universe = res.locals.universe;
   var fields = ['Package', '_user', '_registered'];
-  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
     pkgdata.unshift({meta: 'datasets', _user: universe, link: '/datasets'});
     pkgdata.unshift({meta: 'articles', _user: universe, link: '/articles'});
@@ -270,7 +270,7 @@ router.get("/badges", function(req, res, next){
 
 router.get("/apis", function(req, res, next){
   var fields = ['_datasets', '_registered'];
-  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('apis', {
       pkgdata: pkgdata.filter(x => x._registered).sort(sort_by_package)
     });
@@ -279,7 +279,7 @@ router.get("/apis", function(req, res, next){
 
 router.get("/datasets", function(req, res, next){
   var fields = ['_datasets', '_registered'];
-  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('datasets', {
       pkgdata: pkgdata.filter(x => x._registered).sort(sort_by_package)
     });
@@ -332,7 +332,7 @@ router.get("/articles/:package/:vignette", function(req, res, next){
 router.get("/sitemap_index.xml", function(req, res, next){
   var universe = res.locals.universe;
   var fields = ['Package', '_user', '_registered'];
-  return get_universe_packages(res.locals.universe, fields).then(function(pkgdata){
+  return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered).sort(sort_by_package);
     res.type('application/xml').render('sitemap-index', {
       pkgdata: pkgdata.map(x => ({universe: x._user, package: x.Package}))
@@ -345,7 +345,7 @@ router.get("/feed.xml", function(req, res, next){
   var limit = parseInt(req.query.limit) || 50;
   var fields = ['Package', 'Version', 'Description', '_user', '_maintainer',
     '_status', '_upstream', '_buildurl', '_vignettes', '_commit.time', '_registered'];
-  return get_universe_packages(res.locals.universe, fields, limit).then(function(pkgdata){
+  return mongo_universe_packages(res.locals.universe, fields, limit).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._registered && x._type == 'src').sort(sort_by_date);
     res.type('application/xml').render('feed', {
       convert_date: convert_date,
@@ -355,7 +355,7 @@ router.get("/feed.xml", function(req, res, next){
 });
 
 router.get('/robots.txt', function(req, res, next) {
-  return get_universe_packages(res.locals.universe, ['Package', '_datasets']).then(function(pkgdata){
+  return mongo_universe_packages(res.locals.universe, ['Package', '_datasets']).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._datasets);
     var str = pkgdata.map(x => `Disallow: /${x.Package}/data/`);
     str.unshift('User-agent: *');
