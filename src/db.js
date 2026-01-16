@@ -724,23 +724,35 @@ function mongo_recent_builds(days = 7){
   return cursor.toArray();
 }
 
+export function get_bucket_stream(hash){
+  return bucket.find({_id: hash}, {limit:1}).next().then(function(pkg){
+    if(!pkg)
+      throw createError(410, `File ${hash} not available (anymore)`);
+    // This error happens async and cannot get caught.
+    // Errors needs to be thrown by the stream consumer instead of here.
+    //stream.on('error', function(err){
+    //  throw `Mongo stream error for ${key} (${err})`;
+    //});
+    pkg.stream = bucket.openDownloadStream(hash);
+    return pkg;
+  });
+}
+
+export function mongo_download_stream(key){
+  if(production){
+    return get_bucket_stream(key).then(x => x.stream);
+  } else {
+    console.warn(`Fetching from https://cdn.r-universe.dev/${key}`);
+    return get_url(`https://cdn.r-universe.dev/${key}`).then(res => Readable.fromWeb(res.body));
+  }
+}
+
 function mongo_package_stream(pkg, universe){
   var query = {Package: pkg, _user: universe, _type: 'src'};
   return packages.findOne(query, {sort: {'_id': -1}}).then(function(x){
     if(!x)
       throw createError(404, `Package ${pkg} not found in ${universe}`);
     return mongo_download_stream(x._fileid);
-  });
-}
-
-export function get_bucket_stream(hash){
-  return bucket.find({_id: hash}, {limit:1}).next().then(function(pkg){
-    if(!pkg)
-      throw createError(410, `File ${hash} not available (anymore)`);
-    return mongo_download_stream(hash).then(function(stream){
-      pkg.stream = stream;
-      return pkg;
-    });
   });
 }
 
@@ -1078,18 +1090,4 @@ export function mongo_set_progress(universe, pkgname, url){
       throw createError(404, "No such package yet");
     }
   });
-}
-
-export async function mongo_download_stream(key){
-  if(production){
-    // This error happens async and cannot get caught.
-    // Errors needs to be thrown by the stream consumer instead of here.
-    //stream.on('error', function(err){
-    //  throw `Mongo stream error for ${key} (${err})`;
-    //});
-    return bucket.openDownloadStream(key);
-  } else {
-    console.warn(`Fetching from https://cdn.r-universe.dev/${key}`);
-    return get_url(`https://cdn.r-universe.dev/${key}`).then(res => Readable.fromWeb(res.body));
-  }
 }
