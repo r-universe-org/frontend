@@ -15,7 +15,7 @@ router.get('/api/ls', function(req, res, next) {
 
 router.get('/api/packages', function(req, res, next) {
   var fields = req.query.fields && req.query.fields.split(",");
-  var limit = req.query.limit || 2500;
+  var limit = parseInt(req.query.limit) || 2500;
   var all = req.query.all != undefined;
   var stream = req.query.stream;
   return mongo_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
