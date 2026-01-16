@@ -303,7 +303,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
   return crandb_store_file(req, key, filename, metadata).then(function(filedata){
     if(type == 'src'){
       var p1 = packages.countDocuments({_type: 'src', _indexed: true, '_rundeps': pkgname});
-      var p2 = extract_json_metadata(mongo_download_stream(key), pkgname);
+      var p2 = mongo_download_stream(key).then(stream => extract_json_metadata(stream, pkgname));
       var p3 = packages.find({_type: 'src', Package: pkgname, _indexed: true}).project({_user:1, _id:1}).next();
       return Promise.all([filedata, p1, p2, p3]);
     } else {
@@ -311,7 +311,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
     }
   }).then(function([filedata, usedby, headerdata, canonical]){
     //console.log(`Successfully stored file ${filename} with ${runrevdeps} runreveps`);
-    return read_description(mongo_download_stream(key)).then(function(description){
+    return mongo_download_stream(key).then(read_description).then(function(description){
       description['MD5sum'] = filedata.md5;
       description['_user'] = user;
       description['_type'] = type;

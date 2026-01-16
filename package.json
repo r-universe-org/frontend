@@ -8,6 +8,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
     "badgen": "^3.2.3",
     "cheerio": "^1.1.2",
     "cors": "^2.8.5",

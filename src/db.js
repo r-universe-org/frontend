@@ -2,7 +2,7 @@ import {MongoClient, GridFSBucket} from 'mongodb';
 import {Readable} from  "node:stream";
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {pkgfields, doc_to_paths} from './tools.js';
+import {pkgfields, doc_to_paths, extract_files_from_stream} from './tools.js';
 import createError from 'http-errors';
 
 const HOST = process.env.CRANLIKE_MONGODB_SERVER || '127.0.0.1';
@@ -729,7 +729,7 @@ function mongo_package_stream(pkg, universe){
   return packages.findOne(query, {sort: {'_id': -1}}).then(function(x){
     if(!x)
       throw createError(404, `Package ${pkg} not found in ${universe}`);
-    return bucket.openDownloadStream(x._fileid);
+    return mongo_download_stream(x._fileid);
   });
 }
 
@@ -737,11 +737,10 @@ export function get_bucket_stream(hash){
   return bucket.find({_id: hash}, {limit:1}).next().then(function(pkg){
     if(!pkg)
       throw createError(410, `File ${hash} not available (anymore)`);
-    pkg.stream = bucket.openDownloadStream(hash);
-    pkg.stream.on('error', function(err){
-      throw `Mongo stream error for ${hash} (${err})`;
+    return mongo_download_stream(hash).then(function(stream){
+      pkg.stream = stream;
+      return pkg;
     });
-    return pkg;
   });
 }
 
@@ -762,14 +761,19 @@ export function list_package_files(pkg, universe){
 }
 
 export function get_package_stream(pkg, universe){
-  if(production){
-    return mongo_package_stream(pkg, universe);
-  } else {
-    console.warn(`Fetching ${universe}/${pkg} content from server...`);
-    return get_package_info(pkg, universe).then(function(x){
-      return get_url(`https://cdn.r-universe.dev/${x._fileid}`).then(res => Readable.fromWeb(res.body));
-    });
-  }
+  return mongo_package_stream(pkg, universe);
+}
+
+export function get_package_file(pkg, universe, filename){
+  return get_package_stream(pkg, universe).then(function(stream){
+    if(!stream)
+      throw createError(404, "Failed to create filestream");
+    return extract_files_from_stream(stream, [`${pkg}/${filename}`]);
+  }).then(function([buf]){
+    if(!buf)
+      throw createError(404, `File ${filename} not found in package ${pkg}`);
+    return buf;
+  });
 }
 
 export function get_universe_vignettes(universe){
@@ -1076,6 +1080,16 @@ export function mongo_set_progress(universe, pkgname, url){
   });
 }
 
-export function mongo_download_stream(key){
-  return bucket.openDownloadStream(key)  
+export async function mongo_download_stream(key){
+  if(production){
+    // This error happens async and cannot get caught.
+    // Errors needs to be thrown by the stream consumer instead of here.
+    //stream.on('error', function(err){
+    //  throw `Mongo stream error for ${key} (${err})`;
+    //});
+    return bucket.openDownloadStream(key);
+  } else {
+    console.warn(`Fetching from https://cdn.r-universe.dev/${key}`);
+    return get_url(`https://cdn.r-universe.dev/${key}`).then(res => Readable.fromWeb(res.body));
+  }
 }
