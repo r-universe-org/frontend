@@ -94,7 +94,8 @@ function group_binaries(x){
     var build = binary.r.substring(0,3);
     var arch = (binary.arch || "any").replace("aarch64", "arm64");
     var filename = `${pkg}_${binary.version}.tgz`;
-    var platform = arch.match("arm64") ? 'big-sur-arm64' : 'big-sur-x86_64';
+    var distro = build < "4.6" ? "big-sur" : "sonoma";
+    var platform = arch.match("arm64") ? `${distro}-arm64` : 'big-sur-x86_64';
     var repo = `r-${build}-${arch}`
     var url = `/bin/macosx/${platform}/contrib/${build}/${filename}`;
     return {filename: filename, repo: repo, url: url};

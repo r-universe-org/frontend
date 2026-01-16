@@ -215,8 +215,9 @@ export function doc_to_paths(doc){
     return [`bin/windows/contrib/${built}/${doc.Package}_${doc.Version}.zip`];
   }
   if(type == 'mac'){
+    var distro = built < "4.6" ? "big-sur" : "sonoma";
     var intel = `bin/macosx/big-sur-x86_64/contrib/${built}/${doc.Package}_${doc.Version}.tgz`;
-    var arm = `bin/macosx/big-sur-arm64/contrib/${built}/${doc.Package}_${doc.Version}.tgz`;
+    var arm = `bin/macosx/${distro}-arm64/contrib/${built}/${doc.Package}_${doc.Version}.tgz`;
     if(doc.Built.Platform){
       return [doc.Built.Platform.match("x86_64") ? intel : arm];
     } else {
