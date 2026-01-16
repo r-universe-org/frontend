@@ -1,5 +1,4 @@
 import express from 'express';
-import url from 'node:url';
 import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
@@ -64,11 +63,10 @@ router.get('/api/everyone', function(req, res, next){
 });
 
 router.get("/api/dbdump", function(req, res, next) {
+  var query = {_universes: res.locals.universe};
   if(req.query.binaries){
     //This still does not find binaries for cross referenced packages, but ok
-    var query = {'$or' : [{_universes: res.locals.universe}, {_user: res.locals.universe}]};
-  } else {
-    var query = {_universes: res.locals.universe};
+    query = {'$or' : [{_universes: res.locals.universe}, {_user: res.locals.universe}]};
   }
   var cursor = mongo_dump(query);
   return cursor_stream(cursor, res.type("application/bson"));

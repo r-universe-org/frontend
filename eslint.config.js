@@ -15,7 +15,7 @@ export default [
       }
     },
     rules: {
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '(req|res|next)', varsIgnorePattern: '^_' }],
       'no-console': 'off',
     }
   },
@@ -46,7 +46,7 @@ export default [
       }
     },
     rules: {
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '(req|res|next)', varsIgnorePattern: '^_' }],
       'no-console': 'off',
     }
   },

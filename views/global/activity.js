@@ -1,24 +1,3 @@
-function get_url(url){
-  return fetch(url).then((res) => {
-    if (res.ok) {
-      return res;
-    }
-    throw new Error(`HTTP ${res.status} for: ${url}`);
-  });
-}
-
-function get_json(url){
-  return get_url(url).then((res) => res.json());
-}
-
-function get_text(url){
-  return get_url(url).then((res) => res.text());
-}
-
-function get_ndjson(url){
-  return get_text(url).then(txt => txt.split('\n').filter(x => x.length).map(JSON.parse));
-}
-
 Date.prototype.getWeek = function() {
   var date = new Date(this.getTime());
   date.setHours(0, 0, 0, 0);
@@ -46,10 +25,6 @@ function sort_packages(array){
   return array.sort((a, b) => (a.count > b.count) ? -1 : 1);
 }
 
-function objectToArray(obj){
-  return Object.keys(obj).map(function(key){return {package:key, count: obj[key]}});
-}
-
 function activity_data(updates){
   const now = new Date();
   const weeks = Array(53).fill(0).map((_, i) => new Date(now - i*604800000)).reverse();
@@ -66,61 +41,61 @@ function activity_data(updates){
   });
 }
 
-function make_activity_chart(universe){
-    const data = activity_data(updates);
-    const ctx = document.getElementById('activity-canvas');
-    const myChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: data.map(x => x.date),
-        datasets: [{
-          label: 'updates',
-          data: data.map(x => x.total),
-          backgroundColor: 'rgb(54, 162, 235, 0.2)',
-          borderColor: 'rgb(54, 162, 235, 1)',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        animation: false,
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins : {
-          legend: false,
-          title: {
-            display: false,
-          },
-          tooltip: {
-            animation: false,
-            callbacks: {
-              title: function(items){
-                return `Week ${data[items[0].dataIndex].date.getWeek()}`
-              }
-            }
-          }
+function make_activity_chart(){
+  const data = activity_data(updates);
+  const ctx = document.getElementById('activity-canvas');
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(x => x.date),
+      datasets: [{
+        label: 'updates',
+        data: data.map(x => x.total),
+        backgroundColor: 'rgb(54, 162, 235, 0.2)',
+        borderColor: 'rgb(54, 162, 235, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins : {
+        legend: false,
+        title: {
+          display: false,
         },
-        layout: {
-          padding: 20
-        },
-        scales: {
-          x: {
-              type: 'time',
-              time: {
-                  unit: 'month'
-              }
-          },
-          y : {
-            title: {
-              display: true,
-              text: 'Weekly updates'
+        tooltip: {
+          animation: false,
+          callbacks: {
+            title: function(items){
+              return `Week ${data[items[0].dataIndex].date.getWeek()}`
             }
           }
         }
+      },
+      layout: {
+        padding: 20
+      },
+      scales: {
+        x: {
+            type: 'time',
+            time: {
+                unit: 'month'
+            }
+        },
+        y : {
+          title: {
+            display: true,
+            text: 'Weekly updates'
+          }
+        }
       }
-    });
+    }
+  });
 }
 
-function make_contributor_chart(universe, max, imsize){
+function make_contributor_chart(max, imsize){
   max = max || 100;
     const size = imsize || 50;
     //contributors = contributors.sort(function(x,y){return x.repos.length < y.repos.length ? 1 : -1});
@@ -193,7 +168,7 @@ function make_contributor_chart(universe, max, imsize){
           legend: false,
           title: {
             display: true,
-            text: `Top contributors ${universe  ? "to " + universe : "(overall)"}`
+            text: `Top contributors to R-universe`
           },
           tooltip: {
             animation: false,
@@ -238,5 +213,5 @@ function make_contributor_chart(universe, max, imsize){
     Promise.all(promises).then(() => render_avatars());
 }
 
-make_activity_chart('');
-make_contributor_chart('', 50);
+make_activity_chart();
+make_contributor_chart(50);

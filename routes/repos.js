@@ -81,7 +81,7 @@ function send_binary(query, req, res, postfix = ""){
     //const cdn = req.headers.host === 'localhost:3000' ? '/cdn' : 'https://cdn.r-universe.dev';
     const cdn = 'https://cdn.r-universe.dev';
     res.redirect(`${cdn}/${hash}${postfix}`);
-  }).catch(function(err){
+  }).catch(function(){
     // Workaround for race conditions: redirect to new version if just updated
     // This does not help if pak would use the DownloadURL from the PACKAGES file
     const newquery = {...query, _previous: query.Version, Version:{ $exists: true }};

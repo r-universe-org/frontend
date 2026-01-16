@@ -2,7 +2,7 @@ function make_activity_chart(){
   return get_json('/api/updates').then(function(updates){
     const data = activity_data(updates);
     const ctx = document.getElementById('activity-canvas');
-    const myChart = new Chart(ctx, {
+    return new Chart(ctx, {
       type: 'bar',
       data: {
         labels: data.map(x => x.date),
@@ -92,10 +92,10 @@ function update_tooltips(){
 }
 
 function enable_default_tooltips(){
-  $('[data-bs-toggle="tooltip"]').each(function(i){
+  $('[data-bs-toggle="tooltip"]').each(function(){
     var link = $(this);
     var tooltip = bootstrap.Tooltip.getOrCreateInstance(link, {delay:{show:300}});
-    link.click(function(e){
+    link.click(function(){
       link.blur();
       tooltip.hide();
     })

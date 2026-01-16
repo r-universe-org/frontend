@@ -1,5 +1,4 @@
 import express from 'express';
-import createError from 'http-errors';
 import badgen from 'badgen';
 import {get_registry_info} from '../src/tools.js';
 import {get_distinct, get_package_info} from '../src/db.js';

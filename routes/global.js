@@ -17,7 +17,7 @@ function format_yymmdd(x){
 
 function cleanup_sysdep_desc(str){
   if(!str) return "";
-  var str = str.charAt(0).toUpperCase() + str.slice(1);
+  str = str.charAt(0).toUpperCase() + str.slice(1);
   return str.replace(/\(.*\)$/, '').replace('SASL -', 'SASL').replace(/[-,]+ .*(shared|runtime|binary|library|legacy|precision|quantum).*$/i, '');
 }
 

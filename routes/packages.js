@@ -1,10 +1,7 @@
 import express from 'express';
-import createError from 'http-errors';
 import multer from 'multer';
 import rdesc from 'rdesc-parser';
-import fs from 'node:fs';
 import zlib from 'node:zlib';
-import tar from 'tar-stream';
 import rconstants from 'r-constants';
 import {extract_files_from_stream, trigger_rebuild, trigger_sync, get_submodule_hash} from '../src/tools.js';
 import {delete_file, delete_doc, delete_by_query, mongo_download_stream, crandb_store_file, mongo_set_progress, packages} from '../src/db.js';
@@ -126,7 +123,7 @@ function filter_keys(x, regex){
 function from_base64_gzip(str){
   if(!str) return str;
   let input = str.replace(/-/g, '+').replace(/_/g, '/'); //also support base64url format
-  let buff = Buffer.from(str, 'base64');
+  let buff = Buffer.from(input, 'base64');
   let json = zlib.unzipSync(buff).toString('utf-8');
   return JSON.parse(json);
 }
@@ -166,7 +163,7 @@ function parse_major_version(built){
     throw "Package is missing Built.R field. Cannot determine binary version";
   var r_major_version = built.R.match(/^\d\.\d+/);
   if(!r_major_version)
-    throw "Failed to find R version from Built.R field: " + str;
+    throw "Failed to find R version from Built.R field: " + built.R;
   return r_major_version[0];
 }
 
@@ -372,7 +369,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
         if(previous && (previous.Version !== description.Version))
           description._previous = previous.Version;
         return Promise.all(docs.map(x => delete_doc(x, key)));
-      }).then(function(x){
+      }).then(function(){
         return packages.insertOne(description);
       }).then(function(){
         if(type === 'src'){
@@ -487,7 +484,7 @@ router.patch("/api/sync", function(req, res, next) {
 });
 
 router.post("/api/progress/:package", multerstore.none(), function(req, res, next) {
-  return mongo_set_progress(res.locals.universe, req.params.package, req.body.url).then(function(x){
+  return mongo_set_progress(res.locals.universe, req.params.package, req.body.url).then(function(){
     res.send("Update OK");
   });
 });

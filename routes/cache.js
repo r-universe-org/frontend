@@ -1,4 +1,3 @@
-import path from 'node:path';
 import createError from 'http-errors';
 import {get_latest} from '../src/db.js';
 
@@ -22,15 +21,15 @@ export default function(req, res, next){
   if(pkg == '_global'){
     var query = {};
     var max_age = req.path.includes("_global/builds") ? 60 : 600;
-    var cdn_cache = req.path.includes("_global/builds") ? 60 : 3600;
+    //var cdn_cache = req.path.includes("_global/builds") ? 60 : 3600;
   } else if (metapage){
     var query = {_universes: universe};
     var max_age = universe == 'cran' ? 600 : 60;
-    var cdn_cache = 60;
+    //var cdn_cache = 60;
   } else {
     var query = {_user: universe, Package: pkg, _registered: true}; //remotes dont have webpage
     var max_age = 60;
-    var cdn_cache = 30;
+    //var cdn_cache = 30;
   }
   return get_latest(query).then(function(doc){
     //Using 'CDN-Cache-Control' would make nginx also do this and we'd need to refresh twice?

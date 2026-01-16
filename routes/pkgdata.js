@@ -1,4 +1,3 @@
-import url from 'node:url';
 import path from 'node:path';
 import express from 'express';
 import createError from 'http-errors';

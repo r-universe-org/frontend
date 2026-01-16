@@ -112,18 +112,6 @@ function get_url(url){
   });
 }
 
-function get_json(url){
-  return get_url(url).then((res) => res.json());
-}
-
-function get_text(url){
-  return get_url(url).then((res) => res.text());
-}
-
-function get_ndjson(url){
-  return get_text(url).then(txt => txt.split('\n').filter(x => x.length).map(JSON.parse));
-}
-
 function days_ago(n){
   var now = new Date();
   return now.getTime()/1000 - (n*60*60*24);
@@ -153,17 +141,6 @@ function summary_unique(k, q) {
     {$count: "total"}
   ]);
 }
-
-function summary_object(k, q) {
-  return packages.aggregate([
-    {$match:q},
-    {$project: {x: {$objectToArray:`$${k}`}}},
-    {$unwind: "$x"},
-    {$group: {_id: "$x.k"}},
-    {$count: "total"}
-  ]);
-}
-
 
 function build_projection(fields){
   if(!fields || !fields.length) return {_id:0};
@@ -379,7 +356,7 @@ function mongo_universe_s3_index(user, prefix, start_after){
   var proj = {MD5sum:1, Package:1, Version:1, Built:1, _distro:1, _type:1, _id:1,  _published:1, _filesize:1};
   return mongo_find(query).sort({_id: 1}).project(proj).toArray().then(function(docs){
     if(!docs.length) //should not happen because we checked earlier
-      throw createError(404, `No packages found in ${universe}`);
+      throw createError(404, `No packages found in ${user}`);
     var files = [];
     var indexes = {};
     docs.forEach(function(doc){
@@ -580,7 +557,7 @@ export function mongo_all_universes(organizations_only, limit = 999999){
       emails: { $addToSet: '$_maintainer.email'}
     }},
     {$project: {_id: 0, universe: '$_id', packages: 1, updated: 1, type: 1, uuid: 1,
-      indexed:1, name: 1, type: 1, bio: 1, maintainers: { $size: '$emails' },
+      indexed:1, name: 1, bio: 1, maintainers: { $size: '$emails' },
     }},
     {$sort:{ indexed: -1}},
     {$limit : limit}
@@ -762,7 +739,7 @@ export function get_bucket_stream(hash){
       throw createError(410, `File ${hash} not available (anymore)`);
     pkg.stream = bucket.openDownloadStream(hash);
     pkg.stream.on('error', function(err){
-      throw `Mongo stream error for ${hash}`;
+      throw `Mongo stream error for ${hash} (${err})`;
     });
     return pkg;
   });
@@ -873,7 +850,7 @@ export function get_packages_index(query, fields = [], mixed = false){
 }
 
 export function find_cran_package(pkgname){
-  var pkgname = pkgname.toLowerCase();
+  pkgname = pkgname.toLowerCase();
   return packages.findOne({_nocasepkg : pkgname, _type : 'src', _user : 'cran'}).then(function(x){
     if(x) return x;
     return packages.findOne({_nocasepkg : pkgname, _type : 'src', _indexed : true}).then(function(y){
@@ -964,8 +941,8 @@ export async function mongo_rebuild_indexes(){
     },
     name: "textsearch"
   }).then(() => console.log(`Created index: text-search`));
-  var indexes = await packages.indexes();
-  console.log(indexes.map(x => x.name));
+  var new_indexes = await packages.indexes();
+  console.log(new_indexes.map(x => x.name));
   console.log("rebuild_indexes complete!")
 }
 

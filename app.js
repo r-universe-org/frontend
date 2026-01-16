@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import createError from 'http-errors';
 import express from 'express';
 import logger from 'morgan';
