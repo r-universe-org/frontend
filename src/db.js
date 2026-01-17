@@ -142,6 +142,13 @@ function summary_unique(k, q) {
   ]);
 }
 
+function summary_sum(k, q) {
+  return packages.aggregate([
+    {$match:q},
+    {$group: {_id: 1, total: {$sum: `$${k}`}}},
+  ]);
+}
+
 function build_projection(fields){
   if(!fields || !fields.length) return {_id:0};
   var projection = {Package:1, _type:1, _user:1, _indexed: 1, _id:0};
@@ -493,9 +500,11 @@ export function mongo_universe_maintainers(user, limit = 100){
 }
 
 export function mongo_summary(universe){
-  var query = {_type: 'src'};;
+  var query = {_type: 'src', _registered: true};
+  var query_all = {}
   if(universe){
-    query._user = universe;
+    query._universes = universe;
+    query_all._user = universe;
   }
   var p1 = summary_unique('Package', query);
   var p2 = summary_unique('_maintainer.email', query);
@@ -503,16 +512,18 @@ export function mongo_summary(universe){
   var p4 = summary_count('_datasets.name', query);
   var p5 = summary_unique('_user', {'_userbio.type': 'organization', ...query});
   var p6 = summary_unique('_contributors.user', query);
-  var promises = [p1, p2, p3, p4, p5, p6].map(function(p){
+  var p7 = summary_sum('_filesize', query_all);
+  var promises = [p1, p2, p3, p4, p5, p6, p7].map(function(p){
     return p.next().then(res => res ? res.total : 0);
   })
-  return Promise.all(promises).then(function([packages, maintainers, articles, datasets, orgs, contributors]){
+  return Promise.all(promises).then(function([packages, maintainers, articles, datasets, orgs, contributors, filesize]){
     return {
       packages: packages,
       maintainers: maintainers,
       articles: articles,
       datasets: datasets,
       organizations: orgs,
+      filesize: filesize,
       contributors: contributors
     };
   });

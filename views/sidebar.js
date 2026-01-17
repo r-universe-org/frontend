@@ -6,6 +6,14 @@ function countstr(count){
   return count < 1000 ? count : (count/1000).toFixed(1) + 'k';
 }
 
+function formatBytes(bytes, decimals = 2) {
+  let i = 0;
+  for (i; bytes >= 1000; i++) bytes /= 1000;
+  const dm = bytes % 1 === 0 ? 0 : decimals;
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  return `${bytes.toFixed(dm)}${units[i]}`;
+}
+
 function get_url(url){
   return fetch(url).then((res) => {
     if (res.ok) {
@@ -189,6 +197,9 @@ function load_universe_stats(){
       $(`#github-user-${key} .content`).text(`${value || 0} ${key}`);
       if(!value){
         $('a[href="/' + key + '"]').addClass("disabled").removeClass("text-dark").addClass("text-secondary");
+      }
+      if(key == 'filesize'){
+        $("#github-user-totalsize").text(`(${formatBytes(value)})`);
       }
     }
   });
