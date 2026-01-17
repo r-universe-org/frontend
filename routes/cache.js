@@ -9,7 +9,7 @@ export default function(req, res, next){
   }
   const production = req.app.get('env') === 'production';
   if(!production){
-    res.set('Cache-Control', 'no-cache');
+    res.set('Cache-Control', 'no-store');
     return next();
   }
   const universe = res.locals.universe;

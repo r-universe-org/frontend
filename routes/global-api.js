@@ -27,6 +27,7 @@ router.get("/api/dbdump", function(req, res, next) {
   if(!req.query.binaries){
     query._type = 'src'
   }
+  res.set('Cache-Control', 'no-store');
   var cursor = mongo_dump(query, {raw: true});
   return cursor_stream(cursor, res.type("application/bson")).catch(function(e){
     console.log("Error in dbdump but already sent 200");
