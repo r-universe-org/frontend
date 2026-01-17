@@ -436,7 +436,7 @@ function mongo_universe_contributions(user, limit = 20){
 }
 
 export function mongo_universe_maintainers(user, limit = 100){
-  var query = {_user: user, _type: 'src', _registered : true};
+  var query = {_universes: user, _type: 'src', _registered : true};
    //We assume $natural sort such that the last matches have most recent email-login mapping.
   var cursor = packages.aggregate([
     {$match: query},
