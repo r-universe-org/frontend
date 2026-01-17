@@ -24,7 +24,7 @@ router.get("/api/organizations", function(req, res, next) {
 
 router.get("/api/dbdump", function(req, res, next) {
   var query = {};
-  if(!req.query.everything){
+  if(!req.query.binaries){
     query._type = 'src'
   }
   var cursor = mongo_dump(query, {raw: true});
