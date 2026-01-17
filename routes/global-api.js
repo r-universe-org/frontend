@@ -28,7 +28,10 @@ router.get("/api/dbdump", function(req, res, next) {
     query._type = 'src'
   }
   var cursor = mongo_dump(query, {raw: true});
-  return cursor_stream(cursor, res.type("application/bson"));
+  return cursor_stream(cursor, res.type("application/bson")).catch(function(e){
+    console.log("Error in dbdump but already sent 200");
+    console.log(e);
+  })
 });
 
 router.get("/api/search", function(req, res, next) {
