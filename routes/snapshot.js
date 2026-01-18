@@ -74,7 +74,7 @@ async function packages_snapshot(files, archive, types){
 
 router.get('/api/snapshot{/:format}', function(req, res, next) {
   var user = res.locals.universe;
-  var query = {_user: user, _type: {'$ne' : 'failure'}};
+  var query = {_user: user, _registered: true, _type: {'$ne' : 'failure'}};
   var types = req.query.types ? req.query.types.split(',') : ['src', 'win', 'mac', 'linux', 'wasm', 'docs'];
   if(req.query.packages)
     query.Package = {'$in' : req.query.packages.split(",")};
