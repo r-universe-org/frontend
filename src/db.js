@@ -104,7 +104,8 @@ function group_package_data(docs){
 }
 
 function get_url(url){
-  return fetch(url).then((res) => {
+  var timeout = production ? 5000 : 30000;
+  return fetch(url, { signal: AbortSignal.timeout(timeout) }).then((res) => {
     if (res.ok) {
       return res;
     }
@@ -749,8 +750,8 @@ export function get_bucket_stream(hash){
   });
 }
 
-export function mongo_download_stream(key){
-  if(production){
+export function mongo_download_stream(key, force_cdn = false){
+  if(production && !force_cdn){
     return get_bucket_stream(key).then(x => x.stream);
   } else {
     console.warn(`Fetching from https://cdn.r-universe.dev/${key}`);

@@ -31,7 +31,7 @@ function new_zipfile(format){
   })
 }
 
-async function packages_snapshot(files, archive, types){
+async function packages_snapshot(files, archive, types, force_cdn){
   var indexes = {};
   for (var x of files){
     if(types.includes(x._type)){
@@ -41,7 +41,7 @@ async function packages_snapshot(files, archive, types){
           indexes[dirname] = [];
         indexes[dirname].push(x);
 
-        await mongo_download_stream(x._fileid).then(function(stream){
+        await mongo_download_stream(x._fileid, force_cdn).then(function(stream){
           return archive.append_stream(stream, { name: filename, date: x._created });
         }).catch(function(e){
           console.log(`Failed adding a file to snapshot: ${e}`);
@@ -61,7 +61,7 @@ async function packages_snapshot(files, archive, types){
   if(types.includes('docs')) {
     for (var x of files.filter(x => x._type == 'src')){
       var pkgname = x.Package;
-      await mongo_download_stream(x._fileid).then(function(stream){
+      await mongo_download_stream(x._fileid, force_cdn).then(function(stream){
         return extract_files_from_stream(stream, `${pkgname}/extra/${pkgname}.html`).then(function([buf]){
           return archive.append(buf, { name: `docs/${pkgname}.html`, date: x._created });
         });
@@ -100,9 +100,10 @@ router.get('/api/snapshot{/:format}', function(req, res, next) {
     } else {
       throw "Unsupported snapshot format: " + format;
     }
+    var force_cdn = res.locals.vhost === "packages.ropensci.org";
     var archive = new_zipfile(format);
     archive.pipe(res.set('Cache-Control', 'no-store'));
-    return packages_snapshot(files, archive, types).then(function(){
+    return packages_snapshot(files, archive, types, force_cdn).then(function(){
       return archive.finalize();
     }).catch(function(err){
       archive.abort();
