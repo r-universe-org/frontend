@@ -21,7 +21,10 @@ router.get('/api/packages', function(req, res, next) {
   return mongo_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
     if(stream){
       res.type('text/plain');
-      x.forEach(doc => res.write(JSON.stringify(doc)));
+      x.forEach(function(doc){
+        res.write(JSON.stringify(doc));
+        res.write('\n');
+      });
       res.end();
     } else {
       res.send(x);
