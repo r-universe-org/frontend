@@ -103,16 +103,6 @@ function group_package_data(docs){
   return src;
 }
 
-function get_url(url){
-  var timeout = production ? 5000 : 30000;
-  return fetch(url, { signal: AbortSignal.timeout(timeout) }).then((res) => {
-    if (res.ok) {
-      return res;
-    }
-    throw new Error(`HTTP ${res.status} for: ${url}`);
-  });
-}
-
 function days_ago(n){
   var now = new Date();
   return now.getTime()/1000 - (n*60*60*24);
@@ -750,12 +740,21 @@ export function get_bucket_stream(hash){
   });
 }
 
+function get_download_stream(url){
+  return fetch(url, { signal: AbortSignal.timeout(30000) }).then((res) => {
+    if (res.ok) {
+      return Readable.fromWeb(res.body);
+    }
+    throw new Error(`HTTP ${res.status} for: ${url}`);
+  });
+}
+
 export function mongo_download_stream(key, force_cdn = false){
   if(production && !force_cdn){
     return get_bucket_stream(key).then(x => x.stream);
   } else {
     console.warn(`Fetching from https://cdn.r-universe.dev/${key}`);
-    return get_url(`https://cdn.r-universe.dev/${key}`).then(res => Readable.fromWeb(res.body));
+    return get_download_stream(`https://cdn.r-universe.dev/${key}`);
   }
 }
 
