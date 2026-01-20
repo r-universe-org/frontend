@@ -1,5 +1,4 @@
 import express from 'express';
-import multer from 'multer';
 import rdesc from 'rdesc-parser';
 import zlib from 'node:zlib';
 import rconstants from 'r-constants';
@@ -8,7 +7,6 @@ import {delete_file, delete_doc, delete_by_query, mongo_download_stream, crandb_
 import {Buffer} from "node:buffer";
 
 /* Local variables */
-const multerstore = multer({ dest: '/tmp/' });
 const router = express.Router();
 
 // Some packages have X-schema.org fields in description, which mongo does not accept.
@@ -382,7 +380,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
   });
 });
 
-router.post('/api/packages/:package/:version/update', multerstore.none(), function(req, res, next) {
+router.post('/api/packages/:package/:version/update', function(req, res, next) {
   var user = res.locals.universe;
   var version = req.params.version;
   var query = {_type : 'src', _user : user, Package : req.params.package, Version: version};
@@ -395,7 +393,7 @@ router.post('/api/packages/:package/:version/update', multerstore.none(), functi
   });
 });
 
-router.post('/api/packages/:package/:version/failure', multerstore.none(), function(req, res, next) {
+router.post('/api/packages/:package/:version/failure', function(req, res, next) {
   var user = res.locals.universe;
   var pkgname = req.params.package;
   var version = req.params.version;
@@ -483,7 +481,7 @@ router.patch("/api/sync", function(req, res, next) {
   });
 });
 
-router.post("/api/progress/:package", multerstore.none(), function(req, res, next) {
+router.post("/api/progress/:package", function(req, res, next) {
   return mongo_set_progress(res.locals.universe, req.params.package, req.body.url).then(function(){
     res.send("Update OK");
   });
