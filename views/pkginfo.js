@@ -48,7 +48,7 @@ function compare_url(giturl, cran){
 
 function update_cran_status(){
   var upstream = pkginfo.upstream;
-  if(universe == 'cran' || universe == 'bioc' || universe == 'bioc-release') return;
+  if(universe == 'bioc' || universe == 'bioc-release') return;
   get_json(`https://r-universe.dev/cranstatus/${package}`).then(function(craninfo){
     if(craninfo.version){
       var versiontxt = craninfo.version === 'archived' ? `${package} (archived)` : `${package}-${craninfo.version}`;
