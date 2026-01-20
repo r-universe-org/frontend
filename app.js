@@ -38,8 +38,8 @@ app.use(logger('[:date[iso]] :status :method :host:url (:response-time ms) :user
   skip: function (req, res) { return res.statusCode < 400 || req.path.endsWith('PACKAGES.rds') }
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json()); // Parses application/json requests
+app.use(express.urlencoded({ extended: false })); // Parses application/x-www-form-urlencoded requests
 app.use(express.static('static', {maxAge: '1d'})); //TODO: remove?
 app.use('/_global/favicon.ico', express.static('static/favicon.ico'));
 app.use('/_global/robots.txt', express.static('static/global-robots.txt'));
