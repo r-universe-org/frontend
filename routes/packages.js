@@ -16,6 +16,7 @@ function sanitize_keys(data){
     console.log(`Deleting description field ${x} (dots in names not allowed)`)
     delete data[x];
   }
+  delete data.language; //lowercase is reserved field for mongo
   return data;
 }
 
