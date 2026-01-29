@@ -41,9 +41,10 @@ export default function(req, res, next){
     //res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 45; // bump to invalidate all caches
-      const etag = `W/"${doc._id}${revision}"`;
-      const date = new Date(doc._published.getTime() + revision * 1000).toUTCString();
+      const revision = 0; // bump to invalidate all caches
+      const cachetime = doc._published.getTime() + revision * 1000;
+      const etag = `W/"${cachetime}"`;
+      const date = new Date(cachetime).toUTCString();
       res.set('ETag', etag);
       res.set('Last-Modified', date);
       //clients may cache front-end pages for 60s before revalidating.

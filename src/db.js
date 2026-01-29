@@ -63,6 +63,20 @@ function mongo_distinct(key, query){
   return packages.distinct(key, query);
 }
 
+// after deleting a package
+function mongo_cache_invalidate(universe){
+  return mongo_latest({_universes: universe}).then(function(doc){
+    if(doc){
+      console.log(`Invalidating cache for ${doc._user} via ${doc.Package}`)
+      const now = new Date();
+      return packages.updateOne(
+        { _id: doc['_id'] },
+        { "$set": {"_published": now}}
+      );
+    }
+  });
+}
+
 function group_package_data(docs){
   var src = docs.find(x => x['_type'] == 'src');
   var failure = docs.find(x => x['_type'] == 'failure');
@@ -1035,7 +1049,9 @@ export function delete_doc(doc, keep_file_id){
 
 export function delete_by_query(query){
   return packages.find(query).project({_type: 1, _id:1, _fileid:1, Package:1, Version:1}).toArray().then(function(docs){
-    return Promise.all(docs.map(delete_doc));
+    return Promise.all(docs.map(delete_doc)).then(function(results){
+      return mongo_cache_invalidate(query._user).then(() => results);
+    });
   });
 }
 
