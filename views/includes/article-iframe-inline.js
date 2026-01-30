@@ -8,7 +8,8 @@ innerframe.onload=function(){
 
 function insert_script(src){
   const node = document.createElement("script");
-  node.setAttribute('src', src);
+  node.src = src;
+  node.async = true;
   innerframe.contentDocument.body.appendChild(node);
   console.log("inserting", node);
 }
@@ -19,7 +20,7 @@ function insert_iframe_resizer(){
   //const has_script = innerframe.contentDocument.querySelectorAll('script[src*="r-universe.dev/static/article.js"]').length;
   if(innerframe.contentDocument.body){
     console.log("Trying to enable iframeResizer for article");
-    insert_script('https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.1/iframeResizer.contentWindow.min.js');
+    insert_script('https://cdn.jsdelivr.net/npm/@iframe-resizer/child@5.5.7');
     innerframe.contentDocument.body.style.marginBottom = '50px'
   }
 }

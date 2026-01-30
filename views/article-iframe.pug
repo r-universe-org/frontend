@@ -34,6 +34,6 @@ block before_scripts
     include includes/article-iframe-inline.js
 
 block after_scripts
-  script(src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.1/iframeResizer.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/@iframe-resizer/parent@5.5.7")
   script
-    | iFrameResize({ log: false, checkOrigin: false, warningTimeout: 0 }, '#viewerframe');
+    | iframeResize({ license: 'GPLv3', log: 'collapsed', checkOrigin: false, warningTimeout: 0 }, '#viewerframe');
