@@ -39,9 +39,6 @@ block content
                   small.text-secondary.cross-universe-icon.mx-1.fas.fa-external-link-alt(data-universe=row._user)
                 if row.OS_type
                   small.fw-medium.ms-1 (#{row.OS_type} only)
-                if row._failure
-                  a(href=`${row._failure.buildurl}/job/${row._failure.job ? row._failure.job.job : '..'}`)
-                    small.fw-bold.ms-1.text-danger (build failure)
               td
                 a.text-dark(href=`${row._upstream}/commit/${row._commit.id}` target='_blank') #{row.Version}
               td
@@ -63,20 +60,24 @@ block content
                     span.ms-1 –
               td !{row.check_icon_html('source')}
               td.text-nowrap
-                | !{row.check_icon_html('linux-devel')}
-                | !{row.check_icon_html('macos-devel-arm64')}
-                | !{row.check_icon_html('windows-devel')}
-                | |
-                | !{row.check_icon_html('linux-release')}
-                | !{row.check_icon_html('macos-release-arm64')}
-                | !{row.check_icon_html('windows-release')}
-                | |
-                | !{row.check_icon_html('windows-oldrel')}
+                span(class=(row._failure ? 'opacity-25' : ''))
+                  | !{row.check_icon_html('linux-devel')}
+                  | !{row.check_icon_html('macos-devel-arm64')}
+                  | !{row.check_icon_html('windows-devel')}
+                  | |
+                  | !{row.check_icon_html('linux-release')}
+                  | !{row.check_icon_html('macos-release-arm64')}
+                  | !{row.check_icon_html('windows-release')}
+                  | |
+                  | !{row.check_icon_html('windows-oldrel')}
 
                 if row._progress_url
                   a.text-decoration-none.mx-3.fa-solid.fa-cog.fa-spin.d-none.d-xl-inline-block(href=row._progress_url target="_blank" data-bs-toggle="tooltip" data-bs-title="Newer build in progress..." )
                 else if !all_ok(row)
                   a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=build_url(row) data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row._failure ? row._failure.version : row.Version}`)
+                if row._failure
+                  a.link-danger.link-offset-2.link-underline-opacity-25.link-underline-opacity-100-hover(href=`${row._failure.buildurl}/job/${row._failure.job ? row._failure.job.job : '..'}`)
+                    div.fw-bold.ms-1 update failure for v#{row._failure.version}
               td.text-nowrap.d-none.d-xl-table-cell.text-secondary
                 span.package-show-difftime(data-timestamp=`${(row._failure ? row._failure.date : row._created).toISOString()}`)
 
