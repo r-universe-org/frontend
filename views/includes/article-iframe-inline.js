@@ -16,8 +16,9 @@ function insert_script(src){
 //fallback for articles that do not have article.js
 //article.js depends on jQuery for now so we just inject iframeResizer
 function insert_iframe_resizer(){
-  const has_script = innerframe.contentDocument.querySelectorAll('script[src*="r-universe.dev/static/article.js"]').length;
-  if(!has_script && innerframe.contentDocument.body){
+  //const has_script = innerframe.contentDocument.querySelectorAll('script[src*="r-universe.dev/static/article.js"]').length;
+  if(innerframe.contentDocument.body){
+    console.log("Trying to enable iframeResizer for article");
     insert_script('https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.1/iframeResizer.contentWindow.min.js');
     innerframe.contentDocument.body.style.marginBottom = '50px'
   }
@@ -29,4 +30,3 @@ function hide_frontmatter(){
     frontmatter[0].style.display = 'none';
   }
 }
-
