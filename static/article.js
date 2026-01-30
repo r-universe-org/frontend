@@ -28,17 +28,11 @@ if (window.self != window.top) {
   }).attr("target", "_blank");
 }
 
-/* matomo */
-var _paq = window._paq = window._paq || [];
-_paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-_paq.push(["setCookieDomain", "*.r-universe.dev"]);
-_paq.push(["setDomains", ["*.r-universe.dev"]]);
-_paq.push(['trackPageView']);
-_paq.push(['enableLinkTracking']);
-(function() {
-  var u="https://ropensci.matomo.cloud/";
-  _paq.push(['setTrackerUrl', u+'matomo.php']);
-  _paq.push(['setSiteId', '2']);
+function start_plausible(){
   var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-  g.type='text/javascript'; g.async=true; g.src='//cdn.matomo.cloud/ropensci.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
-})();
+  g.type='text/javascript'; g.async=true; g.src='https://plausible.io/js/pa-5P_D7ywpa-XQJ8mVECPL2.js'; s.parentNode.insertBefore(g,s);
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+}
+
+$(document).ready(start_plausible);
