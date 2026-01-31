@@ -7,10 +7,13 @@ innerframe.onload=function(){
 }
 
 function insert_script(src){
-  const node = document.createElement("script");
+  const doc = innerframe.contentDocument;
+  const head = doc.getElementsByTagName('script')[0];
+  const node = doc.createElement("script");
   node.src = src;
   node.async = true;
-  innerframe.contentDocument.body.appendChild(node);
+  head.parentNode.insertBefore(node, head);
+  //innerframe.contentDocument.body.appendChild(node);
   console.log("inserting", node);
 }
 
