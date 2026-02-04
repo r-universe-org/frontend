@@ -41,7 +41,7 @@ export default function(req, res, next){
     //res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 4; // bump to invalidate all caches
+      const revision = 5; // bump to invalidate all caches
       const cachetime = doc._published.getTime() + revision * 1000;
       const etag = `W/"${cachetime}"`;
       const date = new Date(cachetime).toUTCString();

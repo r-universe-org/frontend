@@ -330,7 +330,7 @@ function update_contributor_tooltips(){
   });
 }
 
-$(function(){ 
+$(function(){
   update_copy_gist();
   update_cran_status();
   update_conda_status();
@@ -342,4 +342,5 @@ $(function(){
   update_commit_chart();
   update_contributor_tooltips();
   lazy_update_package_revdeps();
+  $(location.hash).collapse('show'); //e.g. #checktable
 });
