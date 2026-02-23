@@ -106,7 +106,7 @@ function group_binaries(x){
     var filename = `${pkg}_${binary.version}.tar.gz`;
     var distro = `${binary.distro}-${binary.arch || 'x86_64'}`
     var repo = `r-${build}-${arch}`;
-    var url = `/bin/linux/${distro}/${build}/src/contrib/${filename}`;
+    var url = `/bin/linux/${distro}/contrib/${build}/${filename}`;
     return {filename: filename, repo: repo, url: url};
   });
   var wasm = binaries.filter(x => x.os == 'wasm').sort(sortfun).map(function(binary){

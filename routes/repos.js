@@ -112,6 +112,16 @@ router.get('/bin/macosx/:distro/contrib/:major/:pkg.tgz', function(req, res, nex
   return send_binary(query, req, res);
 });
 
+router.get('/bin/linux/:distro/contrib/:major/:pkg.tar.gz', function(req, res, next) {
+  var [pkg, version] = req.params.pkg.split("_");
+  var [distro, arch] = parse_distro(req.params.distro);
+  var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
+  var query = {Package: pkg, Version: version,
+    _type: 'linux', _arch: arch, _major : req.params.major, ...target};
+  return send_binary(query, req, res);
+});
+
+/* Mixed src and binary */
 router.get('/bin/linux/:distro/:major/src/contrib/:pkg.tar.gz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro);
@@ -174,6 +184,14 @@ router.get('/bin/macosx/:distro/contrib/:major{/:format}', function(req, res, ne
     _arch: arch
   };
   return packages_index(query, req, res);
+});
+
+/* Linux binaries ONLY */
+router.get('/bin/linux/:distro/contrib/:major{/:format}', function(req, res, next) {
+  var [distro, arch] = parse_distro(req.params.distro);
+  var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
+  var query = {_type: 'linux', _arch: arch, _major: req.params.major, ...target};
+  return packages_index(query, req, res, false, arch);
 });
 
 /* Linux binaries with fallback on source packages */
