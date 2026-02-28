@@ -73,12 +73,7 @@ router.get("/:hash{/:postfix}", function(req, res, next) {
 router.get("/", function(req, res, next) {
   var cursor = bucket_find({}, {sort: {uploadDate: -1}, project: {_id: 1, filename: 1}});
   var source = cursor.stream({transform: x => `${x._id} ${x.uploadDate.toISOString()} ${x.filename}\n`});
-  source.on('error', function(err){
-    next(createError(500, err));
-  });
-  pipeline(source, res.type('text/plain')).catch(function(err){
-    next(createError(500, err));
-  });
+  return pipeline(source, res.type('text/plain'));
 });
 
 export default router;

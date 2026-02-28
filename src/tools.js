@@ -358,27 +358,26 @@ function doc_to_ndjson(x){
   return JSON.stringify(x) + '\n';
 }
 
-// Somehow node:stream/promises does not catch input on-error callbacks properly
-// so we promisify ourselves. See https://github.com/r-universe-org/help/issues/540
+// We only use hasNext() to promisify and catch mongo errors before streaming, we ignore the result
 export function cursor_stream(cursor, output, transform, gzip){
-  return new Promise(function(resolve, reject) {
-    var input = cursor.stream({transform: transform}).on('error', reject);
-    var p = gzip ? pipeline(input, zlib.createGzip(), output) : pipeline(input, output);
-    p.then(resolve, reject);
+  return cursor.hasNext().then(function(has_next){
+    var input = cursor.stream({transform: transform});
+    if(gzip){
+      return pipeline(input, zlib.createGzip(), output);
+    } else {
+      return pipeline(input, output);
+    }
   });
 }
 
 export function send_results(cursor, res, stream = false, transform = (x) => x){
-  //We only use hasNext() to catch broken queries and promisify response
-  return cursor.hasNext().then(function(has_next){
-    if(stream){
-      return cursor_stream(cursor, res.type('text/plain'), doc => doc_to_ndjson(transform(doc)));
-    } else {
-      return cursor.toArray().then(function(out){
-        return res.send(out.filter(x => x).map(transform));
-      });
-    }
-  });
+  if(stream){
+    return cursor_stream(cursor, res.type('text/plain'), doc => doc_to_ndjson(transform(doc)));
+  } else {
+    return cursor.toArray().then(function(out){
+      return res.send(out.filter(x => x).map(transform));
+    });
+  }
 }
 
 /* NB: regex queries are slow because not indexable! */

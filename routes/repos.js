@@ -2,7 +2,7 @@ import express from 'express';
 import zlib from 'node:zlib';
 import {pipeline} from 'stream/promises';
 import createError from 'http-errors';
-import {doc_to_dcf} from '../src/tools.js';
+import {doc_to_dcf, cursor_stream} from '../src/tools.js';
 import {get_universe_binaries, get_packages_index, get_package_hash} from '../src/db.js';
 
 const router = express.Router();
@@ -20,16 +20,6 @@ function parse_distro(x){
   } else {
     return [x, 'x86_64'];
   }
-}
-
-// Somehow node:stream/promises does not catch input on-error callbacks properly
-// so we promisify ourselves. See https://github.com/r-universe-org/help/issues/540
-function cursor_stream(cursor, output, transform, gzip){
-  return new Promise(function(resolve, reject) {
-    var input = cursor.stream({transform: transform}).on('error', reject);
-    var p = gzip ? pipeline(input, zlib.createGzip(), output) : pipeline(input, output);
-    p.then(resolve, reject);
-  });
 }
 
 function packages_index(query, req, res, mixed = false, override_arch = false){
@@ -173,7 +163,7 @@ router.get('/bin/windows{/:distro}/contrib/:major{/:format}', function(req, res,
   var [distro, arch] = parse_distro(req.params.distro || "gcc-x86_64");
   var query = {
     _type: 'win',
-    _major : req.params.major,
+    _major : {$regex: '^' + req.params.major},
     _arch: arch
   };
   return packages_index(query, req, res);
