@@ -1057,36 +1057,27 @@ export function delete_by_query(query){
 }
 
 export function store_stream_file(stream, key, filename, metadata){
-  return new Promise(function(resolve, reject) {
-    var upload = bucket.openUploadStreamWithId(key, filename, {metadata: metadata});
-    var hash = crypto.createHash('sha256');
-    stream.on('data', data => hash.update(data));
-    function cleanup_and_reject(err){
-      /* Reject and clear possible orphaned chunks */
-      console.log(`Error uploading ${key} (${err}). Deleting chunks.`);
-      bucket.delete(key).finally(function(){
-        console.log(`Chunks deleted for ${key}.`);
-        reject("Error in openUploadStreamWithId(): " + err);
-        chunks.deleteMany({files_id: key}).catch(console.log);
-      });
-    }
-    pipeline(stream, upload).then(function(){
-      db.command({filemd5: key, root: "files"}).catch(function(err){
-        console.log(err); //if mongodb command fails (should never happen)
-        return {};
-      }).then(function(check){
-        var shasum = hash.digest('hex');
-        if(key == shasum && check.md5) {
-          /* These days the sha256 is also the key so maybe we can simplify this */
-          resolve({_id: key, length: upload.length, md5: check.md5, sha256: shasum});
-        } else {
-          bucket.delete(key).finally(function(){
-            console.log(`Checksum for ${filename} did not match`);
-            reject(`Checksum for ${filename} did not match`);
-          });
-        }
-      });
-    }).catch(cleanup_and_reject);
+  var upload = bucket.openUploadStreamWithId(key, filename, {metadata: metadata});
+  var hash = crypto.createHash('sha256');
+  stream.on('data', data => hash.update(data));
+  return pipeline(stream, upload).then(function(){
+    return db.command({filemd5: key, root: "files"}).then(function(check){
+      var shasum = hash.digest('hex');
+      if(key == shasum && check.md5) {
+        /* These days the sha256 is also the key so maybe we can simplify this */
+        return {_id: key, length: upload.length, md5: check.md5, sha256: shasum};
+      } else {
+        throw new Error(`Checksum for ${filename} did not match`);
+      }
+    });
+  }).catch(function(err){
+    /* Clear possible orphaned chunks and error out */
+    console.log(`Error uploading ${key} (${err}). Deleting chunks.`);
+    return bucket.delete(key).finally(function(){
+      return chunks.deleteMany({files_id: key});
+    }).then(function(){
+      throw new Error("Error in openUploadStreamWithId(): " + err);      
+    });
   });
 }
 

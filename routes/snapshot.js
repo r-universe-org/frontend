@@ -112,17 +112,15 @@ router.get('/api/snapshot{/:format}', function(req, res, next) {
     }
     var force_cdn = res.locals.vhost === "packages.ropensci.org";
     var archive = new_zipfile(format);
-    pipeline(archive, res.set('Cache-Control', 'no-store')).catch(err => {
-      console.log(`Snapshot pipeline error: ${err}`);
-    });
-    return packages_snapshot(files, archive, types, force_cdn).then(function(){
+    var p1 = pipeline(archive, res.set('Cache-Control', 'no-store'));
+    var p2 = packages_snapshot(files, archive, types, force_cdn).then(function(){
       return archive.finalize();
-    }).catch(function(err){
+    });
+    return Promise.all([p1, p2]).catch(function(err){
       archive.abort();
       res.end();
-      console.log(`Failure streaming snapshot archive: ${err}`);
       // We already started sending the stream so can't error out anymore
-      // throw err;
+      console.log(`Failure streaming snapshot archive: ${err}`);
     });
   });
 });
