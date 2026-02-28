@@ -1,5 +1,5 @@
 import {Buffer} from "node:buffer";
-import {pipeline} from 'node:stream';
+import {pipeline} from 'stream/promises';
 import zlib from 'node:zlib';
 import tar from 'tar-stream';
 import gunzip from 'gunzip-maybe';
@@ -61,7 +61,7 @@ export function extract_files_from_stream(input, files){
     input.on('error', handle_error);
     gz.on('error', handle_error);
 
-    pipeline(input, gz, extract, (err) => { if(err) handle_error(err); });
+    pipeline(input, gz, extract).catch(handle_error);
   });
 }
 
@@ -111,7 +111,7 @@ export function index_files_from_stream(input){
     input.on('error', handle_error);
     gz.on('error', handle_error);
 
-    pipeline(input, gz, extract, (err) => { if(err) handle_error(err); });
+    pipeline(input, gz, extract).catch(handle_error);
   });
 }
 
@@ -363,12 +363,8 @@ function doc_to_ndjson(x){
 export function cursor_stream(cursor, output, transform, gzip){
   return new Promise(function(resolve, reject) {
     var input = cursor.stream({transform: transform}).on('error', reject);
-    var callback = (err) => { if(err) reject(err); else resolve(); };
-    if(gzip){
-      pipeline(input, zlib.createGzip(), output, callback);
-    } else {
-      pipeline(input, output, callback);
-    }
+    var p = gzip ? pipeline(input, zlib.createGzip(), output) : pipeline(input, output);
+    p.then(resolve, reject);
   });
 }
 

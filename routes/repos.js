@@ -1,6 +1,6 @@
 import express from 'express';
 import zlib from 'node:zlib';
-import {pipeline} from 'node:stream';
+import {pipeline} from 'stream/promises';
 import createError from 'http-errors';
 import {doc_to_dcf} from '../src/tools.js';
 import {get_universe_binaries, get_packages_index, get_package_hash} from '../src/db.js';
@@ -27,12 +27,8 @@ function parse_distro(x){
 function cursor_stream(cursor, output, transform, gzip){
   return new Promise(function(resolve, reject) {
     var input = cursor.stream({transform: transform}).on('error', reject);
-    var callback = (err) => { if(err) reject(err); else resolve(); };
-    if(gzip){
-      pipeline(input, zlib.createGzip(), output, callback);
-    } else {
-      pipeline(input, output, callback);
-    }
+    var p = gzip ? pipeline(input, zlib.createGzip(), output) : pipeline(input, output);
+    p.then(resolve, reject);
   });
 }
 

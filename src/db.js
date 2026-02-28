@@ -1,5 +1,6 @@
 import {MongoClient, GridFSBucket} from 'mongodb';
-import {Readable, pipeline} from  "node:stream";
+import {Readable} from "node:stream";
+import {pipeline} from 'stream/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {pkgfields, doc_to_paths, extract_files_from_stream} from './tools.js';
@@ -1069,27 +1070,23 @@ export function store_stream_file(stream, key, filename, metadata){
         chunks.deleteMany({files_id: key}).catch(console.log);
       });
     }
-    pipeline(stream, upload, function(err){
-      if(err){
-        cleanup_and_reject(err);
-      } else {
-        db.command({filemd5: key, root: "files"}).catch(function(err){
-          console.log(err); //if mongodb command fails (should never happen)
-          return {};
-        }).then(function(check){
-          var shasum = hash.digest('hex');
-          if(key == shasum && check.md5) {
-            /* These days the sha256 is also the key so maybe we can simplify this */
-            resolve({_id: key, length: upload.length, md5: check.md5, sha256: shasum});
-          } else {
-            bucket.delete(key).finally(function(){
-              console.log(`Checksum for ${filename} did not match`);
-              reject(`Checksum for ${filename} did not match`);
-            });
-          }
-        });
-      }
-    });
+    pipeline(stream, upload).then(function(){
+      db.command({filemd5: key, root: "files"}).catch(function(err){
+        console.log(err); //if mongodb command fails (should never happen)
+        return {};
+      }).then(function(check){
+        var shasum = hash.digest('hex');
+        if(key == shasum && check.md5) {
+          /* These days the sha256 is also the key so maybe we can simplify this */
+          resolve({_id: key, length: upload.length, md5: check.md5, sha256: shasum});
+        } else {
+          bucket.delete(key).finally(function(){
+            console.log(`Checksum for ${filename} did not match`);
+            reject(`Checksum for ${filename} did not match`);
+          });
+        }
+      });
+    }).catch(cleanup_and_reject);
   });
 }
 
