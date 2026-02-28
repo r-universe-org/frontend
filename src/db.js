@@ -1,5 +1,5 @@
 import {MongoClient, GridFSBucket} from 'mongodb';
-import {Readable} from  "node:stream";
+import {Readable, pipeline} from  "node:stream";
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {pkgfields, doc_to_paths, extract_files_from_stream} from './tools.js';
@@ -1059,7 +1059,7 @@ export function store_stream_file(stream, key, filename, metadata){
   return new Promise(function(resolve, reject) {
     var upload = bucket.openUploadStreamWithId(key, filename, {metadata: metadata});
     var hash = crypto.createHash('sha256');
-    var pipe = stream.on('data', data => hash.update(data)).pipe(upload);
+    stream.on('data', data => hash.update(data));
     function cleanup_and_reject(err){
       /* Reject and clear possible orphaned chunks */
       console.log(`Error uploading ${key} (${err}). Deleting chunks.`);
@@ -1069,24 +1069,26 @@ export function store_stream_file(stream, key, filename, metadata){
         chunks.deleteMany({files_id: key}).catch(console.log);
       });
     }
-    stream.on("error", cleanup_and_reject);
-    pipe.on('error', cleanup_and_reject);
-    pipe.on('finish', function(){
-      db.command({filemd5: key, root: "files"}).catch(function(err){
-        console.log(err); //if mongodb command fails (should never happen)
-        return {};
-      }).then(function(check){
-        var shasum = hash.digest('hex');
-        if(key == shasum && check.md5) {
-          /* These days the sha256 is also the key so maybe we can simplify this */
-          resolve({_id: key, length: upload.length, md5: check.md5, sha256: shasum});
-        } else {
-          bucket.delete(key).finally(function(){
-            console.log(`Checksum for ${filename} did not match`);
-            reject(`Checksum for ${filename} did not match`);
-          });
-        }
-      });
+    pipeline(stream, upload, function(err){
+      if(err){
+        cleanup_and_reject(err);
+      } else {
+        db.command({filemd5: key, root: "files"}).catch(function(err){
+          console.log(err); //if mongodb command fails (should never happen)
+          return {};
+        }).then(function(check){
+          var shasum = hash.digest('hex');
+          if(key == shasum && check.md5) {
+            /* These days the sha256 is also the key so maybe we can simplify this */
+            resolve({_id: key, length: upload.length, md5: check.md5, sha256: shasum});
+          } else {
+            bucket.delete(key).finally(function(){
+              console.log(`Checksum for ${filename} did not match`);
+              reject(`Checksum for ${filename} did not match`);
+            });
+          }
+        });
+      }
     });
   });
 }

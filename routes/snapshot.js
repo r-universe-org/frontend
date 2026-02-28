@@ -1,5 +1,6 @@
 import express from 'express';
 import zlib from 'node:zlib';
+import {pipeline} from 'stream/promises';
 import archiver from 'archiver';
 import path from 'node:path';
 import {pkgfields, doc_to_dcf, doc_to_paths, extract_files_from_stream} from '../src/tools.js';
@@ -111,7 +112,9 @@ router.get('/api/snapshot{/:format}', function(req, res, next) {
     }
     var force_cdn = res.locals.vhost === "packages.ropensci.org";
     var archive = new_zipfile(format);
-    archive.pipe(res.set('Cache-Control', 'no-store'));
+    pipeline(archive, res.set('Cache-Control', 'no-store')).catch(err => {
+      console.log(`Snapshot pipeline error: ${err}`);
+    });
     return packages_snapshot(files, archive, types, force_cdn).then(function(){
       return archive.finalize();
     }).catch(function(err){
