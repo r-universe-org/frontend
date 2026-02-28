@@ -23,95 +23,49 @@ export function stream2buffer(stream) {
 
 export function extract_files_from_stream(input, files){
   var output = Array(files.length);
-  return new Promise(function(resolve, reject) {
-    const gz = gunzip();
-    const extract = tar.extract({allowUnknownFormat: true});
-
-    function cleanup() {
-      input.destroy();
-      gz.destroy();
-      extract.destroy();
+  function process_entry(header, filestream, next_entry) {
+    filestream.on('end', next_entry);
+    //filestream.on('error', reject);
+    var index = files.indexOf(header.name);
+    if(index > -1){
+      stream2buffer(filestream).then(function(buf){
+        output[index] = buf;
+      });
+    } else {
+      filestream.resume();
     }
-
-    function process_entry(header, filestream, next_entry) {
-      filestream.on('end', next_entry);
-      filestream.on('error', reject);
-      var index = files.indexOf(header.name);
-      if(index > -1){
-        stream2buffer(filestream).then(function(buf){
-          output[index] = buf;
-        });
-      } else {
-        filestream.resume();
-      }
-    }
-    function finish_stream(){
-      resolve(output);
-    }
-    function handle_error(err) {
-      cleanup();
-      reject(err);
-    }
-
-    extract
-      .on('entry', process_entry)
-      .on('finish', finish_stream)
-      .on('error', handle_error);
-
-    input.on('error', handle_error);
-    gz.on('error', handle_error);
-
-    pipeline(input, gz, extract).catch(handle_error);
+  }
+  var extract = tar.extract({allowUnknownFormat: true}).on('entry', process_entry);
+  return pipeline(input, gunzip(), extract).then(function(){
+    return output;
   });
 }
 
 export function index_files_from_stream(input){
   let files = [];
-  return new Promise(function(resolve, reject) {
-    const gz = gunzip();
-    const extract = tar.extract({allowUnknownFormat: true});
-
-    function cleanup() {
-      input.destroy();
-      gz.destroy();
-      extract.destroy();
+  function process_entry(header, stream, next_entry) {
+    stream.on('end', next_entry);
+    //stream.on('error', reject);
+    if(header.size > 0 && header.name.match(/\/.*/)){
+      files.push({
+        filename: header.name,
+        start: extract._buffer.shifted,
+        end: extract._buffer.shifted + header.size
+      });
     }
+    stream.resume();
+  }
 
-    function process_entry(header, stream, next_entry) {
-      stream.on('end', next_entry);
-      stream.on('error', reject);
-      if(header.size > 0 && header.name.match(/\/.*/)){
-        files.push({
-          filename: header.name,
-          start: extract._buffer.shifted,
-          end: extract._buffer.shifted + header.size
-        });
-      }
-      stream.resume();
+  const extract = tar.extract({allowUnknownFormat: true}).on('entry', process_entry);
+  return pipeline(input, gunzip(), extract).then(function(){
+    return {files: files, remote_package_size: extract._buffer.shifted};
+  }).catch(function(err){
+    //workaround tar-stream error for webr 0.4.2 trailing junk
+    if (err.message.includes('Unexpected end') && files.length > 0){
+      return {files: files, remote_package_size: extract._buffer.shifted}; 
+    } else {
+      throw new Error(err);
     }
-
-    function finish_stream(){
-      resolve({files: files, remote_package_size: extract._buffer.shifted});
-    }
-
-    function handle_error(err){
-      if (err.message.includes('Unexpected end') && files.length > 0){
-        finish_stream(); //workaround tar-stream error for webr 0.4.2 trailing junk
-      } else {
-        cleanup();
-        reject(err);
-      }
-    }
-
-    extract
-      .on('entry', process_entry)
-      .on('finish', finish_stream)
-      .on('error', handle_error);
-
-    input.on('error', handle_error);
-    gz.on('error', handle_error);
-
-    pipeline(input, gz, extract).catch(handle_error);
   });
 }
 
