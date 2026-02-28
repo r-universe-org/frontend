@@ -57,15 +57,14 @@ export function index_files_from_stream(input){
   }
 
   const extract = tar.extract({allowUnknownFormat: true}).on('entry', process_entry);
-  return pipeline(input, gunzip(), extract).then(function(){
-    return {files: files, remote_package_size: extract._buffer.shifted};
-  }).catch(function(err){
-    //workaround tar-stream error for webr 0.4.2 trailing junk
-    if (err.message.includes('Unexpected end') && files.length > 0){
-      return {files: files, remote_package_size: extract._buffer.shifted}; 
+  return pipeline(input, gunzip(), extract).catch(function(err){
+    if (files.length > 0 && err.message.includes('Unexpected end')){
+      return true; //workaround tar-stream error for webr 0.4.2 trailing junk
     } else {
       throw new Error(err);
     }
+  }).then(function(){
+    return {files: files, remote_package_size: extract._buffer.shifted};
   });
 }
 
