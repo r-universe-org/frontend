@@ -163,7 +163,7 @@ router.get('/bin/windows{/:distro}/contrib/:major{/:format}', function(req, res,
   var [distro, arch] = parse_distro(req.params.distro || "gcc-x86_64");
   var query = {
     _type: 'win',
-    _major : {$regex: '^' + req.params.major},
+    _major : req.params.major,
     _arch: arch
   };
   return packages_index(query, req, res);
