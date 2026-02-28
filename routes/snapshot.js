@@ -1,5 +1,6 @@
 import express from 'express';
 import zlib from 'node:zlib';
+import {pipeline} from 'node:stream/promises';
 import archiver from 'archiver';
 import path from 'node:path';
 import {pkgfields, doc_to_dcf, doc_to_paths, extract_files_from_stream} from '../src/tools.js';
@@ -20,29 +21,35 @@ function new_zipfile(format){
       archive.append(source, data);
     });
   }
-  return archive.on('warning', function(err) {
-    if (err.code === 'ENOENT') {
-      console.log(err)
-    } else {
-      throw err;
-    }
-  }).on('error', function(err) {
-    throw err;
-  })
+  return archive;
 }
 
 async function packages_snapshot(files, archive, types, force_cdn){
+  
+  var abort = false;
+  archive.on('warning', function(err) {
+    if (err.code === 'ENOENT') {
+      console.log(err)
+    } else {
+      abort = err;
+    }
+  }).on('error', function(err) {
+    abort = err;
+  });
+
   var indexes = {};
   for (var x of files){
     if(types.includes(x._type)){
       for (var filename of doc_to_paths(x)){
+        if(abort){
+          throw abort;
+        }
         var dirname = path.dirname(filename);
         if(!indexes[dirname])
           indexes[dirname] = [];
         indexes[dirname].push(x);
-
         await mongo_download_stream(x._fileid, force_cdn).then(function(stream){
-          return archive.append_stream(stream, { name: filename, date: x._created });
+          return archive.append_stream(stream, { name: filename, date: x._created }).finally(e => stream.destroy());
         }).catch(function(e){
           console.log(`Failed adding a file to snapshot: ${e}`);
         });
@@ -59,12 +66,15 @@ async function packages_snapshot(files, archive, types, force_cdn){
 
   /* Extract html manual pages. This is a bit slower so doing this last */
   if(types.includes('docs')) {
+    if(abort){
+      throw abort;
+    }
     for (var x of files.filter(x => x._type == 'src')){
       var pkgname = x.Package;
       await mongo_download_stream(x._fileid, force_cdn).then(function(stream){
         return extract_files_from_stream(stream, `${pkgname}/extra/${pkgname}.html`).then(function([buf]){
           return archive.append(buf, { name: `docs/${pkgname}.html`, date: x._created });
-        });
+        }).finally(e => stream.destroy());
       }).catch(function(e){
         console.log(`Failed adding a docs file to snapshot: ${e}`);
       });
@@ -102,15 +112,16 @@ router.get('/api/snapshot{/:format}', function(req, res, next) {
     }
     var force_cdn = res.locals.vhost === "packages.ropensci.org";
     var archive = new_zipfile(format);
-    archive.pipe(res.set('Cache-Control', 'no-store'));
-    return packages_snapshot(files, archive, types, force_cdn).then(function(){
+    var p1 = pipeline(archive, res.set('Cache-Control', 'no-store'));
+    var p2 = packages_snapshot(files, archive, types, force_cdn).then(function(){
       return archive.finalize();
-    }).catch(function(err){
+    });
+    return Promise.all([p1, p2]).catch(function(err){
       archive.abort();
+      archive.destroy();
       res.end();
-      console.log(`Failure streaming snapshot archive: ${err}`);
       // We already started sending the stream so can't error out anymore
-      // throw err;
+      console.log(`Failure streaming snapshot archive: ${err}`);
     });
   });
 });

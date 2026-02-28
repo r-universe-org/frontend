@@ -1,4 +1,6 @@
 import {Buffer} from "node:buffer";
+import {pipeline} from 'node:stream/promises';
+import zlib from 'node:zlib';
 import tar from 'tar-stream';
 import gunzip from 'gunzip-maybe';
 import {load as cheerio_load} from 'cheerio';
@@ -21,62 +23,48 @@ export function stream2buffer(stream) {
 
 export function extract_files_from_stream(input, files){
   var output = Array(files.length);
-  return new Promise(function(resolve, reject) {
-    function process_entry(header, filestream, next_entry) {
-      filestream.on('end', next_entry);
-      filestream.on('error', reject);
-      var index = files.indexOf(header.name);
-      if(index > -1){
-        stream2buffer(filestream).then(function(buf){
-          output[index] = buf;
-        });
-      } else {
-        filestream.resume();
-      }
+  function process_entry(header, filestream, next_entry) {
+    filestream.on('end', next_entry);
+    //filestream.on('error', reject);
+    var index = files.indexOf(header.name);
+    if(index > -1){
+      stream2buffer(filestream).then(function(buf){
+        output[index] = buf;
+      });
+    } else {
+      filestream.resume();
     }
-    function finish_stream(){
-      resolve(output);
-    }
-    var extract = tar.extract({allowUnknownFormat: true})
-      .on('entry', process_entry)
-      .on('finish', finish_stream)
-      .on('error', reject);
-    input.on('error', reject).pipe(gunzip()).pipe(extract);
+  }
+  var extract = tar.extract({allowUnknownFormat: true}).on('entry', process_entry);
+  return pipeline(input, gunzip(), extract).then(function(){
+    return output;
   });
 }
 
 export function index_files_from_stream(input){
   let files = [];
-  let extract = tar.extract({allowUnknownFormat: true});
-  return new Promise(function(resolve, reject) {
-    function process_entry(header, stream, next_entry) {
-      stream.on('end', next_entry);
-      stream.on('error', reject);
-      if(header.size > 0 && header.name.match(/\/.*/)){
-        files.push({
-          filename: header.name,
-          start: extract._buffer.shifted,
-          end: extract._buffer.shifted + header.size
-        });
-      }
-      stream.resume();
-    }
-
-    function finish_stream(){
-      resolve({files: files, remote_package_size: extract._buffer.shifted});
-    }
-
-    var extract = tar.extract({allowUnknownFormat: true})
-      .on('entry', process_entry)
-      .on('finish', finish_stream)
-      .on('error', function(err){
-        if (err.message.includes('Unexpected end') && files.length > 0){
-          finish_stream(); //workaround tar-stream error for webr 0.4.2 trailing junk
-        } else {
-          reject(err);
-        }
+  function process_entry(header, stream, next_entry) {
+    stream.on('end', next_entry);
+    //stream.on('error', reject);
+    if(header.size > 0 && header.name.match(/\/.*/)){
+      files.push({
+        filename: header.name,
+        start: extract._buffer.shifted,
+        end: extract._buffer.shifted + header.size
       });
-    input.on('error', reject).pipe(gunzip()).pipe(extract);
+    }
+    stream.resume();
+  }
+
+  const extract = tar.extract({allowUnknownFormat: true}).on('entry', process_entry);
+  return pipeline(input, gunzip(), extract).catch(function(err){
+    if (files.length > 0 && err.message.includes('Unexpected end')){
+      return true; //workaround tar-stream error for webr 0.4.2 trailing junk
+    } else {
+      throw new Error(err);
+    }
+  }).then(function(){
+    return {files: files, remote_package_size: extract._buffer.shifted};
   });
 }
 
@@ -323,29 +311,27 @@ function doc_to_ndjson(x){
   return JSON.stringify(x) + '\n';
 }
 
-// Somehow node:stream/promises does not catch input on-error callbacks properly
-// so we promisify ourselves. See https://github.com/r-universe-org/help/issues/540
+// We only use hasNext() to promisify and catch mongo errors before streaming,
+// we ignore the result on purpose
 export function cursor_stream(cursor, output, transform, gzip){
-  return new Promise(function(resolve, reject) {
-    var input = cursor.stream({transform: transform}).on('error', reject);
+  return cursor.hasNext().then(function(has_next){
+    var input = cursor.stream({transform: transform});
     if(gzip){
-      input = input.pipe(zlib.createGzip()).on('error', reject);
+      return pipeline(input, zlib.createGzip(), output);
+    } else {
+      return pipeline(input, output);
     }
-    input.pipe(output).on('finish', resolve).on('error', reject);
   });
 }
 
 export function send_results(cursor, res, stream = false, transform = (x) => x){
-  //We only use hasNext() to catch broken queries and promisify response
-  return cursor.hasNext().then(function(has_next){
-    if(stream){
-      return cursor_stream(cursor, res.type('text/plain'), doc => doc_to_ndjson(transform(doc)));
-    } else {
-      return cursor.toArray().then(function(out){
-        return res.send(out.filter(x => x).map(transform));
-      });
-    }
-  });
+  if(stream){
+    return cursor_stream(cursor, res.type('text/plain'), doc => doc_to_ndjson(transform(doc)));
+  } else {
+    return cursor.toArray().then(function(out){
+      return res.send(out.filter(x => x).map(transform));
+    });
+  }
 }
 
 /* NB: regex queries are slow because not indexable! */

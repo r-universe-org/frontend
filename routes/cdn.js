@@ -1,8 +1,9 @@
 import express from 'express';
 import gunzip from 'gunzip-maybe';
+import {pipeline} from 'node:stream/promises';
 import createError from 'http-errors';
 import {get_bucket_stream, bucket_find} from '../src/db.js';
-import {index_files_from_stream} from '../src/tools.js';
+import {index_files_from_stream, cursor_stream} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -11,7 +12,8 @@ function send_from_bucket(hash, operation, res){
     let name = pkg.filename;
     if(operation == 'send'){
       let type = name.endsWith('.zip') ? 'application/zip' : 'application/x-gzip';
-      return pkg.stream.pipe(
+      return pipeline(
+        pkg.stream,
         res.type(type).attachment(name).set({
           'Content-Length': pkg.length,
           'Cache-Control': 'public, max-age=31557600, immutable',
@@ -40,7 +42,9 @@ function send_from_bucket(hash, operation, res){
         throw createError(`Unable to decompress ${name} (only tar.gz files are suppored)`);
       }
       var tarname = name.replace(/(tar.gz|tgz)/, 'tar');
-      return pkg.stream.pipe(gunzip()).pipe(
+      return pipeline(
+        pkg.stream,
+        gunzip(),
         res.type('application/tar').attachment(tarname).set({
           'Cache-Control': 'public, max-age=31536000, immutable',
           'Last-Modified' : pkg.uploadDate.toUTCString()
@@ -68,9 +72,7 @@ router.get("/:hash{/:postfix}", function(req, res, next) {
 /* index all the files on the cdn */
 router.get("/", function(req, res, next) {
   var cursor = bucket_find({}, {sort: {uploadDate: -1}, project: {_id: 1, filename: 1}});
-  cursor.stream({transform: x => `${x._id} ${x.uploadDate.toISOString()} ${x.filename}\n`}).on('error', function(err){
-    next(createError(500, err));
-  }).pipe(res.type('text/plain'));
+  return cursor_stream(cursor, res.type('text/plain'), x => `${x._id} ${x.uploadDate.toISOString()} ${x.filename}\n`)
 });
 
 export default router;
