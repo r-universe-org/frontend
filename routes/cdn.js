@@ -3,7 +3,7 @@ import gunzip from 'gunzip-maybe';
 import {pipeline} from 'stream/promises';
 import createError from 'http-errors';
 import {get_bucket_stream, bucket_find} from '../src/db.js';
-import {index_files_from_stream} from '../src/tools.js';
+import {index_files_from_stream, cursor_stream} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -72,8 +72,7 @@ router.get("/:hash{/:postfix}", function(req, res, next) {
 /* index all the files on the cdn */
 router.get("/", function(req, res, next) {
   var cursor = bucket_find({}, {sort: {uploadDate: -1}, project: {_id: 1, filename: 1}});
-  var source = cursor.stream({transform: x => `${x._id} ${x.uploadDate.toISOString()} ${x.filename}\n`});
-  return pipeline(source, res.type('text/plain'));
+  return cursor_stream(cursor, res.type('text/plain'), x => `${x._id} ${x.uploadDate.toISOString()} ${x.filename}\n`)
 });
 
 export default router;
