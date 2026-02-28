@@ -41,11 +41,16 @@ async function packages_snapshot(files, archive, types, force_cdn){
           indexes[dirname] = [];
         indexes[dirname].push(x);
 
-        await mongo_download_stream(x._fileid, force_cdn).then(function(stream){
-          return archive.append_stream(stream, { name: filename, date: x._created });
-        }).catch(function(e){
+        let stream;
+        try {
+          stream = await mongo_download_stream(x._fileid, force_cdn);
+          await archive.append_stream(stream, { name: filename, date: x._created });
+        } catch(e) {
           console.log(`Failed adding a file to snapshot: ${e}`);
-        });
+          if(stream && stream.destroy) {
+            stream.destroy();
+          }
+        }
       }
     }
   };
@@ -61,13 +66,17 @@ async function packages_snapshot(files, archive, types, force_cdn){
   if(types.includes('docs')) {
     for (var x of files.filter(x => x._type == 'src')){
       var pkgname = x.Package;
-      await mongo_download_stream(x._fileid, force_cdn).then(function(stream){
-        return extract_files_from_stream(stream, `${pkgname}/extra/${pkgname}.html`).then(function([buf]){
-          return archive.append(buf, { name: `docs/${pkgname}.html`, date: x._created });
-        });
-      }).catch(function(e){
+      let stream;
+      try {
+        stream = await mongo_download_stream(x._fileid, force_cdn);
+        const [buf] = await extract_files_from_stream(stream, `${pkgname}/extra/${pkgname}.html`);
+        await archive.append(buf, { name: `docs/${pkgname}.html`, date: x._created });
+      } catch(e) {
         console.log(`Failed adding a docs file to snapshot: ${e}`);
-      });
+        if(stream && stream.destroy) {
+          stream.destroy();
+        }
+      }
     };
   }
 }

@@ -22,6 +22,15 @@ export function stream2buffer(stream) {
 export function extract_files_from_stream(input, files){
   var output = Array(files.length);
   return new Promise(function(resolve, reject) {
+    const gz = gunzip();
+    const extract = tar.extract({allowUnknownFormat: true});
+
+    function cleanup() {
+      input.destroy();
+      gz.destroy();
+      extract.destroy();
+    }
+
     function process_entry(header, filestream, next_entry) {
       filestream.on('end', next_entry);
       filestream.on('error', reject);
@@ -37,18 +46,35 @@ export function extract_files_from_stream(input, files){
     function finish_stream(){
       resolve(output);
     }
-    var extract = tar.extract({allowUnknownFormat: true})
+    function handle_error(err) {
+      cleanup();
+      reject(err);
+    }
+
+    extract
       .on('entry', process_entry)
       .on('finish', finish_stream)
-      .on('error', reject);
-    input.on('error', reject).pipe(gunzip()).pipe(extract);
+      .on('error', handle_error);
+
+    input.on('error', handle_error);
+    gz.on('error', handle_error);
+
+    input.pipe(gz).pipe(extract);
   });
 }
 
 export function index_files_from_stream(input){
   let files = [];
-  let extract = tar.extract({allowUnknownFormat: true});
   return new Promise(function(resolve, reject) {
+    const gz = gunzip();
+    const extract = tar.extract({allowUnknownFormat: true});
+
+    function cleanup() {
+      input.destroy();
+      gz.destroy();
+      extract.destroy();
+    }
+
     function process_entry(header, stream, next_entry) {
       stream.on('end', next_entry);
       stream.on('error', reject);
@@ -66,17 +92,24 @@ export function index_files_from_stream(input){
       resolve({files: files, remote_package_size: extract._buffer.shifted});
     }
 
-    var extract = tar.extract({allowUnknownFormat: true})
+    function handle_error(err){
+      if (err.message.includes('Unexpected end') && files.length > 0){
+        finish_stream(); //workaround tar-stream error for webr 0.4.2 trailing junk
+      } else {
+        cleanup();
+        reject(err);
+      }
+    }
+
+    extract
       .on('entry', process_entry)
       .on('finish', finish_stream)
-      .on('error', function(err){
-        if (err.message.includes('Unexpected end') && files.length > 0){
-          finish_stream(); //workaround tar-stream error for webr 0.4.2 trailing junk
-        } else {
-          reject(err);
-        }
-      });
-    input.on('error', reject).pipe(gunzip()).pipe(extract);
+      .on('error', handle_error);
+
+    input.on('error', handle_error);
+    gz.on('error', handle_error);
+
+    input.pipe(gz).pipe(extract);
   });
 }
 
