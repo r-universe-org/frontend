@@ -171,7 +171,14 @@ export function doc_to_dcf(doc, use_sha_file = true){
   //}
   //x.MD5sum = MD5sum; //workaround for https://github.com/r-lib/pak/issues/733
   if(use_sha_file){
-    x.File = `sha256-${x.SHA256}`;
+    if(_type == 'win' || _type == 'src'){
+      // R copies the literal filename but '?' is illegal character on Windows
+      x.File = `sha256-${x.SHA256}`;
+    } else if(_type == 'mac' || _type == 'wasm'){
+      x.File = `${x.Package}_${x.Version}.tgz?sha256=${x.SHA256}`;
+    } else {
+      x.File = `${x.Package}_${x.Version}.tar.gz?sha256=${x.SHA256}`;
+    }
   }
   //x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
   if(Array.isArray(_sysdeps)){
