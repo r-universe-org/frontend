@@ -115,6 +115,30 @@ export function fetch_github(url, opt = {}){
   });
 }
 
+export function fetch_github_redirect(url, opt = {}){
+  if(process.env.REBUILD_TOKEN){
+    opt.headers = opt.headers || {'Authorization': 'token ' + process.env.REBUILD_TOKEN};
+  }
+  return fetch(url, opt).then(function(response){
+    if (!response.ok) {
+      return response.json().catch(e => response.text()).then(function(data){
+        throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${data.message || data}`);
+      });
+    }
+    return response.url;
+  });
+}
+
+export function github_buildlog(user, job){
+  const url = `https://api.github.com/repos/r-universe/${user}/actions/jobs/${job}/logs`;
+  return fetch_github_redirect(url);
+}
+
+export function github_artifact(user, artifact_id){
+  const url = `https://api.github.com/repos/r-universe/${user}/actions/artifacts/${artifact_id}/zip`;
+  return fetch_github_redirect(url);
+}
+
 export function trigger_rebuild(run_path){
   const url = `https://api.github.com/repos/${run_path}/rerun-failed-jobs`;
   return fetch_github(url, {

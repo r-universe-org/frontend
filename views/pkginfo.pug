@@ -264,20 +264,24 @@ block content
           tr
             th Target
             th Result
-            th Total time
-            th Artifact
+            th Time
+            th Files
+            th.text-nowrap Log
         tbody
           each job in _checks
             tr
-              td #{job.name}
+              td.text-nowrap #{job.name}
               td
                 a(target="_blank" href=`${_buildurl}/job/${job_link(job)}`)
                   b(class=job.color) #{job.check}
               td.text-secondary #{job.time}
               td
                 if job.artifact
-                  a(target="_blank" href=`${_buildurl}/artifacts/${job.artifact}`)
+                  a(href=`/api/actions/artifacts/${job.artifact}` target="_blank" rel="noindex")
                     i.fas.fa-download
+              td
+                a(href=`/api/actions/logs/${job.job}` target="_blank" rel="noindex")
+                  i.fas.fa-file-alt.text-secondary
 
       if _exports
         p#exportlist.card-text.clearfix.noanim.collapse

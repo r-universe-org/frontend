@@ -1,7 +1,7 @@
 import express from 'express';
 import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps} from '../src/db.js';
-import {cursor_stream, build_query, send_results} from '../src/tools.js';
+import {cursor_stream, build_query, send_results, github_buildlog, github_artifact} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -97,6 +97,14 @@ router.get('/api/files', function(req, res, next){
 
 router.get('/api/summary', function(req, res, next){
   return mongo_summary(res.locals.universe).then(x => res.send(x));
+});
+
+router.get('/api/actions/logs/:job', function(req, res, next){
+  return github_buildlog(res.locals.universe, req.params.job).then(x => res.redirect(x));
+});
+
+router.get('/api/actions/artifacts/:id', function(req, res, next){
+  return github_artifact(res.locals.universe, req.params.id).then(x => res.redirect(x));
 });
 
 /* Legacy redirects */
