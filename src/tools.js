@@ -2,10 +2,23 @@ import {Buffer} from "node:buffer";
 import {pipeline} from 'node:stream/promises';
 import zlib from 'node:zlib';
 import tar from 'tar-stream';
+import fs from 'node:fs';
 import gunzip from 'gunzip-maybe';
 import {load as cheerio_load} from 'cheerio';
 import hljs from 'highlight.js';
 import createError from 'http-errors';
+import { createAppAuth } from '@octokit/auth-app';
+
+// GitHub App key: https://github.com/organizations/r-universe/settings/apps/frontend-log-viewer
+const authapp = createAppAuth({
+  appId: 3026612,
+  privateKey: process.env.APP_KEY_FILE ? fs.readFileSync(process.env.APP_KEY_FILE, 'utf8') : "nokey",
+  installationId: 114525760
+});
+
+function gh_app_token(){
+  return authapp({type: "installation"}).then(x => x.token);
+}
 
 export const pkgfields = {_id: 1, _type:1, _fileid:1, _dependencies: 1, Filesize: '$_filesize', Distro: '$_distro',
   SHA256: '$_sha256', Package: 1, Version: 1, Depends: 1, Suggests: 1,
@@ -115,17 +128,16 @@ export function fetch_github(url, opt = {}){
   });
 }
 
-export function fetch_github_redirect(url, opt = {}){
-  if(process.env.REBUILD_TOKEN){
-    opt.headers = opt.headers || {'Authorization': 'token ' + process.env.REBUILD_TOKEN};
-  }
-  return fetch(url, opt).then(function(response){
-    if (!response.ok) {
-      return response.json().catch(e => response.text()).then(function(data){
-        throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${data.message || data}`);
-      });
-    }
-    return response.url;
+export function fetch_github_redirect(url){
+  return gh_app_token().then(function(token){
+    return fetch(url, {headers: {"Authorization": `token ${token}`}}).then(function(response){
+      if (!response.ok) {
+        return response.json().catch(e => response.text()).then(function(data){
+          throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${data.message || data}`);
+        });
+      }
+      return response.url;
+    });
   });
 }
 

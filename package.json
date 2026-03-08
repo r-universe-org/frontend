@@ -8,6 +8,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@octokit/auth-app": "^8.2.0",
     "archiver": "^7.0.1",
     "badgen": "^3.2.3",
     "cheerio": "^1.1.2",
