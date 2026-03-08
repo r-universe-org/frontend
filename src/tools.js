@@ -114,23 +114,10 @@ export function cheerio_page(html, page, pkgname, universe){
   return el.html();
 }
 
-export function fetch_github(url, opt = {}){
-  if(process.env.REBUILD_TOKEN){
-    opt.headers = opt.headers || {'Authorization': 'token ' + process.env.REBUILD_TOKEN};
-  }
-  return fetch(url, opt).then(function(response){
-    return response.json().catch(e => response.text()).then(function(data){
-      if (!response.ok) {
-        throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${data.message || data}`);
-      }
-      return data;
-    });
-  });
-}
-
-function fetch_github_app(url){
+function fetch_github_app(url, opt = {}){
   return gh_app_token().then(function(token){
-    return fetch(url, {headers: {"Authorization": `token ${token}`}}).then(function(response){
+    opt.headers = {'Authorization': `token ${token}`};
+    return fetch(url, opt).then(function(response){
       if (!response.ok) {
         return response.json().catch(e => response.text()).then(function(data){
           throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${data.message || data}`);
@@ -141,14 +128,13 @@ function fetch_github_app(url){
   });
 }
 
-function fetch_github_json(url){
-  return fetch_github_app(url).then(response => response.json());
+function fetch_github_json(url, opt = {}){
+  return fetch_github_app(url, opt).then(response => response.json());
 }
 
 function fetch_github_redirect(url){
   return fetch_github_app(url).then(response => response.url);
 }
-
 
 export function github_buildlog(user, job){
   const url = `https://api.github.com/repos/r-universe/${user}/actions/jobs/${job}/logs`;
@@ -162,14 +148,14 @@ export function github_artifact(user, artifact_id){
 
 export function trigger_rebuild(run_path){
   const url = `https://api.github.com/repos/${run_path}/rerun-failed-jobs`;
-  return fetch_github(url, {
+  return fetch_github_json(url, {
     method: 'POST'
   });
 }
 
 export function trigger_sync(user){
   const url = `https://api.github.com/repos/r-universe/${user}/actions/workflows/sync.yml/dispatches`;
-  return fetch_github(url, {
+  return fetch_github_json(url, {
     method: 'POST',
     body: JSON.stringify({ref: 'master'}),
   });
