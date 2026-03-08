@@ -128,7 +128,7 @@ export function fetch_github(url, opt = {}){
   });
 }
 
-export function fetch_github_redirect(url){
+function fetch_github_app(url){
   return gh_app_token().then(function(token){
     return fetch(url, {headers: {"Authorization": `token ${token}`}}).then(function(response){
       if (!response.ok) {
@@ -136,10 +136,19 @@ export function fetch_github_redirect(url){
           throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${data.message || data}`);
         });
       }
-      return response.url;
+      return response;
     });
   });
 }
+
+function fetch_github_json(url){
+  return fetch_github_app(url).then(response => response.json());
+}
+
+function fetch_github_redirect(url){
+  return fetch_github_app(url).then(response => response.url);
+}
+
 
 export function github_buildlog(user, job){
   const url = `https://api.github.com/repos/r-universe/${user}/actions/jobs/${job}/logs`;
@@ -168,7 +177,7 @@ export function trigger_sync(user){
 
 export function get_submodule_hash(user, submodule){
   const url = `https://api.github.com/repos/r-universe/${user}/git/trees/HEAD`
-  return fetch_github(url).then(function(data){
+  return fetch_github_json(url).then(function(data){
     var info = data.tree.find(file => file.path == submodule);
     if(info && info.sha){
       return info.sha;
@@ -178,7 +187,7 @@ export function get_submodule_hash(user, submodule){
 
 export function get_registry_info(user){
   const url = 'https://api.github.com/repos/r-universe/' + user + '/actions/workflows/sync.yml/runs?per_page=1&status=completed';
-  return fetch_github(url);
+  return fetch_github_json(url);
 }
 
 function dep_to_string(x){
