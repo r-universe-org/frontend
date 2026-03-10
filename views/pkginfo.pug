@@ -243,7 +243,6 @@ block content
             span.package-details-remoteref  (on
               a(target='_blank' href=`${_upstream}/tree/${RemoteRef}`)  #{RemoteRef}
               | )
-
           | . Checks:
           if _checksummary.match(/(ERROR|FAIL)/)
             a.ms-1.link-underline-dark.text-danger.fw-bold(data-bs-toggle='collapse' href='#checktable') #{_checksummary}
@@ -258,30 +257,30 @@ block content
             a.my-1.text-secondary.text-decoration-none.fa-solid.fa-cog.fa-spin(href=_progress_url target="_blank")
             b.ps-1.text-dark A new build is currently
               a(href=_progress_url)  in progress.
-
-      table#checktable.noanim.collapse.table.table-sm.table-bordered.border-primary-subtle.table-hover(style="max-width: 400px")
-        thead
-          tr
-            th Target
-            th Result
-            th Time
-            th Files
-            th.text-nowrap Log
-        tbody
-          each job in _checks
+      div#checktable.collapse(data-title='Check table' data-intro='After clicking the link above, this table shows per-platform build/check results' data-position="left")
+        table.table.table-sm.table-bordered.border-primary-subtle.table-hover(style="max-width: 400px")
+          thead
             tr
-              td.text-nowrap #{job.name}
-              td
-                a(target="_blank" href=`${_buildurl}/job/${job_link(job)}`)
-                  b(class=job.color) #{job.check}
-              td.text-secondary #{job.time}
-              td
-                if job.artifact
-                  a(href=`/api/actions/artifacts/${job.artifact}` target="_blank" rel="noindex")
-                    i.fas.fa-download
-              td
-                a(href=`/api/actions/logs/${job.job}` target="_blank" rel="noindex")
-                  i.fas.fa-file-alt.text-secondary
+              th Target
+              th Result
+              th Time
+              th.text-nowrap(data-title='Download log files' data-intro='Link to a zip file with the binaries and install/check/test logs for each platform.' data-position="above") Files
+              th.text-nowrap Syslog
+          tbody
+            each job in _checks
+              tr
+                td.text-nowrap #{job.name}
+                td
+                  a(target="_blank" href=`${_buildurl}/job/${job_link(job)}`)
+                    b(class=job.color) #{job.check}
+                td.text-secondary #{job.time}
+                td
+                  if job.artifact
+                    a(href=`/api/actions/artifacts/${job.artifact}` target="_blank" rel="noindex")
+                      i.fas.fa-download
+                td
+                  a(href=`/api/actions/logs/${job.job}` target="_blank" rel="noindex")
+                    i.fas.fa-file-alt.text-secondary
 
       if _exports
         p#exportlist.card-text.clearfix.noanim.collapse

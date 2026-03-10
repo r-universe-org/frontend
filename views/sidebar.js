@@ -282,6 +282,14 @@ function show_timestamps(){
   });
 }
 
+function start_introjs_tour(){
+  introJs().setOptions({showProgress: true,showBullets: false}).onchange(function(el) {
+    if (el.id === "status") {
+      $("#checktable").collapse('show');
+    }
+  }).start();
+}
+
 /* Load sidebar and globals */
 $(function(){
   var isdev = window.location.hostname == 'localhost';
