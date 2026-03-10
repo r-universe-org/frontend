@@ -357,6 +357,7 @@ router.get('/robots.txt', function(req, res, next) {
   return mongo_universe_packages(res.locals.universe, ['Package', '_datasets']).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._datasets);
     var str = pkgdata.map(x => `Disallow: /${x.Package}/data/`);
+    str.unshift('Disallow: /api/actions/');
     str.unshift('User-agent: *');
     str.push("");
     str.push(`Sitemap: https://${res.locals.universe}.r-universe.dev/sitemap_index.xml`);

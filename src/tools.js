@@ -17,7 +17,10 @@ const authapp = createAppAuth({
 });
 
 function gh_app_token(){
-  return authapp({type: "installation"}).then(x => x.token);
+  return authapp({type: "installation"}).then(function(x){
+    console.log(`DEBUG: token ${x.token.substring(30)} expires ${x.expiresAt.substring(11)}`)
+    return x.token;
+  });
 }
 
 export const pkgfields = {_id: 1, _type:1, _fileid:1, _dependencies: 1, Filesize: '$_filesize', Distro: '$_distro',
