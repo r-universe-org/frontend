@@ -276,10 +276,10 @@ block content
                 td.text-secondary #{job.time}
                 td
                   if job.artifact
-                    a(href=`/api/actions/artifacts/${job.artifact}` target="_blank" rel="noindex")
+                    a(href=`${_buildurl}/artifacts/${job.artifact}` target="_blank" rel="noindex" data-apilink=`artifacts/${job.artifact}`)
                       i.fas.fa-download
                 td
-                  a(href=`/api/actions/logs/${job.job}` target="_blank" rel="noindex")
+                  a(target="_blank" rel="noindex" data-apilink=`logs/${job.job}`)
                     i.fas.fa-file-alt.text-secondary
 
       if _exports

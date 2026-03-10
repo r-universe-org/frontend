@@ -330,6 +330,16 @@ function update_contributor_tooltips(){
   });
 }
 
+/* lazy populate links to obscure rate limited urls from scrapers */
+function update_checktable_apilinks(){
+  $('#checktable').on('shown.bs.collapse', function(){
+    console.log("Populating checktable links");
+    $('#checktable a[data-apilink]').each(function() {
+      this.href = `/api/actions/${this.dataset.apilink}`;
+    });
+  });
+}
+
 $(function(){
   update_copy_gist();
   update_cran_status();
@@ -342,5 +352,6 @@ $(function(){
   update_commit_chart();
   update_contributor_tooltips();
   lazy_update_package_revdeps();
+  update_checktable_apilinks();
   $(location.hash).collapse('show'); //e.g. #checktable
 });
