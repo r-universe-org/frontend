@@ -123,11 +123,6 @@ block content
                   | )
                   span.nocran )
 
-      if _failure
-        p.build-failure-alert.alert.alert-danger(role='alert')
-          | The latest version of this package failed to build. Look at the
-          a.build-failure-url.ms-1(href=`${_failure.buildurl}/job/${_failure.job ? _failure.job.job : '..'}` target='_blank') build logs
-          |  for more information.
       if _reviewdata
         p.package-details-peerreview.mb-2
           | Reviews:
@@ -257,6 +252,13 @@ block content
             a.my-1.text-secondary.text-decoration-none.fa-solid.fa-cog.fa-spin(href=_progress_url target="_blank")
             b.ps-1.text-dark A new build is currently
               a(href=_progress_url)  in progress.
+
+      if _failure
+        p.build-failure-alert.alert.alert-danger(role='alert')
+          | The latest version of this package failed to build. Look at the
+          a.build-failure-url.ms-1(href=`${_failure.buildurl}/job/${_failure.job ? _failure.job.job : '..'}` target='_blank') build logs
+          |  for more information.
+
       div#checktable.collapse(data-title='Check table' data-intro='After clicking the link above, this table shows per-platform build/check results' data-position="left")
         table.table.table-sm.table-bordered.border-primary-subtle.table-hover(style="max-width: 400px")
           thead
