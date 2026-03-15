@@ -89,13 +89,13 @@ a:hover {
   transform: scale(1.2) !important;
 }
 
-/* Test package: chromote */
-.package-readme-content pre span{
+/* Test package: chromote, PolySTest */
+.package-readme-content pre span, .package-readme-content code {
   word-break: break-all;
 }
 
 /* Test package: js, BOE */
-.package-readme-content pre, .package-citation-content pre{
+.package-readme-content pre, .package-citation-content pre {
   white-space: pre-wrap;
   width:0;
   min-width:100%;
