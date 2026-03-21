@@ -17,7 +17,7 @@ block content
             if universe == 'bioc' || universe == 'bioc-release'
               th(scope='col') BiocCheck
             th(scope='col') Src
-            th.text-nowrap(scope='col') R-4.6 &nbsp; | &nbsp; R-4.5 &nbsp; | &nbsp; R-4.4
+            th.text-nowrap(scope='col') &nbsp; &nbsp; R-4.6 &nbsp; | &nbsp; R-4.5 &nbsp;
             th.d-none.d-xl-table-cell.text-nowrap(scope='col') Built
         tbody#packages-table-body
           each row in pkgdata
@@ -68,8 +68,6 @@ block content
                   | !{row.check_icon_html('linux-release', '4.5')}
                   | !{row.check_icon_html('macos-release', '4.5')}
                   | !{row.check_icon_html('windows-release', '4.5')}
-                  | |
-                  | !{row.check_icon_html('windows-oldrel', '4.4')}
 
                 if row._progress_url
                   a.text-decoration-none.mx-3.fa-solid.fa-cog.fa-spin.d-none.d-xl-inline-block(href=row._progress_url target="_blank" data-bs-toggle="tooltip" data-bs-title="Newer build in progress..." )
