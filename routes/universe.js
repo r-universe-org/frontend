@@ -203,9 +203,12 @@ router.get('/builds', function(req, res, next) {
   return mongo_universe_packages(res.locals.universe, fields, 5000, true, false).then(function(pkgdata){
     pkgdata.sort((x,y) => y._registered - x._registered)
     pkgdata.forEach(function(row){
-      row.check_icon_html = function(target){
+      row.check_icon_html = function(target, r_version){
         //sort_by_config makes arm64 be preferred over x86_64
-        var job = (row._jobs || []).sort(sort_by_config).find(x => x.config.includes(target));
+        var alljobs = (row._jobs || []).sort(sort_by_config)
+        var job = r_version ?
+          alljobs.find(x => x.r.includes(r_version) && x.config.includes(target.split("-")[0])) :
+          alljobs.find(x => x.config.includes(target));
         if(job){
           var tooltip = `${job.config}: ${job.check}`;
           return `<a data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}/job/${job_link(job)}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
