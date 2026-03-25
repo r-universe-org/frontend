@@ -20,7 +20,7 @@
     "mongodb": "^7.1.1",
     "morgan": "^1.10.1",
     "pug": "^3.0.4",
-    "rdesc-parser": "^3.0.4",
+    "rdesc-parser": "^4.0.1",
     "tar-stream": "^3.1.8"
   },
   "devDependencies": {

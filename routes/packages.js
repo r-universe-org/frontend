@@ -1,5 +1,5 @@
 import express from 'express';
-import rdesc from 'rdesc-parser';
+import {parse_stream} from 'rdesc-parser';
 import zlib from 'node:zlib';
 import rconstants from 'r-constants';
 import {extract_files_from_stream, trigger_rebuild, trigger_sync, get_submodule_hash} from '../src/tools.js';
@@ -21,15 +21,8 @@ function sanitize_keys(data){
 }
 
 function read_description(stream){
-  return new Promise(function(resolve, reject) {
-    stream.on('error', reject);
-    rdesc.parse_stream(stream, function(err, data){
-      if(err) {
-        reject(err);
-      } else {
-        resolve(sanitize_keys(data));
-      }
-    });
+  return parse_stream(stream).then(function(data){
+    return sanitize_keys(data);
   });
 }
 
