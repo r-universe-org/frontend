@@ -219,7 +219,7 @@ router.get('/bin/emscripten', function(req, res, next) {
 });
 
 router.get(['/bin/macosx', '/bin/macosx/:platform'], function(req, res, next) {
-  res.redirect(`/bin/macosx/${req.params.platform}/contrib`);
+  res.redirect(`/bin/macosx/${req.params.platform || 'big-sur-x86_64'}/contrib`);
 });
 
 router.get('/bin/linux/:distro/:major', function(req, res, next) {

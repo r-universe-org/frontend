@@ -11,7 +11,7 @@
     "@octokit/auth-app": "^8.2.0",
     "archiver": "^7.0.1",
     "badgen": "^3.2.3",
-    "cheerio": "^1.1.2",
+    "cheerio": "^1.2.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "gunzip-maybe": "^1.4.2",
@@ -19,9 +19,9 @@
     "http-errors": "^2.0.1",
     "mongodb": "^6.21.0",
     "morgan": "^1.10.1",
-    "pug": "^3.0.3",
+    "pug": "^3.0.4",
     "rdesc-parser": "^3.0.4",
-    "tar-stream": "^3.1.7"
+    "tar-stream": "^3.1.8"
   },
   "devDependencies": {
     "eslint": "^9.39.2",
