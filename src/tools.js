@@ -356,7 +356,7 @@ function doc_to_ndjson(x){
 // we ignore the result on purpose
 export function cursor_stream(cursor, output, transform, gzip){
   return cursor.hasNext().then(function(has_next){
-    var input = cursor.stream({transform: transform});
+    var input = cursor.stream().map(transform);
     if(gzip){
       return pipeline(input, zlib.createGzip(), output);
     } else {
