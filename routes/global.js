@@ -174,15 +174,16 @@ router.get(["/index.xml", "/feed.xml"], function(req, res, next){
   res.status(404).send("Global feeds are no longer supported.");
 });
 
-
-/* previously under /shared */
 router.get('/condastatus/:package', function(req, res, next) {
   return fetch(`https://api.anaconda.org/package/conda-forge/r-${req.params.package}`).then(function(response){
     res.set('Cache-Control', 'max-age=3600, public');
     if (response.ok) {
       return response.json().then(function(conda){
+        /* Workaround sorting bug https://github.com/conda/infrastructure/issues/1122
+         * Alternatively we could parse the badge? https://anaconda.org/conda-forge/r-sf/badges */
+        var latest_version = Array.isArray(conda.versions) ? conda.versions.at(-1) : conda.latest_version;
         return res.send({
-          name: conda.full_name, url: conda.html_url, version: conda.latest_version, date: conda.modified_at
+          name: conda.full_name, url: conda.html_url, version: latest_version, date: conda.modified_at
         });
       });
     } else { //always send HTTP 200 to ensure caching
