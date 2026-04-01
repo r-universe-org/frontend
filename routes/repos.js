@@ -93,6 +93,7 @@ router.get('/src/contrib/:pkg.tar.gz', function(req, res, next) {
 router.get('/bin/windows{/:distro}/contrib/:major/:pkg.zip', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro || "gcc-x86_64");
+  if(req.params.major == '4.7') req.params.major = '4.6' //TODO: remove after 4.6 release
   var query = {_type: 'win', _major: req.params.major, Package: pkg,
     Version: version, _arch: arch};
   return send_binary(query, req, res);
@@ -164,6 +165,7 @@ router.get('/src/contrib{/:format}', function(req, res, next) {
 
 router.get('/bin/windows{/:distro}/contrib/:major{/:format}', function(req, res, next) {
   var [distro, arch] = parse_distro(req.params.distro || "gcc-x86_64");
+  if(req.params.major == '4.7') req.params.major = '4.6' //TODO: remove after 4.6 release
   var query = {
     _type: 'win',
     _major : req.params.major,
