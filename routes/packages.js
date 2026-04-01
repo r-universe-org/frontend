@@ -422,6 +422,7 @@ router.patch('/api/packages/:package/:version/:type', function(req, res, next) {
   var version = req.params.version;
   var type = req.params.type || 'src'
   var query = {_user : user, _type : type, Package : pkgname, Version: version};
+  req.resume(); //drain req body
   return packages.find(query).next().then(function(doc){
     if(!doc) {
       throw `Failed to find package ${pkgname} ${version} in ${user}`;
@@ -470,6 +471,7 @@ router.patch('/api/packages/:package/:version/:type', function(req, res, next) {
 /* This API is called by the dashboard to request a sync */
 router.patch("/api/sync", function(req, res, next) {
   var user = res.locals.universe;
+  req.resume(); //drain req body
   return trigger_sync(user).then(function(){
     res.set('Cache-Control', 'max-age=60, public').send("Update OK");
   });

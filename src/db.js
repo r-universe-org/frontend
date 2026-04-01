@@ -1085,6 +1085,7 @@ export function crandb_store_file(stream, key, filename, metadata){
   return bucket.find({_id : key}, {limit:1}).next().then(function(x){
     if(x){
       console.log(`Already have file ${key} (${filename}). Keeping old one.`);
+      stream.resume(); //drain the PUT
       return packages.find({_fileid: key}, {limit:1}).next().then(function(doc){
         var oldmd5 = doc ? doc.MD5sum : "unknown";
         return {_id: key, length: x.length, md5: oldmd5, sha256: key};
