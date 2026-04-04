@@ -3,7 +3,8 @@ function update_api_callbacks(){
   function update_packages_url(){
     var package = $('#api-packages-package').val();
     var pkguniv = $('#api-packages-package option:selected').attr("data-universe") || universe;
-    var url = `https://${pkguniv}.r-universe.dev/api/packages/${package}`;
+    var postfix = (package && package[0] !== '?') ? `/${package}` : package;
+    var url = `https://${pkguniv}.r-universe.dev/api/packages${postfix}`;
     $("#api-packages-url input").val(url);
     $("#api-packages-url a").attr('href', url);
   }
