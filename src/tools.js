@@ -354,7 +354,7 @@ function doc_to_ndjson(x){
 
 // We only use hasNext() to promisify and catch mongo errors before streaming,
 // we ignore the result on purpose
-export function cursor_stream(cursor, output, transform, gzip){
+export function cursor_stream(cursor, output, transform = (x => x), gzip = false){
   return cursor.hasNext().then(function(has_next){
     var input = cursor.stream().map(transform);
     if(gzip){
