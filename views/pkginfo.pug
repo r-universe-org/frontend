@@ -213,7 +213,7 @@ block content
             i.fa-solid.fa-code
             |  #{format_count(_searchresults)} scripts
         if _downloads && _downloads.count > 0
-          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=_downloads.source data-title="Download statistics" data-intro="Montly downloads on CRAN and BioConductor.")
+          a.text-muted.badge.text-bg-light.p-1.me-1.border(target='_blank' href=_downloads.source data-title="Download statistics" data-intro="Monthly downloads on CRAN and BioConductor.")
             i.fas.fa-download.text-success-emphasis
             |  #{format_count(_downloads.count)} downloads
         if _mentions
