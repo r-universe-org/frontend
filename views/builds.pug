@@ -14,7 +14,7 @@ block content
             th(scope='col') Maintainer
             if universe == 'ropensci'
               th(scope='col') Docs
-            if universe == 'bioc' || universe == 'bioc-release' || universe == 'tempbioc'
+            if show_bioc
               th(scope='col') BiocCheck
             th(scope='col') Src
             th.text-nowrap(scope='col') &nbsp; &nbsp; R-4.6 &nbsp; | &nbsp; R-4.5 &nbsp;
@@ -52,7 +52,7 @@ block content
                 else
                   td
                     span.ms-1 –
-              if universe == 'bioc' || universe == 'bioc-release' || universe == 'tempbioc'
+              if show_bioc
                 if row._registered
                   td !{row.check_icon_html('bioc-checks')}
                 else

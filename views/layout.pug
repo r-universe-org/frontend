@@ -20,6 +20,7 @@ html
     style
       include layout.css
   body
+    - var show_bioc = universe == 'bioc' || universe == 'bioc-release' || universe == 'tempbioc' || universe == 'biocstaging'
     header.mb-3.border-bottom.bg-body-tertiary
       .container(style='max-width: 1440px')
         .dropdown.float-end.py-2.my-2
