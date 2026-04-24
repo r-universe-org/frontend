@@ -198,7 +198,7 @@ function unpack_deps(x){
   return x;
 }
 
-export function doc_to_dcf(doc, use_sha_file = true){
+export function doc_as_strings(doc, use_sha_file = true){
   //this clones 'doc' and then deletes some fields
   const { _id, _fileid, _type, _sysdeps, Distro, MD5sum, ...x } = unpack_deps(doc);
   //if(_type == 'linux'){
@@ -223,16 +223,21 @@ export function doc_to_dcf(doc, use_sha_file = true){
       x.SystemRequirements = `${x.SystemRequirements} (${Array.from(new Set(libnames)).join(' ')})`;
     }
   }
-  let keys = Object.keys(x);
-  return keys.map(function(key){
-    let val = x[key];
-    if(key == 'Built'){
-      val = "R " + Object.values(val).join("; ");
-    } else if(typeof val === 'object') {
-      val = JSON.stringify(val)
+  if(typeof x.Built === 'object'){
+    x.Built = "R " + Object.values(x.Built).join("; ");
+  }
+  for (const [key, value] of Object.entries(x)) {
+    if(typeof value === 'object') {
+      value = JSON.stringify(value)
     }
-    return key + ": " + val.toString().replace(/\s/gi, ' ');
-  }).join("\n") + "\n\n";
+    x[key] = value.toString().replace(/\s/gi, ' ');
+  }
+  return x;
+}
+
+export function doc_to_dcf(doc, use_sha_file = true){
+  let x = doc_as_strings(doc, use_sha_file = true);
+  return Object.entries(x).map(([key, value]) => `${key}: ${value}`).join("\n") + "\n\n";
 }
 
 export function doc_to_paths(doc){
