@@ -1,6 +1,6 @@
 import {Buffer} from "node:buffer";
 import {pipeline} from 'node:stream/promises';
-import zlib from 'node:zlib';
+import {createGzip, deflateSync, inflateSync } from "node:zlib";
 import tar from 'tar-stream';
 import fs from 'node:fs';
 import gunzip from 'gunzip-maybe';
@@ -8,6 +8,7 @@ import {load as cheerio_load} from 'cheerio';
 import hljs from 'highlight.js';
 import createError from 'http-errors';
 import { createAppAuth } from '@octokit/auth-app';
+import { pack, unpack } from "msgpackr";
 
 // GitHub App key: https://github.com/organizations/r-universe/settings/apps/frontend-log-viewer
 const authapp = createAppAuth({
@@ -358,7 +359,7 @@ export function cursor_stream(cursor, output, transform = (x => x), gzip = false
   return cursor.hasNext().then(function(has_next){
     var input = cursor.stream().map(transform);
     if(gzip){
-      return pipeline(input, zlib.createGzip(), output);
+      return pipeline(input, createGzip(), output);
     } else {
       return pipeline(input, output);
     }
@@ -436,4 +437,17 @@ export function build_query(query, str){
   if(str){
     query['$text'] = { $search: str, $caseSensitive: false};
   }
+}
+
+/* This is the algorithm used by the webR demo IDE to save state in the URL fragment */
+function webr_demo_encode({ name, path, data }) {
+  const dataBuf = typeof data === "string" ? Buffer.from(data, "utf8") : data;
+  const compressed = deflateSync(pack([{ name, path, data: dataBuf }]));
+  return encodeURIComponent(compressed.toString("base64"));
+}
+
+function webr_demo_decode(urlEncoded) {
+  const msgpack = inflateSync(Buffer.from(decodeURIComponent(urlEncoded), "base64"));
+  const [{ name, path, data }] = unpack(msgpack);
+  return { name, path, data: Buffer.isBuffer(data) ? data.toString("utf8") : data };
 }
