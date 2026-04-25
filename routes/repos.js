@@ -21,6 +21,12 @@ function parse_distro(x){
   }
 }
 
+// Around the time of a new R release we temporarily serve binaries from
+// R-release to R-devel while populating the new ones (cran does the same).
+function parse_major(x){
+  return x === '4.7' ? '4.6' : x;
+}
+
 function packages_index(query, req, res, mixed = false, override_arch = false){
   query._user = res.locals.universe;
   if(req.query.filter){
@@ -93,8 +99,8 @@ router.get('/src/contrib/:pkg.tar.gz', function(req, res, next) {
 router.get('/bin/windows{/:distro}/contrib/:major/:pkg.zip', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro || "gcc-x86_64");
-  if(req.params.major == '4.7') req.params.major = '4.6' //TODO: remove after 4.6 release
-  var query = {_type: 'win', _major: req.params.major, Package: pkg,
+  var major = parse_major(req.params.major);
+  var query = {_type: 'win', _major: major, Package: pkg,
     Version: version, _arch: arch};
   return send_binary(query, req, res);
 });
@@ -102,7 +108,8 @@ router.get('/bin/windows{/:distro}/contrib/:major/:pkg.zip', function(req, res, 
 router.get('/bin/macosx/:distro/contrib/:major/:pkg.tgz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro);
-  var query = {_type: 'mac', _major: req.params.major, Package: pkg,
+  var major = parse_major(req.params.major);
+  var query = {_type: 'mac', _major: major, Package: pkg,
     Version: version, _arch: arch};
   return send_binary(query, req, res);
 });
@@ -110,9 +117,10 @@ router.get('/bin/macosx/:distro/contrib/:major/:pkg.tgz', function(req, res, nex
 router.get('/bin/linux/:distro/contrib/:major/:pkg.tar.gz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro);
+  var major = parse_major(req.params.major);
   var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
   var query = {Package: pkg, Version: version,
-    _type: 'linux', _arch: arch, _major : req.params.major, ...target};
+    _type: 'linux', _arch: arch, _major : major, ...target};
   return send_binary(query, req, res);
 });
 
@@ -120,10 +128,11 @@ router.get('/bin/linux/:distro/contrib/:major/:pkg.tar.gz', function(req, res, n
 router.get('/bin/linux/:distro/:major/src/contrib/:pkg.tar.gz', function(req, res, next) {
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro);
+  var major = parse_major(req.params.major);
   var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
   var query = {Package: pkg, Version: version, '$or': [
     {_type: 'src'},
-    {_type: 'linux', _arch: arch, _major : req.params.major, ...target}
+    {_type: 'linux', _arch: arch, _major : major, ...target}
   ]};
   return send_binary(query, req, res);
 });
@@ -165,10 +174,10 @@ router.get('/src/contrib{/:format}', function(req, res, next) {
 
 router.get('/bin/windows{/:distro}/contrib/:major{/:format}', function(req, res, next) {
   var [distro, arch] = parse_distro(req.params.distro || "gcc-x86_64");
-  if(req.params.major == '4.7') req.params.major = '4.6' //TODO: remove after 4.6 release
+  var major = parse_major(req.params.major);
   var query = {
     _type: 'win',
-    _major : req.params.major,
+    _major : major,
     _arch: arch
   };
   return packages_index(query, req, res);
@@ -176,9 +185,10 @@ router.get('/bin/windows{/:distro}/contrib/:major{/:format}', function(req, res,
 
 router.get('/bin/macosx/:distro/contrib/:major{/:format}', function(req, res, next) {
   var [distro, arch] = parse_distro(req.params.distro);
+  var major = parse_major(req.params.major);
   var query = {
     _type: 'mac',
-    _major: req.params.major,
+    _major: major,
     _arch: arch
   };
   return packages_index(query, req, res);
@@ -188,17 +198,19 @@ router.get('/bin/macosx/:distro/contrib/:major{/:format}', function(req, res, ne
 router.get('/bin/linux/:distro/contrib/:major{/:format}', function(req, res, next) {
   var [distro, arch] = parse_distro(req.params.distro);
   var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
-  var query = {_type: 'linux', _arch: arch, _major: req.params.major, ...target};
+  var major = parse_major(req.params.major);
+  var query = {_type: 'linux', _arch: arch, _major: major, ...target};
   return packages_index(query, req, res, false, arch);
 });
 
 /* Linux binaries with fallback on source packages */
 router.get('/bin/linux/:distro/:major/src/contrib{/:format}', function(req, res, next) {
   var [distro, arch] = parse_distro(req.params.distro);
+  var major = parse_major(req.params.major);
   var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
   var query = {'$or': [
     {_type: 'src'},
-    {_type: 'linux', _arch: arch, _major: req.params.major, ...target},
+    {_type: 'linux', _arch: arch, _major: major, ...target},
   ]};
   return packages_index(query, req, res, true, arch);
 });
