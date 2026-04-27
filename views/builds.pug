@@ -61,13 +61,12 @@ block content
               td !{row.check_icon_html('source')}
               td.text-nowrap
                 span(class=(row._failure ? 'opacity-25' : ''))
-                  | !{row.check_icon_html('linux-devel', '4.6')}
-                  | !{row.check_icon_html('macos-devel', '4.6')}
-                  | !{row.check_icon_html('windows-devel', '4.6')}
+                  | !{row.check_icon_html('linux-release', '4.6')}
+                  | !{row.check_icon_html('macos-release', '4.6')}
+                  | !{row.check_icon_html('windows-release', '4.6')}
                   | |
-                  | !{row.check_icon_html('linux-release', '4.5')}
-                  | !{row.check_icon_html('macos-release', '4.5')}
-                  | !{row.check_icon_html('windows-release', '4.5')}
+                  | !{row.check_icon_html('macos-oldrel', '4.5')}
+                  | !{row.check_icon_html('windows-oldrel', '4.5')}
 
                 if row._progress_url
                   a.text-decoration-none.mx-3.fa-solid.fa-cog.fa-spin.d-none.d-xl-inline-block(href=row._progress_url target="_blank" data-bs-toggle="tooltip" data-bs-title="Newer build in progress..." )

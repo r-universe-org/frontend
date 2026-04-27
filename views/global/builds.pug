@@ -11,7 +11,7 @@ block content
           th Version
           th Maintainer
           th Vignettes
-          th.text-nowrap &nbsp; &nbsp; R-4.6 &nbsp; | &nbsp; R-4.5 &nbsp;
+          th.text-nowrap R-4.7 | &nbsp; R-4.6 &nbsp; | &nbsp; R-4.5 &nbsp;
       tbody
         each x in packages
           tr
@@ -38,11 +38,13 @@ block content
                   i.fa-fw.fa-solid.fa-box-archive
             td
               a(href=x.src.url target='_blank').text-secondary.noline
+                | !{x.check_icon_html('4.7', 'linux')}
+                | !{x.check_icon_html('4.7', 'win')}
+                | |
                 | !{x.check_icon_html('4.6', 'linux')}
                 | !{x.check_icon_html('4.6', 'win')}
                 | !{x.check_icon_html('4.6', 'mac')}
                 | |
-                | !{x.check_icon_html('4.6', 'linux')}
                 | !{x.check_icon_html('4.5', 'win')}
                 | !{x.check_icon_html('4.5', 'mac')}
 
