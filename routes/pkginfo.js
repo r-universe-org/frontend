@@ -3,6 +3,7 @@ import createError from 'http-errors';
 import url from 'node:url';
 import {get_package_info, get_all_universes} from '../src/db.js';
 import {check_to_color, job_link} from '../src/tools.js';
+import { generateSvg, generatePng } from 'r-universe-cards';
 
 const router = express.Router();
 
@@ -271,6 +272,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata._universe_type = pkgdata._userbio.type;
     pkgdata._universe_name = pkgdata._userbio.name;
     pkgdata._universe_bio = pkgdata._userbio.description;
+    pkgdata._universe_vhost = res.locals.vhost || `${pkgdata.universe}.r-universe.dev`;
     pkgdata._reviewdata = pkgdata._metadata && pkgdata._metadata.review;
     pkgdata._checks = prepare_checks(pkgdata);
     pkgdata._checksummary = summarize_checks(pkgdata._checks);
@@ -381,6 +383,18 @@ router.get('/:package/articles/:article', function(req, res, next){
     } else {
       throw createError(404, `Article not found ${article}`);
     }
+  });
+});
+
+router.get('/:package/card.png', function(req, res, next) {
+  return get_package_info(req.params.package, req.universe).then(function(pkgdata){
+    return generatePng(pkgdata).then(buf => res.type('image/png').send(buf));
+  });
+});
+
+router.get('/:package/card.svg', function(req, res, next) {
+  return get_package_info(req.params.package, req.universe).then(function(pkgdata){
+    return generateSvg(pkgdata).then(buf => res.type('image/svg+xml').send(buf));
   });
 });
 

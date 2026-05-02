@@ -70,10 +70,15 @@ block content
             br
         if _assets.includes("manual.pdf")
           a.fas.fa-file-pdf.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
-          a.package-details-manual.pe-1(target='_blank' href=`/${Package}/${Package}.pdf`) #{Package}.pdf
+          a.package-details-manual.pe-1(target='_blank' href=`/${Package}/${Package}.pdf`) manual.pdf
         |  |
-        a.px-1.package-details-htmlmanual(target='_blank' href=`/${Package}/doc/manual.html`) #{Package}.html
+        a.px-1.package-details-htmlmanual(target='_blank' href=`/${Package}/doc/manual.html`) manual.html
         | &#x2728;
+        br
+        a.fas.fa-image.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
+        a(target='_blank' href=`/${Package}/card.svg`) card.svg
+        |  |
+        a.px-1(target='_blank' href=`/${Package}/card.png`) card.png
         br
         a.fa.fa-plug.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
         a.package-details-json(href=`/api/packages/${Package}`) #{Package}/json
@@ -112,7 +117,7 @@ block content
                     |  c(
                     span.pl-s
                       span.pl-pds &apos;
-                      span.universe-vhost-url https://#{vhost || `${universe}.r-universe.dev`}
+                      span.universe-vhost-url https://#{_universe_vhost}
                       span.pl-pds &apos;
                     | ,
                   span.pl-s
@@ -415,6 +420,7 @@ block after_head
   link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css')
   link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/prism.css')
   link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/manual.css')
+  meta(property="og:image" content=`https://${_universe_vhost}/${Package}/card.png`)
 
 block before_scripts
   script
