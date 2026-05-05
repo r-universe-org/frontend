@@ -180,8 +180,10 @@ export function get_registry_info(user){
   return fetch_github_json(url);
 }
 
+//sanitize for weird versions bugs like: R (>= r81283)
 function dep_to_string(x){
-  if(x.package && x.version){
+  const validate = /^[0-9-.]+$/;
+  if(x.package && x.version && validate.test(x.version)) {
     return `${x.package} (${x.version})`;
   } else {
     return x.package || x;
