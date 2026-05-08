@@ -472,8 +472,8 @@ router.patch('/api/packages/:package/:version/:type', function(req, res, next) {
 router.patch("/api/sync", function(req, res, next) {
   var user = res.locals.universe;
   req.resume(); //drain req body
-  return trigger_sync(user).then(function(){
-    res.set('Cache-Control', 'max-age=60, public').send("Update OK");
+  return trigger_sync(user).then(function(out){
+    res.set('Cache-Control', 'max-age=60, public').send(out);
   });
 });
 

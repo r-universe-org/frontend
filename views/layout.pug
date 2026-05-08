@@ -114,8 +114,10 @@ html
                   span.fa.fa-satellite-dish.fa-fw.me-3
                   span#github-user-universe
                   span#registry-status-spinner.spinner-border.spinner-border-sm(role='status')
-                  a#registry-status-link.ms-1(target='_blank')
-                    i#registry-status-icon.fa
+                  a#registry-status-link.ms-1.d-none(target='_blank')
+                    i.fa
+                  a#registry-status-refresh.text-dark.d-none(href="#" target='_blank')
+                    i.fa.fa-rotate.ms-1
                 li#github-user-company.d-none.list-group-item.border-light-subtle.text-truncate
                   span.fa.fa-building.fa-fw.me-3
                   span.content

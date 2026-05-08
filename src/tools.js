@@ -120,7 +120,7 @@ export function cheerio_page(html, page, pkgname, universe){
 
 function fetch_github_app(url, opt = {}){
   return gh_app_token().then(function(token){
-    opt.headers = {'Authorization': `token ${token}`};
+    opt.headers = {'Authorization': `token ${token}`, 'X-GitHub-Api-Version': '2026-03-10'};
     return fetch(url, opt).then(function(response){
       if (!response.ok) {
         return response.json().catch(e => response.text()).then(function(data){

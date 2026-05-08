@@ -162,7 +162,7 @@ function load_maintainer_list(){
 }
 
 function load_registry_status(){
-  const tooltip_success = "Universe registry is up to date";
+  const tooltip_success = "Last sync was OK";
   const tooltip_failure = "There was a problem updating the registry. Click to inspect the log files.";
   const apipath = '/repos/r-universe/' + universe + '/actions/workflows/sync.yml/runs?per_page=1&status=completed';
   $("#registry-status-link").attr("href", 'https://github.com/r-universe/' + universe + '/actions/workflows/sync.yml');
@@ -170,11 +170,30 @@ function load_registry_status(){
     if(data && data.workflow_runs && data.workflow_runs.length) {
       const last_job = data.workflow_runs[0];
       const success = last_job.conclusion == 'success';
-      $("#registry-status-icon")
-        .addClass(success ? 'fa-check' : 'fa-exclamation-triangle')
-        .addClass(success ? 'text-success' : 'text-danger')
-        .tooltip({title: success ? tooltip_success : tooltip_failure});
-      $("#github-user-universe").append(a('https://github.com/r-universe/' + universe, "r-universe/" + universe));
+      $("#registry-status-link").removeClass('d-none').tooltip({title: success ? tooltip_success : tooltip_failure});
+      $("#registry-status-link").find("i") .addClass(success ? 'fa-check' : 'fa-exclamation-triangle').addClass(success ? 'text-success' : 'text-danger')
+      $("#registry-status-refresh").removeClass('d-none')
+        .tooltip({title: 'Check for package updates'})
+        .click(function(e){
+          const link = $(this);
+          e.preventDefault();
+          var win = window.open("", '_blank');
+          win.document.write(`Triggering new sync run for r-universe/${universe}. Please wait...`);
+          fetch('/api/sync', {
+            method: "PATCH"
+          }).then(function(sync){
+            if(sync.ok){
+              return sync.json();
+            } else {
+              return sync.text().then((err) => {
+                throw new Error(`HTTP ${sync.status}: ${err}`);
+              });
+            }
+          }).then(function(output){
+            win.location.href = output.html_url;
+          }).catch(err => win.document.write("ERROR:" + err));
+        });
+      $("#github-user-universe").append(a(`https://github.com/r-universe/${universe}`, `r-universe/${universe}`));
       if(!success){
         $("#registry-status-link").attr("href", last_job.html_url);
       }
@@ -184,7 +203,6 @@ function load_registry_status(){
   }).catch(function(err){
     $("#github-user-universe").append("No personal registry");
     $("#github-user-universe-row").addClass("text-secondary");
-    //$("#registry-status-icon").addClass('fa-times').addClass('text-danger');
     console.log(err);
   }).finally(function(e){
     $("#registry-status-spinner").hide();
