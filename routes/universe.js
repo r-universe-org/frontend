@@ -1,8 +1,9 @@
 import express from 'express';
 import createError from 'http-errors';
 import {mongo_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
-        get_universe_contributors, get_universe_contributions, get_all_universes} from '../src/db.js';
+        get_universe_contributors, get_universe_contributions, get_all_universes, mongo_summary} from '../src/db.js';
 import {check_to_color, job_link} from '../src/tools.js';
+import {generateUniverseSvg, svgToPng} from 'r-universe-cards';
 const router = express.Router();
 
 function os_icon(job){
@@ -365,6 +366,18 @@ router.get('/robots.txt', function(req, res, next) {
     str.push("");
     str.push(`Sitemap: https://${res.locals.universe}.r-universe.dev/sitemap_index.xml`);
     res.type('text/plain').send(str.join('\n'));
+  });
+});
+
+router.get('/card.svg', function(req, res, next) {
+  return mongo_summary(res.locals.universe).then(function(data){
+    return generateUniverseSvg(data).then(buf => res.type('image/svg+xml').send(buf));
+  });
+});
+
+router.get('/card.png', function(req, res, next) {
+  return mongo_summary(res.locals.universe).then(function(data){
+    return generateUniverseSvg(data).then((svg) => svgToPng(svg)).then(buf => res.type('image/png').send(buf));
   });
 });
 

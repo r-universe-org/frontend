@@ -16,7 +16,7 @@ export default function(req, res, next){
   const pkg = req.params.package || "";
   const reserved = ["", "api","apis","articles","badges","bin","builds","citation","contributors","datasets","docs",
     "favicon.ico","feed.xml","index.xml","manual","packages","readme","robots.txt", "shared", "sitemap_index.xml",
-    "sitemap.xml","src","stats"] ;
+    "sitemap.xml","src","stats", "card.png", "card.svg"];
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};
@@ -41,7 +41,7 @@ export default function(req, res, next){
     //res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 22; // bump to invalidate all caches
+      const revision = 23; // bump to invalidate all caches
       const cachetime = doc._published.getTime() + revision * 1000;
       const etag = `W/"${cachetime}"`;
       const date = new Date(cachetime).toUTCString();
