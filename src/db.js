@@ -155,6 +155,21 @@ function summary_sum(k, q) {
   ]);
 }
 
+function summary_bio(universe) {
+  return packages.findOne({_user: universe, _type: 'src'}, {sort: {'_id': -1}}).then(function(x){
+    if(x){
+      return x._userbio;
+    }
+    return packages.findOne({'_maintainer.login': universe, _type: 'src'}, {sort: {'_id': -1}}).then(function(x){
+      if(x){
+        x._maintainer.type = "user";
+        return x._maintainer;
+      }
+      throw createError(404, `No information found for ${universe}`);
+    });
+  });
+}
+
 function build_projection(fields){
   if(!fields || !fields.length) return {_id:0};
   var projection = {Package:1, _type:1, _user:1, _indexed: 1, _id:0};
@@ -519,11 +534,17 @@ export function mongo_summary(universe){
   var p5 = summary_unique('_user', {'_userbio.type': 'organization', ...query});
   var p6 = summary_unique('_contributors.user', query);
   var p7 = summary_sum('_filesize', query_all);
+  var bio = summary_bio(universe);
   var promises = [p1, p2, p3, p4, p5, p6, p7].map(function(p){
     return p.next().then(res => res ? res.total : 0);
   })
-  return Promise.all(promises).then(function([packages, maintainers, articles, datasets, orgs, contributors, filesize]){
+  return Promise.all([...promises, bio]).then(function([packages, maintainers, articles, datasets, orgs, contributors, filesize, biodata]){
     return {
+      universe: universe,
+      type: biodata.type,
+      name: biodata.name,
+      uuid: biodata.uuid,
+      description: biodata.description,
       packages: packages,
       maintainers: maintainers,
       articles: articles,
