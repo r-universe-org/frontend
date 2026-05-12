@@ -75,7 +75,7 @@ Currently served URLs:
 /builds
 /packages
 /contributors
-/apis
+/api
 /articles
 /articles/:pkg/:filename
 /:pkg

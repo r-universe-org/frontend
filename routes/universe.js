@@ -271,7 +271,7 @@ router.get("/badges", function(req, res, next){
   });
 });
 
-router.get("/apis", function(req, res, next){
+router.get("/api", function(req, res, next){
   var fields = ['_datasets', '_registered'];
   return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('apis', {
@@ -279,6 +279,10 @@ router.get("/apis", function(req, res, next){
     });
   });
 });
+
+//legacy redirect
+router.get("/apis", (req, res) => res.redirect('/api'));
+
 
 router.get("/datasets", function(req, res, next){
   var fields = ['_datasets', '_registered'];

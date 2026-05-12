@@ -5,10 +5,6 @@ import {cursor_stream, build_query, send_results, github_buildlog, github_artifa
 
 const router = express.Router();
 
-router.get('/api', function(req, res, next) {
-  res.redirect(301, `/api/ls`);
-});
-
 router.get('/api/ls', function(req, res, next) {
   ls_packages(res.locals.universe).then(x => res.send(x));
 });
