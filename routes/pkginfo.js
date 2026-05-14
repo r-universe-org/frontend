@@ -273,7 +273,9 @@ router.get('/:package', function(req, res, next) {
     pkgdata._universe_name = pkgdata._userbio.name;
     pkgdata._universe_bio = pkgdata._userbio.description;
     pkgdata._universe_vhost = res.locals.vhost || `${pkgdata.universe}.r-universe.dev`;
-    pkgdata._social_image = `https://${pkgdata._universe_vhost}/${pkgdata.Package}/card.png`
+    pkgdata._social_image = `https://${pkgdata._universe_vhost}/${pkgdata.Package}/card.png`;
+    pkgdata._social_description = pkgdata.Description.replaceAll("\n", " ");
+    pkgdata._social_type = "object";
     pkgdata._reviewdata = pkgdata._metadata && pkgdata._metadata.review;
     pkgdata._checks = prepare_checks(pkgdata);
     pkgdata._checksummary = summarize_checks(pkgdata._checks);

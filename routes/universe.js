@@ -1,7 +1,7 @@
 import express from 'express';
 import createError from 'http-errors';
 import {mongo_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
-        get_universe_contributors, get_universe_contributions, get_all_universes, mongo_summary} from '../src/db.js';
+        get_universe_contributors, get_universe_contributions, get_all_universes, mongo_summary, summary_bio} from '../src/db.js';
 import {check_to_color, job_link} from '../src/tools.js';
 import {generateUniverseSvg, svgToPng} from 'r-universe-cards';
 const router = express.Router();
@@ -179,6 +179,13 @@ function send_s3_list(req, res){
   });
 }
 
+function get_user_bio(req, res, next){
+  return summary_bio(res.locals.universe).then(function(biodata){
+    res.locals.title = `R-universe - ${res.locals.universe} (${biodata.name})`;
+    res.locals._social_description = biodata.description;
+  }).finally(() => next());
+}
+
 router.get('/', function(req, res, next) {
   //res.render('index');
   if(req.query['x-id'] == 'ListBuckets'){
@@ -197,7 +204,7 @@ router.get('/', function(req, res, next) {
   }
 });
 
-router.get('/builds', function(req, res, next) {
+router.get('/builds', get_user_bio, function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
     '_maintainer', '_upstream', '_registered', '_created', '_jobs',
     '_status', '_buildurl', '_failure', '_progress_url'];
@@ -230,7 +237,7 @@ router.get('/builds', function(req, res, next) {
   });
 });
 
-router.get("/packages", function(req, res, next){
+router.get("/packages", get_user_bio, function(req, res, next){
   var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time', '_downloads',
     '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_registered', '_searchresults'];
   return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
@@ -242,7 +249,7 @@ router.get("/packages", function(req, res, next){
   });
 });
 
-router.get("/badges", function(req, res, next){
+router.get("/badges", get_user_bio, function(req, res, next){
   var universe = res.locals.universe;
   var fields = ['Package', '_user', '_registered'];
   return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
@@ -271,7 +278,7 @@ router.get("/badges", function(req, res, next){
   });
 });
 
-router.get("/api", function(req, res, next){
+router.get("/api", get_user_bio, function(req, res, next){
   var fields = ['_datasets', '_registered'];
   return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('apis', {
@@ -284,7 +291,7 @@ router.get("/api", function(req, res, next){
 router.get("/apis", (req, res) => res.redirect('/api'));
 
 
-router.get("/datasets", function(req, res, next){
+router.get("/datasets", get_user_bio, function(req, res, next){
   var fields = ['_datasets', '_registered'];
   return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('datasets', {
@@ -293,13 +300,13 @@ router.get("/datasets", function(req, res, next){
   })
 });
 
-router.get("/contributors", function(req, res, next){
+router.get("/contributors", get_user_bio, function(req, res, next){
   return get_contrib_data(res.locals.universe).then(function(contributors){
     res.render('contributors', {contributors: contributors});
   });
 });
 
-router.get("/articles", function(req, res, next){
+router.get("/articles", get_user_bio, function(req, res, next){
   return get_universe_vignettes(res.locals.universe).then(function(articles){
     articles = articles.map(function(x){
       x.host = (x.user !== res.locals.universe) ? `https://${x.user}.r-universe.dev` : "";
@@ -325,7 +332,11 @@ router.get("/articles/:package/:vignette", function(req, res, next){
         pkgdata.format_yymmdd = format_yymmdd;
         pkgdata.article = article;
         pkgdata.universe = pkgdata._user;
-        pkgdata.title = article.title;
+        pkgdata.title = `${article.title} - ${pkgdata.Package}`;
+        pkgdata._social_image = `https://${pkgdata._user}.r-universe.dev/${pkgdata.Package}/card.png`;
+        if(Array.isArray(article.headings)){
+          pkgdata._social_description = article.headings.join(' | ');
+        }
         res.render('article-iframe', pkgdata);
       } else {
         res.redirect(`https://${pkgdata._user}.r-universe.dev/${pkgdata.Package}/doc/${article.filename}`)

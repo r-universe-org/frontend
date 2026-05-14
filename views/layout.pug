@@ -3,6 +3,7 @@ html
   head
     if title
       title #{title}
+      meta(property="og:title" content=title)
     else
       title.default-fallback-title R packages by #{universe}
     meta(charset='utf-8')
@@ -12,11 +13,17 @@ html
       else
         meta(name="robots" content="noindex")
     meta(name='viewport' content='width=device-width, initial-scale=1')
-
+    meta(property="og:site_name" content="R-universe")
+    if _social_description
+      meta(property="og:description" content=_social_description)
     if _social_image
       meta(property="og:image" content=_social_image)
     else
       meta(property="og:image" content=`https://${universe}.r-universe.dev/card.png`)
+    if _social_type
+      meta(property="og:type" content=_social_type)
+    else
+      meta(property="og:type" content="profile")
     meta(property="og:image:type" content="image/png")
     meta(property="og:image:width" content="1200")
     meta(property="og:image:height" content="630")

@@ -155,7 +155,7 @@ function summary_sum(k, q) {
   ]);
 }
 
-function summary_bio(universe) {
+export function summary_bio(universe) {
   return packages.findOne({_user: universe, _type: 'src'}, {sort: {'_id': -1}}).then(function(x){
     if(x){
       return x._userbio;
@@ -165,7 +165,7 @@ function summary_bio(universe) {
         x._maintainer.type = "user";
         return x._maintainer;
       }
-      throw createError(404, `No information found for ${universe}`);
+      return {};
     });
   });
 }
