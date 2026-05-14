@@ -534,7 +534,7 @@ export function mongo_summary(universe){
   var p5 = summary_unique('_user', {'_userbio.type': 'organization', ...query});
   var p6 = summary_unique('_contributors.user', query);
   var p7 = summary_sum('_filesize', query_all);
-  var bio = summary_bio(universe);
+  var bio = universe ? summary_bio(universe) : Promise.resolve({});
   var promises = [p1, p2, p3, p4, p5, p6, p7].map(function(p){
     return p.next().then(res => res ? res.total : 0);
   })
