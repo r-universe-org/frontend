@@ -351,6 +351,10 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
           description['_portable'] = description.Built.Platform ? false : true;
           //TODO: set portable rhel-8 builds to 'all'
         }
+        //For now only keep 1 wasm version
+        if(type == 'wasm'){
+          delete query['_major'];
+        }
       }
       return packages.find(query).project({_id:1, _fileid:1, Version: 1}).toArray().then(function(docs){
         if(docs.length > 1)
