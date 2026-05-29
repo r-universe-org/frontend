@@ -24,7 +24,8 @@ function parse_distro(x){
 // Around the time of a new R release we temporarily serve binaries from
 // R-release to R-devel while populating the new ones (cran does the same).
 function parse_major(x){
-  return x === '4.7' ? '4.6' : x;
+  //return x === '4.7' ? '4.6' : x;
+  return x;
 }
 
 function packages_index(query, req, res, mixed = false, override_arch = false){

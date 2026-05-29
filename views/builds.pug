@@ -17,7 +17,7 @@ block content
             if show_bioc
               th(scope='col') BiocCheck
             th(scope='col') Src
-            th.text-nowrap(scope='col') &nbsp; &nbsp; R-4.6 &nbsp; | &nbsp; R-4.5 &nbsp;
+            th.text-nowrap(scope='col') R-4.7 &nbsp; | &nbsp; R-4.6 &nbsp; | &nbsp; R-4.5 &nbsp;
             th.d-none.d-xl-table-cell.text-nowrap(scope='col') Built
         tbody#packages-table-body
           each row in pkgdata
@@ -61,6 +61,9 @@ block content
               td !{row.check_icon_html('source')}
               td.text-nowrap
                 span(class=(row._failure ? 'opacity-25' : ''))
+                  | !{row.check_icon_html('linux-devel', '4.7')}
+                  | !{row.check_icon_html('windows-devel', '4.7')}
+                  | |
                   | !{row.check_icon_html('linux-release', '4.6')}
                   | !{row.check_icon_html('macos-release', '4.6')}
                   | !{row.check_icon_html('windows-release', '4.6')}
