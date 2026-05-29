@@ -354,6 +354,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
         //For now only keep 1 wasm version
         if(type == 'wasm'){
           delete query['_major'];
+          delete query['_arch'];
         }
       }
       return packages.find(query).project({_id:1, _fileid:1, Version: 1}).toArray().then(function(docs){
