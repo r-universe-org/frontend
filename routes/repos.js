@@ -54,7 +54,8 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
   if(format == 'PACKAGES.rds'){
     return cursor.toArray().then(function(data){
       let strdata = data.map(x => doc_as_strings(x, use_sha_file, mixed, override_arch));
-      return res.send(packagesRDS(strdata, { compress: "gzip" }));
+      let compression = (query._type == 'win' || query._type == 'mac' || query._type == 'wasm') ? "zstd" : "gzip";
+      return res.send(packagesRDS(strdata, { compress: compression }));
     });
   }
   switch (format) {
