@@ -182,7 +182,7 @@ export function get_registry_info(user){
 
 //sanitize for weird versions bugs like: R (>= r81283)
 function dep_to_string(x){
-  const validate = /^[0-9-.]+$/;
+  const validate = /^[<>=]+\s+[0-9-.]+$/;
   if(x.package && x.version && validate.test(x.version)) {
     return `${x.package} (${x.version})`;
   } else {
@@ -200,21 +200,20 @@ function unpack_deps(x){
   return x;
 }
 
-export function doc_as_strings(doc, use_sha_file = true){
+export function doc_as_strings(doc, use_sha_file = true, mixed = false, override_arch = false){
   //this clones 'doc' and then deletes some fields
   const { _id, _fileid, _type, _sysdeps, Distro, MD5sum, ...x } = unpack_deps(doc);
-  //if(_type == 'linux'){
-  //  x.Platform = 'x86_64-pc-linux-gnu' //pak likes this to identify binaries
-  //}
-  //x.MD5sum = MD5sum; //workaround for https://github.com/r-lib/pak/issues/733
+  if(_type == 'linux' && override_arch){
+    x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
+  }
   if(use_sha_file){
-    if(_type == 'win' || _type == 'src'){
+    if(mixed || _type == 'linux') {
+      x.File = `${x.Package}_${x.Version}.tar.gz?sha256=${x.SHA256}`;
+    } else if(_type == 'win' || _type == 'src'){
       // R copies the literal filename but '?' is illegal character on Windows
       x.File = `sha256-${x.SHA256}`;
     } else if(_type == 'mac' || _type == 'wasm'){
       x.File = `${x.Package}_${x.Version}.tgz?sha256=${x.SHA256}`;
-    } else {
-      x.File = `${x.Package}_${x.Version}.tar.gz?sha256=${x.SHA256}`;
     }
   }
   //x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
@@ -237,8 +236,8 @@ export function doc_as_strings(doc, use_sha_file = true){
   return x;
 }
 
-export function doc_to_dcf(doc, use_sha_file = true){
-  let x = doc_as_strings(doc, use_sha_file = true);
+export function doc_to_dcf(doc, use_sha_file = true, mixed = false, override_arch = false){
+  let x = doc_as_strings(doc, use_sha_file, mixed, override_arch);
   return Object.entries(x).map(([key, value]) => `${key}: ${value}`).join("\n") + "\n\n";
 }
 

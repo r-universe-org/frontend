@@ -1,8 +1,9 @@
 import express from 'express';
 import {pipeline} from 'node:stream/promises';
 import createError from 'http-errors';
-import {doc_to_dcf, cursor_stream} from '../src/tools.js';
+import {doc_to_dcf, cursor_stream, doc_as_strings} from '../src/tools.js';
 import {get_universe_binaries, get_packages_index, get_package_hash} from '../src/db.js';
+import { packagesRDS } from "packages-rds";
 
 const router = express.Router();
 
@@ -38,9 +39,7 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
     //On r-universe.dev we redirect sha256:* with a cloudflare rule, so this is only for local use.
     return res.redirect(301, `https://cdn.r-universe.dev/${format.substring(7)}`);
   }
-  if(format == 'PACKAGES.rds'){
-    return res.status(404).send("PACKAGES.rds format not supported for now.");
-  } else if(format !== 'PACKAGES' && format !== 'PACKAGES.gz' && format !== 'PACKAGES.json'){
+  if(format !== 'PACKAGES' && format !== 'PACKAGES.gz' && format !== 'PACKAGES.rds' && format !== 'PACKAGES.json'){
     throw createError(404, 'Unsupported PACKAGES format: ' + format);
   }
   var fields = req.query.fields ? req.query.fields.split(",") : [];
@@ -49,22 +48,20 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
     fields.push('_sysdeps');
   }
   var cursor = get_packages_index(query, fields, mixed);
-  function doc_to_dcf_wrap(x){
-    if(x._type == 'linux' && override_arch){
-      x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
-    }
-    if(mixed){
-      x._type = 'linux' //force the new ?sha256=123 format in doc_to_dcf()
-    }
-    //TODO: User-Agent wont prevent serving cached files
-    var use_sha_file = req.headers['user-agent'].match(/rclone/) ? false : true;
-    return doc_to_dcf(x, use_sha_file)
+
+  //TODO: User-Agent wont prevent serving cached files
+  var use_sha_file = req.headers['user-agent'].match(/rclone/) ? false : true;
+  if(format == 'PACKAGES.rds'){
+    return cursor.toArray().then(function(data){
+      let strdata = data.map(x => doc_as_strings(x, use_sha_file, mixed, override_arch));
+      return res.send(packagesRDS(strdata, { compress: "gzip" }));
+    });
   }
   switch (format) {
     case 'PACKAGES':
-      return cursor_stream(cursor, res.type('text/plain'), doc_to_dcf_wrap);
+      return cursor_stream(cursor, res.type('text/plain'), x => doc_to_dcf(x, use_sha_file, mixed, override_arch));
     case 'PACKAGES.gz':
-      return cursor_stream(cursor, res.type('application/x-gzip'), doc_to_dcf_wrap, true);
+      return cursor_stream(cursor, res.type('application/x-gzip'), x => doc_to_dcf(x, use_sha_file, mixed, override_arch), true);
     case 'PACKAGES.json':
       return cursor_stream(cursor, res.type('text/plain'), doc_to_ndjson);
   }

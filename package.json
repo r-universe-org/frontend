@@ -20,6 +20,7 @@
     "mongodb": "^7.1.1",
     "morgan": "^1.10.1",
     "msgpackr": "^1.11.10",
+    "packages-rds": "github:r-universe-org/packages-rds",
     "pug": "^3.0.4",
     "r-universe-cards": "^0.5.0",
     "rdesc-parser": "^4.0.1",
