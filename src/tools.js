@@ -200,7 +200,7 @@ function unpack_deps(x){
   return x;
 }
 
-export function doc_as_strings(doc, use_sha_file = true, mixed = false, override_arch = false){
+export function doc_as_strings(doc, use_sha_file = false, mixed = false, override_arch = false){
   //this clones 'doc' and then deletes some fields
   const { _id, _fileid, _type, _sysdeps, Distro, MD5sum, ...x } = unpack_deps(doc);
   if(_type == 'linux' && override_arch){
@@ -236,7 +236,7 @@ export function doc_as_strings(doc, use_sha_file = true, mixed = false, override
   return x;
 }
 
-export function doc_to_dcf(doc, use_sha_file = true, mixed = false, override_arch = false){
+export function doc_to_dcf(doc, use_sha_file = false, mixed = false, override_arch = false){
   let x = doc_as_strings(doc, use_sha_file, mixed, override_arch);
   return Object.entries(x).map(([key, value]) => `${key}: ${value}`).join("\n") + "\n\n";
 }
