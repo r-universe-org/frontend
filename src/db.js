@@ -155,23 +155,16 @@ function summary_sum(k, q) {
   ]);
 }
 
-//We prefer _userbio because _maintainer currently does not have 'description' field.
-//If we add that we can simplify this to a single call:
 export function summary_bio(universe) {
-  return packages.findOne({_user: universe, _type: 'src'}, {sort: {'_id': -1}}).then(function(x){
-    if(x){
+  return packages.findOne({_universes: universe, _type: 'src'}, {sort: {'_id': -1}}).then(function(x){
+    if(x && x._user === universe) {
       return x._userbio;
     }
-    return packages.findOne({_universes: universe, _type: 'src'}, {sort: {'_id': -1}}).then(function(x){
-      if(x && x._user === universe) {
-        return x._userbio; //not possible, should have matched above
-      }
-      if(x && x._maintainer && x._maintainer.login === universe){
-        x._maintainer.type = "user";
-        return x._maintainer;
-      }
-      return {};
-    });
+    if(x && x._maintainer && x._maintainer.login === universe){
+      x._maintainer.type = "user";
+      return x._maintainer;
+    }
+    return {};
   });
 }
 
