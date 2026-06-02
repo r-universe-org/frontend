@@ -59,7 +59,7 @@ async function packages_snapshot(files, archive, types, force_cdn){
     }
   };
 
-  /* Generate PACKAGES indexes */
+  /* Generate PACKAGES indexes (make sure to use_sha_file = false) */
   for (const [path, files] of Object.entries(indexes)) {
     var packages = files.map(x => doc_to_dcf(x)).join('');
     archive.append(packages, { name: `${path}/PACKAGES` });
