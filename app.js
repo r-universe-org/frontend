@@ -68,10 +68,10 @@ app.use(function(req, res, next) {
 // global error handler
 app.use(function(err, req, res, next) {
   console.log("ERROR:", req.path)
-  //if(req.path.startsWith("/api/") || req.path.startsWith("/_global/api/")){
-    // send API errors as plain-text
-    //res.status(400).type('text/plain').send(`Error: ${err.message || err}`);
-  //} else {
+  if(req.path.startsWith("/api/") || req.path.startsWith("/_global/api/")){
+    // send API errors as plain-text (used by the search frontend)
+    res.status(400).type('text/plain').send(`Error: ${err.message || err}`);
+  } else {
     res.locals.error = err;
     res.locals.mode = req.app.get('env')
 
@@ -80,7 +80,7 @@ app.use(function(err, req, res, next) {
     res.header(err.headers);
     res.type('text/html');
     res.render('error');
-  //}
+  }
 });
 
 export default app;
