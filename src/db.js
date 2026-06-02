@@ -412,6 +412,7 @@ function mongo_universe_s3_index(user, prefix, start_after){
     for (const [path, date] of Object.entries(indexes)) {
       files.push({ Key: path + '/PACKAGES', LastModified: date.toISOString()});
       files.push({ Key: path + '/PACKAGES.gz', LastModified: date.toISOString()});
+      files.push({ Key: path + '/PACKAGES.rds', LastModified: date.toISOString()});
     }
 
     if(start_after){

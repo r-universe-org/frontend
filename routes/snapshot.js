@@ -3,8 +3,10 @@ import zlib from 'node:zlib';
 import {pipeline} from 'node:stream/promises';
 import archiver from 'archiver';
 import path from 'node:path';
-import {pkgfields, doc_to_dcf, doc_to_paths, extract_files_from_stream} from '../src/tools.js';
+import {pkgfields, doc_to_dcf, doc_to_paths, extract_files_from_stream, doc_as_strings} from '../src/tools.js';
 import {mongo_download_stream, packages} from '../src/db.js';
+import {packagesRDS} from "@r-universe/packages-rds";
+
 
 const router = express.Router();
 
@@ -57,11 +59,12 @@ async function packages_snapshot(files, archive, types, force_cdn){
     }
   };
 
-  /* Generate PACKAGES indexes */
+  /* Generate PACKAGES indexes (make sure to use_sha_file = false) */
   for (const [path, files] of Object.entries(indexes)) {
-    var packages = files.map(doc_to_dcf).join('');
+    var packages = files.map(x => doc_to_dcf(x)).join('');
     archive.append(packages, { name: `${path}/PACKAGES` });
     archive.append(zlib.gzipSync(packages), { name: `${path}/PACKAGES.gz`});
+    archive.append(packagesRDS(files.map(x => doc_as_strings(x)), { compress: 'gzip' }), { name: `${path}/PACKAGES.rds`});
   }
 
   /* Extract html manual pages. This is a bit slower so doing this last */
