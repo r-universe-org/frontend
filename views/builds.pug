@@ -17,7 +17,7 @@ block content
             if show_bioc
               th(scope='col') BiocCheck
             th(scope='col') Src
-            th.text-nowrap(scope='col') R-4.7 &nbsp; | &nbsp; R-4.6 &nbsp; | &nbsp; R-4.5 &nbsp;
+            th.text-nowrap(scope='col') R-4.7 &nbsp; | &nbsp; &nbsp; R-4.6 &nbsp; &nbsp; | &nbsp; R-4.5 &nbsp;
             th.d-none.d-xl-table-cell.text-nowrap(scope='col') Built
         tbody#packages-table-body
           each row in pkgdata
@@ -67,6 +67,10 @@ block content
                   | !{row.check_icon_html('linux-release', '4.6')}
                   | !{row.check_icon_html('macos-release', '4.6')}
                   | !{row.check_icon_html('windows-release', '4.6')}
+                  if universe != 'eddelbuettel'
+                    |
+                    | !{row.check_icon_html('wasm-release', '4.6')}
+                  |
                   | |
                   | !{row.check_icon_html('macos-oldrel', '4.5')}
                   | !{row.check_icon_html('windows-oldrel', '4.5')}
