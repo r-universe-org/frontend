@@ -1,4 +1,167 @@
 extends layout
 
 block content
-  p Welcome to #{universe}
+  //- Hero / welcome banner
+  .p-3.p-md-4.mb-4.rounded-3.border.bg-body-tertiary.position-relative.overflow-hidden#universe-hero
+    .row.align-items-center
+      .col
+        h1.h3.mb-1
+          span.text-dark Welcome to the
+          span.ms-2.fw-bold #{_universe_name || universe}
+          span.ms-2.fa.fa-rocket.text-primary.opacity-75
+        p.mb-2.text-body-secondary.lead.fs-6
+          if _universe_bio
+            | #{_universe_bio}
+          else
+            | A universe of R packages, built and tested fresh every day.
+        .d-flex.flex-wrap.gap-2.mt-3
+          a.btn.btn-sm.btn-primary(href='/packages')
+            i.fa.fa-box-open.me-1
+            | Browse packages
+          a.btn.btn-sm.btn-outline-secondary(href='/builds')
+            i.fa.fa-screwdriver-wrench.me-1
+            | Build status
+          a.btn.btn-sm.btn-outline-secondary(href=`https://${universe}.r-universe.dev/feed.xml` target='_blank')
+            i.fa.fa-rss.me-1
+            | Subscribe
+
+  //- Stats banner
+  .row.row-cols-2.row-cols-md-3.row-cols-xl-5.g-2.mb-4
+    each stat in [{k:'packages',i:'fa-box-open',l:'Packages',h:'/packages'},{k:'maintainers',i:'fa-user-astronaut',l:'Maintainers',h:'/contributors'},{k:'articles',i:'fa-file-alt',l:'Articles',h:'/articles'},{k:'datasets',i:'fa-database',l:'Datasets',h:'/datasets'},{k:'contributors',i:'fa-user-friends',l:'Contributors',h:'/contributors'}]
+      if summary[stat.k]
+        .col
+          a.text-decoration-none.text-reset(href=stat.h)
+            .card.h-100.border-0.bg-body-tertiary.stat-tile
+              .card-body.py-3
+                .fs-4.fw-bold.lh-1 #{format_count(summary[stat.k])}
+                small.text-body-secondary
+                  i.fa.fa-fw.me-1(class=stat.i)
+                  | #{stat.l}
+
+  //- Popular packages
+  .d-flex.align-items-center.justify-content-between.mb-2
+    h2.h5.mb-0
+      i.fa.fa-fire.text-danger.me-2
+      | Popular packages
+    a.small(href='/packages') See all
+      i.fa.fa-angle-right.ms-1
+  .row.g-3.mb-4
+    each x in popular
+      - var prefix = x._user == universe ? "" : `https://${x._user}.r-universe.dev`
+      .col-md-6.col-xl-4
+        a.text-decoration-none.text-reset(href=`${prefix}/${x.Package}`)
+          .card.h-100.package-description-card
+            .card-body
+              if x._pkglogo
+                img.img-fluid.me-2.float-end(src=x._pkglogo loading="lazy" style='max-height: 48px; max-width: 48px;')
+              h3.h6.mb-1
+                span.text-dark #{x.Package}
+                if x._user != universe
+                  i.float-end.text-secondary.ms-1.fas.fa-external-link-alt.small
+              p.card-text.small.text-body-secondary.mb-2.lh-sm #{x.Title}
+              .d-flex.flex-wrap.gap-2.small.text-muted
+                if x._stars
+                  span
+                    i.fas.fa-star.text-warning.me-1
+                    | #{format_count(x._stars)}
+                if x._downloads && x._downloads.count > 0
+                  span
+                    i.fas.fa-download.text-success-emphasis.me-1
+                    | #{format_count(x._downloads.count)}/mo
+                if x._usedby
+                  span
+                    i.fas.fa-cubes.text-success.me-1
+                    | #{format_count(x._usedby)}
+              if x._topics && x._topics.length
+                p.mt-2.mb-0
+                  each topic in x._topics.slice(0, 3)
+                    span.badge.badge-topic.me-1 #{topic}
+
+  //- Active maintainers
+  if maintainers && maintainers.length
+    .d-flex.align-items-center.justify-content-between.mb-2
+      h2.h5.mb-0
+        i.fa.fa-user-astronaut.text-primary.me-2
+        | Active maintainers
+      a.small(href='/contributors') Contributors
+        i.fa.fa-angle-right.ms-1
+    .row.g-2.mb-4
+      each m in maintainers
+        .col-6.col-md-4.col-xl-3
+          a.text-decoration-none.text-reset(href=`https://${m.login}.r-universe.dev`)
+            .card.h-100.package-description-card
+              .card-body.d-flex.align-items-center.p-2
+                img.rounded-circle.me-2(src=`https://r-universe.dev/avatars/${m.login}.png?size=80` width=40 height=40 loading="lazy" style='object-fit: cover;')
+                .text-truncate
+                  .small.fw-bold.text-truncate #{m.name || m.login}
+                  small.text-body-secondary
+                    | #{m.count}
+                    |  package#{m.count == 1 ? '' : 's'}
+
+  //- Recent articles + datasets
+  .row.g-4.mb-4
+    if articles && articles.length
+      .col-lg-6
+        h2.h5.mb-2
+          i.fa.fa-newspaper.text-info.me-2
+          | Recent articles
+        .list-group
+          each a in articles
+            - var ahost = a.user == universe ? "" : `https://${a.user}.r-universe.dev`
+            a.list-group-item.list-group-item-action.py-2.lh-sm(href=`${ahost}/articles/${a.package}/${a.vignette.filename}`)
+              .d-flex.w-100.justify-content-between
+                strong.text-truncate.me-2 #{a.vignette.title}
+                small.text-body-secondary.text-nowrap #{format_time_since(a.vignette.modified)}
+              small.text-body-secondary
+                | in
+                code.ms-1 #{a.package}
+    if datasets && datasets.length
+      .col-lg-6
+        h2.h5.mb-2
+          i.fa.fa-database.text-success.me-2
+          | Recent datasets
+        .list-group
+          each d in datasets
+            - var dhost = d.user == universe ? "" : `https://${d.user}.r-universe.dev`
+            a.list-group-item.list-group-item-action.py-2.lh-sm(href=`${dhost}/${d.package}/data/${d.name}`)
+              .d-flex.w-100.justify-content-between
+                strong.text-truncate.me-2 #{d.package}::#{d.name}
+              if d.title
+                small.text-body-secondary #{d.title}
+
+  //- Owner showcase + explore by topic
+  .row.g-4.mb-4
+    .col-lg-7
+      .card.h-100.border-primary-subtle.bg-body-tertiary#showcase-card
+        .card-body
+          h2.h6.mb-2
+            i.fa.fa-thumbtack.text-primary.me-2
+            | Featured by #{_universe_name || universe}
+          //- TODO: drive this block from an owner-controlled showcase config
+          //- (e.g. a "showcase" entry in the universe metadata). For now we
+          //- highlight the flagship package and offer a placeholder hook.
+          if flagship
+            - var fprefix = flagship._user == universe ? "" : `https://${flagship._user}.r-universe.dev`
+            a.text-decoration-none.text-reset(href=`${fprefix}/${flagship.Package}`)
+              .d-flex.align-items-start
+                if flagship._pkglogo
+                  img.img-fluid.me-3(src=flagship._pkglogo loading="lazy" style='max-height: 64px; max-width: 64px;')
+                else
+                  span.fa.fa-cube.fa-2x.text-primary.me-3.mt-1
+                div
+                  .fw-bold #{flagship.Package}
+                  p.small.text-body-secondary.mb-0 #{flagship.Description || flagship.Title}
+          p.small.text-body-secondary.mt-3.mb-0
+            i.fa.fa-circle-info.me-1
+            | Universe owners can pin a live demo, tutorial or highlight here.
+    .col-lg-5
+      if topics && topics.length
+        .card.h-100.bg-body-tertiary.border-0
+          .card-body
+            h2.h6.mb-2
+              i.fa.fa-tags.text-info.me-2
+              | Explore by topic
+            .d-flex.flex-wrap.gap-1
+              each t in topics
+                a.badge.badge-topic.text-decoration-none(href=`https://r-universe.dev/search/?q=${encodeURIComponent('universe:' + universe + ' topic:' + t.topic)}`) #{t.topic}
+                  span.ms-1.opacity-75 #{t.count}

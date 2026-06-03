@@ -1,7 +1,8 @@
 import express from 'express';
 import createError from 'http-errors';
 import {mongo_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
-        get_universe_contributors, get_universe_contributions, get_all_universes, mongo_summary, summary_bio} from '../src/db.js';
+        get_universe_contributors, get_universe_contributions, get_all_universes, mongo_summary, summary_bio,
+        mongo_universe_maintainers, mongo_universe_topics} from '../src/db.js';
 import {check_to_color, job_link} from '../src/tools.js';
 import {generateUniverseSvg, svgToPng} from 'r-universe-cards';
 const router = express.Router();
@@ -197,12 +198,71 @@ router.get('/', function(req, res, next) {
   res.set('Cache-control', 'private, max-age=604800'); // Vary does not work in cloudflare currently
   const accept = req.headers['accept'];
   if(accept && accept.includes('html')){
-    /* Langing page (TODO) */
-    res.redirect(`/builds`);
+    return render_landing(req, res, next);
   } else {
     res.send(`Welcome to the ${res.locals.universe} universe!`);
   }
 });
+
+function sort_by_vignette_date(x, y){
+  return x.vignette.modified > y.vignette.modified ? -1 : 1;
+}
+
+function render_landing(req, res, next){
+  var universe = res.locals.universe;
+  var pkgfields = ['Package', 'Title', 'Description', '_user', '_owner', '_downloads', '_stars',
+    '_usedby', '_score', '_topics', '_pkglogo', '_commit.time', '_datasets', '_registered'];
+  var p_summary = mongo_summary(universe);
+  var p_pkgs = mongo_universe_packages(universe, pkgfields);
+  var p_maintainers = mongo_universe_maintainers(universe, 24).toArray();
+  var p_articles = get_universe_vignettes(universe);
+  var p_topics = mongo_universe_topics(universe, 2, 30).toArray();
+  return Promise.all([p_summary, p_pkgs, p_maintainers, p_articles, p_topics])
+    .then(function([summary, pkgdata, maintainers, articles, topics]){
+      var bio = summary || {};
+      //same locals the layout/sidebar expect (see routes/pkginfo.js)
+      res.locals._universe_name = bio.name || universe;
+      res.locals._universe_bio = bio.description;
+      res.locals._universe_type = bio.type;
+      res.locals.title = `R-universe - ${universe}${bio.name ? ` (${bio.name})` : ''}`;
+      res.locals._social_description = bio.description;
+
+      pkgdata = (pkgdata || []).filter(x => x._registered);
+
+      //the 6 highest-scoring packages drive the hero grid
+      var popular = pkgdata.slice().sort(sort_by_score).slice(0, 6);
+
+      //flatten datasets across packages, newest packages first
+      var datasets = [];
+      pkgdata.forEach(function(p){
+        (p._datasets || []).forEach(function(d){
+          datasets.push({
+            package: p.Package, user: p._user, name: d.name, title: d.title,
+            time: p._commit && p._commit.time
+          });
+        });
+      });
+      datasets.sort((x, y) => (y.time || 0) - (x.time || 0));
+
+      //most recently updated vignettes
+      articles = (articles || []).sort(sort_by_vignette_date);
+
+      //top maintainers other than the universe owner itself
+      maintainers = (maintainers || []).filter(x => x.login && x.login !== universe);
+
+      res.render('index', {
+        summary: bio,
+        popular: popular,
+        maintainers: maintainers.slice(0, 12),
+        articles: articles.slice(0, 6),
+        datasets: datasets.slice(0, 6),
+        topics: (topics || []).slice(0, 18),
+        flagship: popular[0],
+        format_count: format_count,
+        format_time_since: format_time_since
+      });
+    }).catch(next);
+}
 
 router.get('/builds', get_user_bio, function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
