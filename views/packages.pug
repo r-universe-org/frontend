@@ -1,10 +1,63 @@
 extends layout
 
 block content
-  .row#package-card-container(data-masonry='{"percentPosition":true}')
+  .d-flex.flex-column.flex-sm-row.align-items-stretch.align-items-sm-center.gap-2.mt-3.mb-1#package-toolbar
+    .flex-grow-1.position-relative
+      i.fas.fa-filter.position-absolute.text-muted.small(style='left:12px; top:50%; transform:translateY(-50%); pointer-events:none;')
+      input#package-filter.form-control.ps-5(type='search' placeholder=`Filter ${pkgdata.length} packages by name, title, description or topic…` autocomplete='off' spellcheck='false')
+    .dropdown.flex-shrink-0
+      button#sort-button.btn.btn-outline-secondary.dropdown-toggle.w-100(type='button' data-bs-toggle='dropdown' aria-expanded='false')
+        i.fas.fa-arrow-down-wide-short.me-1
+        | Sort:
+        span#sort-label Score
+      ul.dropdown-menu.dropdown-menu-end
+        li
+          button.dropdown-item.active(type='button' data-sort='score' data-label='Score')
+            i.fas.fa-chart-line.fa-fw.text-primary.me-1
+            | Score
+        li
+          button.dropdown-item(type='button' data-sort='stars' data-label='Stars')
+            i.fas.fa-star.fa-fw.text-warning.me-1
+            | Stars
+        li
+          button.dropdown-item(type='button' data-sort='dependents' data-label='Dependents')
+            i.fas.fa-cubes.fa-fw.text-success.me-1
+            | Dependents
+        li
+          button.dropdown-item(type='button' data-sort='scripts' data-label='Scripts')
+            i.fa-solid.fa-code.fa-fw.text-danger.me-1
+            | Scripts on GitHub
+        li
+          button.dropdown-item(type='button' data-sort='downloads' data-label='Downloads')
+            i.fas.fa-download.fa-fw.text-success-emphasis.me-1
+            | Downloads
+        li: hr.dropdown-divider
+        li
+          button.dropdown-item(type='button' data-sort='updated' data-label='Recently updated')
+            i.fas.fa-clock.fa-fw.text-secondary.me-1
+            | Recently updated
+        li
+          button.dropdown-item(type='button' data-sort='name' data-label='Name (A–Z)')
+            i.fas.fa-arrow-down-a-z.fa-fw.text-secondary.me-1
+            | Name (A–Z)
+  small#filter-count.text-muted.d-none.d-block.mb-1
+  #filter-noresults.text-muted.text-center.py-5.d-none
+    i.fas.fa-box-open.fa-2x.mb-3.d-block.text-secondary
+    | No packages match
+    span#filter-noresults-term.fw-bold
+  .row#package-card-container
     each x,i in pkgdata
       if x._type !== 'failure'
-        .col-lg-6.package-card-col(class=(i > 20 && 'd-none'))
+        .col-lg-6.package-card-col(
+          data-package=(x.Package || '').toLowerCase()
+          data-search=((x.Package || '') + ' ' + (x.Title || '') + ' ' + (x.Description || '') + ' ' + (x._topics ? x._topics.join(' ') : '')).toLowerCase()
+          data-score=(x._score || 0)
+          data-stars=(x._stars || 0)
+          data-dependents=(x._usedby || 0)
+          data-scripts=(x._searchresults || 0)
+          data-downloads=(x._downloads && x._downloads.count ? x._downloads.count : 0)
+          data-updated=(x._commit && x._commit.time ? x._commit.time : 0)
+        )
           .card.mt-4.package-description-card
             .card-body
               if x._pkglogo
@@ -45,10 +98,8 @@ block content
                   i.fas.fa-download.text-success-emphasis
                   |  #{format_count(x._downloads.count)} downloads
 
-    .col-12.scrollbottom#scrollbottom1(style="height:500px")
-    .col-12.scrollbottom#scrollbottom2(style="height:1000px")
+  #scrollbottom.scrollbottom(style="height:10px")
 
 block after_scripts
-  script(src='https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js')
   script
     include packages.js
