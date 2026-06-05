@@ -238,7 +238,7 @@ router.get('/builds', get_user_bio, function(req, res, next) {
 });
 
 router.get("/packages", get_user_bio, function(req, res, next){
-  var fields = ['Package', 'Version', 'Title', 'Description', '_user', '_commit.time', '_downloads',
+  var fields = ['Package', 'Version', 'Title', 'Description', 'Author', '_user', '_commit.time', '_downloads',
     '_stars', '_rundeps', '_usedby', '_score', '_topics', '_pkglogo', '_registered', '_searchresults'];
   return mongo_universe_packages(res.locals.universe, fields).then(function(pkgdata){
     res.render('packages', {

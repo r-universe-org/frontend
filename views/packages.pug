@@ -4,7 +4,7 @@ block content
   .d-flex.flex-column.flex-sm-row.align-items-stretch.align-items-sm-center.gap-2.mt-3.mb-1#package-toolbar
     .flex-grow-1.position-relative
       i.fas.fa-filter.position-absolute.text-muted.small(style='left:12px; top:50%; transform:translateY(-50%); pointer-events:none;')
-      input#package-filter.form-control.ps-5(type='search' placeholder=`Filter ${pkgdata.length} packages by name, title, description or topic…` autocomplete='off' spellcheck='false')
+      input#package-filter.form-control.ps-5(type='search' placeholder=`Filter ${pkgdata.length} packages by name, title, author or topic…` autocomplete='off' spellcheck='false')
     .dropdown.flex-shrink-0
       button#sort-button.btn.btn-outline-secondary.dropdown-toggle.w-100(type='button' data-bs-toggle='dropdown' aria-expanded='false')
         i.fas.fa-arrow-down-wide-short.me-1
@@ -50,7 +50,7 @@ block content
       if x._type !== 'failure'
         .col-lg-6.package-card-col(
           data-package=(x.Package || '').toLowerCase()
-          data-search=((x.Package || '') + ' ' + (x.Title || '') + ' ' + (x.Description || '') + ' ' + (x._topics ? x._topics.join(' ') : '')).toLowerCase()
+          data-search=((x.Package || '') + ' ' + (x.Title || '') + ' ' + (x.Description || '') + ' ' + (x.Author || '') + ' ' + (x._topics ? x._topics.join(' ') : '')).toLowerCase()
           data-score=(x._score || 0)
           data-stars=(x._stars || 0)
           data-dependents=(x._usedby || 0)
