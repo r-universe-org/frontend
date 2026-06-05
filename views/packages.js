@@ -49,6 +49,14 @@ $(function(){
   let ordered = [];   // current filtered + sorted list
   let rendered = 0;   // how many of `ordered` are currently in the DOM
 
+  // Initialize Fuse.js for fuzzy search
+  const fuse = new Fuse(cards, {
+    keys: ['search', 'name'],
+    includeScore: true,
+    threshold: 0.4,
+    ignoreLocation: true
+  });
+
   const filterEl = document.getElementById('package-filter');
   const countEl = document.getElementById('filter-count');
   const noResultsEl = document.getElementById('filter-noresults');
@@ -58,8 +66,7 @@ $(function(){
     const term = state.filter.trim().toLowerCase();
     let list = cards;
     if(term){
-      const words = term.split(/\s+/);
-      list = list.filter(c => words.every(w => c.search.indexOf(w) > -1));
+      list = fuse.search(term).map(result => result.item);
     }
     return list.slice().sort(sorters[state.sort] || sorters.score);
   }
