@@ -23,8 +23,11 @@ $(function(){
   const cards = Array.from(container.querySelectorAll('.package-card-col')).map(function(el){
     return {
       el: el,
-      search: el.getAttribute('data-search') || '',
       name: el.getAttribute('data-package') || '',
+      title: el.getAttribute('data-title') || '',
+      author: el.getAttribute('data-author') || '',
+      topics: el.getAttribute('data-topics') || '',
+      description: el.getAttribute('data-description') || '',
       score: parseFloat(el.getAttribute('data-score')) || 0,
       stars: parseFloat(el.getAttribute('data-stars')) || 0,
       dependents: parseFloat(el.getAttribute('data-dependents')) || 0,
@@ -32,6 +35,21 @@ $(function(){
       downloads: parseFloat(el.getAttribute('data-downloads')) || 0,
       updated: parseFloat(el.getAttribute('data-updated')) || 0
     };
+  });
+
+  // Fuzzy search across the text fields, weighted so name/title matter most.
+  // ignoreLocation lets a match occur anywhere in a field (like the old
+  // substring search); threshold controls how forgiving the fuzziness is.
+  const fuse = new Fuse(cards, {
+    ignoreLocation: true,
+    threshold: 0.2,
+    keys: [
+      {name: 'name',        weight: 0.40},
+      {name: 'title',       weight: 0.25},
+      {name: 'author',      weight: 0.20},
+      {name: 'topics',      weight: 0.10},
+      {name: 'description', weight: 0.05}
+    ]
   });
 
   const CHUNK = 30;
@@ -55,13 +73,10 @@ $(function(){
   const noResultsTermEl = document.getElementById('filter-noresults-term');
 
   function compute(){
-    const term = state.filter.trim().toLowerCase();
-    let list = cards;
-    if(term){
-      const words = term.split(/\s+/);
-      list = list.filter(c => words.every(w => c.search.indexOf(w) > -1));
-    }
-    return list.slice().sort(sorters[state.sort] || sorters.score);
+    const term = state.filter.trim();
+    // Fuse ranks by relevance; we then re-order matches by the chosen metric.
+    const list = term ? fuse.search(term).map(r => r.item) : cards.slice();
+    return list.sort(sorters[state.sort] || sorters.score);
   }
 
   function appendSlice(from, to){

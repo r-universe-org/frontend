@@ -33,6 +33,7 @@ export default [
         Chart: 'readonly',
         DataTable: 'readonly',
         Masonry: 'readonly',
+        Fuse: 'readonly',
         Prism: 'readonly',
         universe: 'readonly',
         contributors: 'readonly',
