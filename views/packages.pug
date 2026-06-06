@@ -50,7 +50,10 @@ block content
       if x._type !== 'failure'
         .col-lg-6.package-card-col(
           data-package=(x.Package || '').toLowerCase()
-          data-search=((x.Package || '') + ' ' + (x.Title || '') + ' ' + (x.Description || '') + ' ' + (x.Author || '') + ' ' + (x._topics ? x._topics.join(' ') : '')).toLowerCase()
+          data-title=(x.Title || '')
+          data-author=(x.Author || '')
+          data-topics=(x._topics ? x._topics.join(' ') : '')
+          data-description=(x.Description || '')
           data-score=(x._score || 0)
           data-stars=(x._stars || 0)
           data-dependents=(x._usedby || 0)
