@@ -120,6 +120,65 @@ a:hover {
   /*transform: scale(1.01);*/
 }
 
+/* Article list rows (see views/articles.pug). --accent tints the package pill and
+   title-hover; the light-grey left border is set separately on border-left below. */
+.article-item {
+  --accent: #495057;
+  display: flex;
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid var(--bs-border-color);
+  border-left: 3px solid #adb5bd;
+  border-radius: .5rem;
+  padding: .85rem 1rem;
+  text-decoration: none;
+  transition: all .2s ease-in-out;
+}
+
+.article-item:hover {
+  text-decoration: none;
+  background-color: var(--bs-tertiary-bg);
+}
+
+.article-item .article-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.article-title {
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--bs-body-color);
+}
+
+.article-pkg-pill {
+  background: color-mix(in srgb, var(--accent, #3b71ca) 13%, white);
+  color: color-mix(in srgb, var(--accent, #3b71ca) 78%, black);
+  font-weight: 500;
+  font-size: 12px;
+  padding: .1rem .5rem;
+  border-radius: .375rem;
+  white-space: nowrap;
+}
+
+.article-headings {
+  font-size: 13px;
+  color: var(--bs-secondary-color);
+  /* Clamp to one line with an ellipsis WITHOUT white-space:nowrap, so it does
+     not expand the flex column min-width (which would push main under the nav,
+     the same reason we avoid the .text-truncate utility here). */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+}
+
+.article-meta {
+  font-size: 13px;
+  color: var(--bs-secondary-color);
+}
+
 .noanim.collapsing {
   transition: none !important;
 }

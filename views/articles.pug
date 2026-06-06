@@ -1,12 +1,62 @@
 extends layout
 
 block content
-  .list-group(style='font-size: 1rem;')
+  .d-flex.flex-column.flex-sm-row.align-items-stretch.align-items-sm-center.gap-2.mt-3.mb-1#article-toolbar
+    .flex-grow-1.position-relative
+      i.fas.fa-filter.position-absolute.text-muted.small(style='left:12px; top:50%; transform:translateY(-50%); pointer-events:none;')
+      input#article-filter.form-control.ps-5(type='search' placeholder=`Filter ${articles.length} articles by title, author or package…` autocomplete='off' spellcheck='false')
+    .dropdown.flex-shrink-0
+      button#article-sort-button.btn.btn-outline-secondary.dropdown-toggle.w-100(type='button' data-bs-toggle='dropdown' aria-expanded='false')
+        i.fas.fa-arrow-down-wide-short.me-1
+        | Sort:
+        span#article-sort-label Recently updated
+      ul.dropdown-menu.dropdown-menu-end
+        li
+          button.dropdown-item.active(type='button' data-sort='updated' data-label='Recently updated')
+            i.fas.fa-clock.fa-fw.text-secondary.me-1
+            | Recently updated
+        li
+          button.dropdown-item(type='button' data-sort='title' data-label='Title (A–Z)')
+            i.fas.fa-arrow-down-a-z.fa-fw.text-secondary.me-1
+            | Title (A–Z)
+        li
+          button.dropdown-item(type='button' data-sort='package' data-label='Package (A–Z)')
+            i.fas.fa-box-open.fa-fw.text-secondary.me-1
+            | Package (A–Z)
+  small#article-count.text-muted.d-none.d-block.mb-1
+  #article-noresults.text-muted.text-center.py-5.d-none
+    i.fas.fa-file-circle-question.fa-2x.mb-3.d-block.text-secondary
+    | No articles match
+    span#article-noresults-term.fw-bold
+  .d-flex.flex-column.gap-2.mt-4#article-list
     for x in articles
-      if x.user == universe
-      a.list-group-item.list-group-item-action.py-3.lh-sm(href=`${x.host}/articles/${x.package}/${x.vignette.filename}`)
-        .d-flex.w-100.align-items-center.justify-content-between
-          strong.mb-1 #{x.vignette.title}
-          small.d-none.d-sm-inline.text-body-secondary Updated #{format_time_since(x.vignette.modified)}
-        p.mb-1.small #{x.vignette.author || x.maintainer.split("<")[0]}
-        small.text-body-secondary Rendered from <code>#{x.vignette.source}</code> in <b>#{x.package} #{x.version}</b>.
+      a.article-item(
+        href=`${x.host}/articles/${x.package}/${x.vignette.filename}`
+        data-title=(x.vignette.title || '')
+        data-author=(x.vignette.author || (x.maintainer ? x.maintainer.split('<')[0] : ''))
+        data-package=(x.package || '')
+        data-modified=(x.vignette.modified ? new Date(x.vignette.modified).getTime() : 0)
+      )
+        .article-body
+          .d-flex.justify-content-between.align-items-baseline.gap-2
+            span.article-title #{x.vignette.title}
+            small.text-body-tertiary.flex-shrink-0
+              i.far.fa-clock.me-1
+              | #{format_time_since(x.vignette.modified)}
+          - var headings = (Array.isArray(x.vignette.headings) ? x.vignette.headings : []).filter(h => h && h !== x.vignette.title).slice(0, 5)
+          if headings.length
+            .article-headings.mt-1 #{headings.join('  |  ')}
+          .article-meta.d-flex.align-items-center.flex-wrap.gap-3.mt-2
+            span.article-pkg-pill
+              i.fas.fa-box-open.me-1
+              | #{x.package} #{x.version}
+            span
+              i.fas.fa-user.me-1
+              | #{x.vignette.author || x.maintainer.split("<")[0]}
+            span.text-body-tertiary
+              i.fas.fa-code.me-1
+              code #{x.vignette.source}
+
+block after_scripts
+  script
+    include articles.js
