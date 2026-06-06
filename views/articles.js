@@ -9,6 +9,7 @@ $(function(){
       title: el.getAttribute('data-title') || '',
       author: el.getAttribute('data-author') || '',
       pkg: el.getAttribute('data-package') || '',
+      headings: el.getAttribute('data-headings') || '',
       modified: parseFloat(el.getAttribute('data-modified')) || 0
     };
   });
@@ -16,11 +17,13 @@ $(function(){
   // Fuzzy search across title, package and author (title weighted highest).
   const fuse = new Fuse(items, {
     ignoreLocation: true,
-    threshold: 0.4,
+    threshold: 0.2,
+    shouldSort: true,
     keys: [
-      {name: 'title',  weight: 0.50},
-      {name: 'pkg',    weight: 0.30},
-      {name: 'author', weight: 0.20}
+      {name: 'title',    weight: 0.45},
+      {name: 'pkg',      weight: 0.25},
+      {name: 'author',   weight: 0.15},
+      {name: 'headings', weight: 0.15}
     ]
   });
 

@@ -164,14 +164,7 @@ a:hover {
 .article-headings {
   font-size: 13px;
   color: var(--bs-secondary-color);
-  /* Clamp to one line with an ellipsis WITHOUT white-space:nowrap, so it does
-     not expand the flex column min-width (which would push main under the nav,
-     the same reason we avoid the .text-truncate utility here). */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  overflow: hidden;
+  font-style: italic;
 }
 
 .article-meta {
