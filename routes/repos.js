@@ -143,27 +143,6 @@ router.get('/bin/emscripten/contrib/:major/:pkg.tgz', function(req, res, next) {
   return send_binary(query, req, res);
 });
 
-/* Some legacy endpoints for webR 4.3. remove for R-4.5  */
-router.get('/bin/emscripten/contrib/:major/:pkg.data.gz', function(req, res, next) {
-  var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'wasm', _major : req.params.major,
-    Package: pkg, Version: version};
-  return send_binary(query, req, res);
-});
-
-router.get('/bin/emscripten/contrib/:major/:pkg.data', function(req, res, next) {
-  var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'wasm', _major : req.params.major,
-    Package: pkg, Version: version};
-  return send_binary(query, req, res, `/decompress`);
-});
-
-router.get('/bin/emscripten/contrib/:major/:pkg.js.metadata', function(req, res, next) {
-  var [pkg, version] = req.params.pkg.split("_");
-  var query = {_type: 'wasm', _major : req.params.major,
-    Package: pkg, Version: version};
-  return send_binary(query, req, res, `/index`);
-});
 
 /* PACKAGES index files */
 
