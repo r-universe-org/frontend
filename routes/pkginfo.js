@@ -3,7 +3,7 @@ import createError from 'http-errors';
 import url from 'node:url';
 import {get_package_info, get_all_universes} from '../src/db.js';
 import {check_to_color, job_link} from '../src/tools.js';
-import { generatePackageSvg, svgToPng } from 'r-universe-cards';
+import { generatePackageSvg, svgToPng } from '@r-universe/r-universe-cards';
 
 const router = express.Router();
 
