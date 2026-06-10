@@ -413,7 +413,10 @@ router.post('/api/packages/:package/:version/failure', function(req, res, next) 
       if(doc){
         return packages.updateOne(
           { _id: doc['_id'] },
-          { "$unset": {"_progress_url": "", "_published": ""}}
+          {
+            "$set": {"_published": (new Date())},
+            "$unset": {"_progress_url": ""}
+          }
         );
       }
     });
