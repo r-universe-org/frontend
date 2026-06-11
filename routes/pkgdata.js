@@ -46,6 +46,10 @@ router.get('/:package/DESCRIPTION', function(req, res, next) {
   return send_package_file(req, res, 'DESCRIPTION', 'text/plain');
 });
 
+router.get('/:package/LICENSE', function(req, res, next) {
+  return send_package_file(req, res, 'LICENSE', 'text/plain');
+});
+
 router.get('/:package/:file.pdf', function(req, res, next){
   if(req.params.package != req.params.file)
     throw createError(404, `File not found, did you mean ${req.params.package}.pdf?`)
