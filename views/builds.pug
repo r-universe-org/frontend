@@ -75,7 +75,7 @@ block content
                   | !{row.check_icon_html('macos-oldrel', '4.5')}
                   | !{row.check_icon_html('windows-oldrel', '4.5')}
 
-                if row._progress_url
+                if row._progress_url && (new Date() - row._published < 7200000)
                   a.text-decoration-none.mx-3.fa-solid.fa-cog.fa-spin.d-none.d-xl-inline-block(href=row._progress_url target="_blank" data-bs-toggle="tooltip" data-bs-title="Newer build in progress..." )
                 else if !all_ok(row)
                   a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=build_url(row) data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row._failure ? row._failure.version : row.Version}`)

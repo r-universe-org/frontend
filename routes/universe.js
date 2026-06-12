@@ -207,7 +207,7 @@ router.get('/', function(req, res, next) {
 router.get('/builds', get_user_bio, function(req, res, next) {
   var fields = ['Package', 'Version', 'OS_type', '_user', '_owner', '_commit.time', '_commit.id',
     '_maintainer', '_upstream', '_registered', '_created', '_jobs',
-    '_status', '_buildurl', '_failure', '_progress_url'];
+    '_status', '_buildurl', '_failure', '_progress_url', '_published'];
   return mongo_universe_packages(res.locals.universe, fields, 5000, true, false).then(function(pkgdata){
     pkgdata.sort((x,y) => y._registered - x._registered)
     pkgdata.forEach(function(row){

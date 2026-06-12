@@ -436,13 +436,14 @@ router.patch('/api/packages/:package/:version/:type', function(req, res, next) {
       throw `Failed to find package ${pkgname} ${version} in ${user}`;
     }
     const now = new Date();
-    /* Try to prevent hammering of the GH API. However note that the _rebuild_pending field
+    /* Try to prevent races or hammering of the GH API. Note that the _progress_url field
        automatically disappears upon any new deployment, so you can still have more builds. */
-    const rebuild = doc['_rebuild_pending'];
-    if(rebuild){
+    if(doc['_progress_url']){
+      const rebuild = doc['_published'];
       const minutes = (now - rebuild) / 60000;
+      //sometimes a (re)build gets stuck, so ignore _progress_url after 60 minutes
       if(minutes < 60){
-        res.status(429).send(`A rebuild of ${pkgname} ${version} was already triggered ${Math.round(minutes)} minutes ago.`);
+        res.status(429).send(`A (re)build of ${pkgname} is already in progress.`);
         return;
       }
     }
@@ -464,7 +465,7 @@ router.patch('/api/packages/:package/:version/:type', function(req, res, next) {
       return trigger_rebuild(run_path).then(function(){
         return packages.updateOne(
           { _id: doc['_id'] },
-          { "$set": {"_rebuild_pending": now, "_published": now, "_progress_url": doc._buildurl }}
+          { "$set": {"_published": now, "_progress_url": doc._buildurl }}
         ).then(function(){
           res.send({
             run: run_path,
