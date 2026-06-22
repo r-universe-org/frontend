@@ -193,7 +193,7 @@ function load_registry_status(){
             win.location.href = output.html_url;
           }).catch(err => win.document.write("ERROR:" + err));
         });
-      $("#github-user-universe").append(a(`https://github.com/r-universe/${universe}`, `r-universe/${universe}`));
+      $("#github-user-universe").append(a(`https://github.com/r-universe/${universe}`, `${universe}`));
       if(!success){
         $("#registry-status-link").attr("href", last_job.html_url);
       }
