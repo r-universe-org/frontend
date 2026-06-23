@@ -347,7 +347,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
           description['_arch'] = ['all', 'x86_64', 'aarch64'];
         }
         if(type == 'linux'){
-          query['_distro'] = description['_distro']; //delete only if distro matches
+          //query['_distro'] = description['_distro']; //delete only if distro matches
           description['_portable'] = description.Built.Platform ? false : true;
           //TODO: set portable rhel-8 builds to 'all'
         }
