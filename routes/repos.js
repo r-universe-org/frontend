@@ -117,7 +117,8 @@ router.get('/bin/linux/:distro/contrib/:major/:pkg.tar.gz', function(req, res, n
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro);
   var major = parse_major(req.params.major);
-  var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
+  var target = {'$or': [ {_distro: distro}, {_portable: true}]}
+  //var target = (distro == 'resolute') ? {_distro: distro} : {_portable: true};
   var query = {Package: pkg, Version: version,
     _type: 'linux', _arch: arch, _major : major, ...target};
   return send_binary(query, req, res);
@@ -128,7 +129,8 @@ router.get('/bin/linux/:distro/:major/src/contrib/:pkg.tar.gz', function(req, re
   var [pkg, version] = req.params.pkg.split("_");
   var [distro, arch] = parse_distro(req.params.distro);
   var major = parse_major(req.params.major);
-  var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
+  var target = {'$or': [ {_distro: distro}, {_portable: true}]}
+  //var target = (distro == 'resolute') ? {_distro: distro} : {_portable: true};
   var query = {Package: pkg, Version: version, '$or': [
     {_type: 'src'},
     {_type: 'linux', _arch: arch, _major : major, ...target}
@@ -175,7 +177,8 @@ router.get('/bin/macosx/:distro/contrib/:major{/:format}', function(req, res, ne
 /* Linux binaries ONLY */
 router.get('/bin/linux/:distro/contrib/:major{/:format}', function(req, res, next) {
   var [distro, arch] = parse_distro(req.params.distro);
-  var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
+  //var target = (distro == 'resolute') ? {_distro: distro} : {_portable: true};
+  var target = {'$or': [ {_distro: distro}, {_portable: true}]}
   var major = parse_major(req.params.major);
   var query = {_type: 'linux', _arch: arch, _major: major, ...target};
   return packages_index(query, req, res, false, arch);
@@ -185,7 +188,8 @@ router.get('/bin/linux/:distro/contrib/:major{/:format}', function(req, res, nex
 router.get('/bin/linux/:distro/:major/src/contrib{/:format}', function(req, res, next) {
   var [distro, arch] = parse_distro(req.params.distro);
   var major = parse_major(req.params.major);
-  var target = (distro == 'noble') ? {_distro: distro} : {_portable: true};
+  //var target = (distro == 'resolute') ? {_distro: distro} : {_portable: true};
+  var target = {'$or': [ {_distro: distro}, {_portable: true}]}
   var query = {'$or': [
     {_type: 'src'},
     {_type: 'linux', _arch: arch, _major: major, ...target},
