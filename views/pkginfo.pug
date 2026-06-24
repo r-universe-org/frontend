@@ -302,7 +302,8 @@ block content
           span.labels
             each dep in _rundeps
               a.badge.text-bg-danger.rounded-pill.ms-1(href=`https://cran.dev/${dep}`) #{dep}
-    .package-details-article-list.list-group.pe-0(data-position="left" data-title="Articles (vignettes)" data-intro="If the package has any vignettes, rendered articles are linked here.")
+  if (_vignettes && _vignettes.length) || _status === 'failure'
+    .package-details-article-list.d-flex.flex-column.gap-2.mt-2(data-position="left" data-title="Articles (vignettes)" data-intro="If the package has any vignettes, rendered articles are linked here.")
       if _status === 'failure'
         .vignette-failure-alert.alert.alert-warning.m-0(role='alert')
           | Vignettes and/or manual for this package failed to build, some documents may be unavailable. Please inspect the
@@ -312,26 +313,31 @@ block content
         each article in _vignettes
           if article.filename.endsWith('.html')
             - var article_url = `/articles/${Package}/${article.filename}`
+            - var article_icon = 'far fa-file-lines'
+          else if article.filename.endsWith('.pdf')
+            - var article_url = `/${Package}/doc/${article.filename}`
+            - var article_icon = 'far fa-file-pdf'
           else
             - var article_url = `/${Package}/doc/${article.filename}`
-          a.package-details-article.list-group-item.list-group-item-action.border-0.pb-1(href=article_url)
-            .d-flex.w-100.justify-content-between
-              div.text-dark-emphasis
-                h2.h5.mb-1
-                  small
-                    i.fas.fa-book.me-2
-                    span.article-title #{article.title}
-                p.mb-1.package-details-article-author #{article.author}
-                small.text-muted
+            - var article_icon = 'fas fa-book'
+          a.package-details-article.article-item(href=article_url)
+            .article-body
+              span.article-title
+                i.me-2(class=article_icon)
+                | #{article.title}
+              - var headings = (Array.isArray(article.headings) ? article.headings : []).filter(h => h && h !== article.title)
+              if headings.length
+                .article-headings.mt-1 #{headings.join('  |  ')}
+              .article-meta.d-flex.align-items-center.flex-wrap.gap-3.mt-2
+                span.text-body-tertiary
                   | Rendered from
                   code.mx-1.detail-article-source #{article.source}
                   | using
                   code.mx-1.detail-article-engine #{article.engine}
-                  span.detail-article-build on #{_created}.
-              p.text-end.d-none.d-sm-block
-                small.text-muted.article-modified.text-nowrap Last update: #{(article.modified || "??").substring(0, 10)}
-                br
-                small.text-muted.article-created.text-nowrap Started: #{(article.created || "??").substring(0, 10)}
+            p.text-end.d-none.d-sm-block.flex-shrink-0.ms-3.mb-0
+              small.text-muted.article-modified.text-nowrap Last update: #{(article.modified || "??").substring(0, 10)}
+              br
+              small.text-muted.article-created.text-nowrap Started: #{(article.created || "??").substring(0, 10)}
 
   if _assets.includes("extra/citation.html")
     #citation.package-details-citation.row.card.mt-4(data-position="left" data-title='Preferred citation' data-intro='How to cite this package, as indicated by the authors in the CITATION file (if available)')

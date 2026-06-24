@@ -172,6 +172,15 @@ a:hover {
   color: var(--bs-secondary-color);
 }
 
+/* The list sits outside the details card, inside the column gutter. Pull it out
+   by that gutter so the article item borders line up exactly with the left/right
+   border of the description card above (their 1rem padding already matches the
+   card body, so the text aligns too). */
+.package-details-article-list {
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
 .noanim.collapsing {
   transition: none !important;
 }
