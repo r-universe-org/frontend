@@ -310,7 +310,8 @@ block content
           a.ms-1.vignette-failure-url(target='_blank' href=`${_buildurl}/job/${_srcjob.job || '..'}`) build logs
           |  for more information.
       if _vignettes
-        each article in _vignettes
+        - var sorted_vignettes = _vignettes.slice().sort((x, y) => (x.modified || '') > (y.modified || '') ? -1 : 1)
+        each article in sorted_vignettes
           if article.filename.endsWith('.html')
             - var article_url = `/articles/${Package}/${article.filename}`
             - var article_icon = 'far fa-file-lines'
