@@ -75,6 +75,13 @@ block content
         a.px-1.package-details-htmlmanual(target='_blank' href=`/${Package}/doc/manual.html`) manual.html
         | &#x2728;
         br
+        span.details-news
+          a.fas.fa-file-alt.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
+          a(target='_blank' href=`/${Package}/DESCRIPTION`) DESCRIPTION
+          if _assets.includes("extra/NEWS.html")
+            |  |
+            a.px-1.package-details-news(target='_blank' href=`/${Package}/NEWS`) NEWS
+        br
         a.fas.fa-image.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
         a(target='_blank' href=`/${Package}/card.svg`) card.svg
         |  |
@@ -83,12 +90,6 @@ block content
         a.fa.fa-plug.text-dark.text-decoration-none.grow-on-over(style='width: 20px')
         a.package-details-json(href=`/api/packages/${Package}`) #{Package}/json
         |  (API)
-        br
-        if _assets.includes("extra/NEWS.html")
-          span.details-news
-            a.fas.fa-file-alt.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
-            a.package-details-news(target='_blank' href=`/${Package}/NEWS`) NEWS
-            br
 
       #install.row.card.m-0.mb-3.py-1.d-none.d-md-block
         // <link rel="stylesheet" href="https://github.githubassets.com/assets/gist-embed-c77408be8058.css">
