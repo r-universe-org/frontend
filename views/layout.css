@@ -165,6 +165,11 @@ a:hover {
   font-size: 13px;
   color: var(--bs-secondary-color);
   font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* max 3 lines */
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  overflow: hidden;
 }
 
 .article-meta {
