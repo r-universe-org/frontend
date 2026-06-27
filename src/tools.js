@@ -27,7 +27,7 @@ function gh_app_token(){
 export const pkgfields = {_id: 1, _type:1, _fileid:1, _dependencies: 1, Filesize: '$_filesize', Distro: '$_distro',
   SHA256: '$_sha256', Package: 1, Version: 1, Depends: 1, Suggests: 1,
   NeedsCompilation: 1, Imports: 1, LinkingTo: 1, Enhances: 1, License_restricts_use: 1,
-  OS_type: 1, Priority: 1, Lifcense_is_FOSS: 1, Archs: 1, Path: 1, MD5sum: 1, Built: 1};
+  OS_type: 1, Priority: 1, Lifcense_is_FOSS: 1, Archs: 1, Path: 1, Built: 1};
 
 export function stream2buffer(stream) {
   return new Promise((resolve, reject) => {
@@ -202,7 +202,7 @@ function unpack_deps(x){
 
 export function doc_as_strings(doc, use_sha_file = false, mixed = false, override_arch = false){
   //this clones 'doc' and then deletes some fields
-  const { _id, _fileid, _type, _sysdeps, Distro, MD5sum, ...x } = unpack_deps(doc);
+  const { _id, _fileid, _type, _sysdeps, Distro, ...x } = unpack_deps(doc);
   if(_type == 'linux' && override_arch){
     x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
   }

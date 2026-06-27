@@ -379,7 +379,7 @@ export function mongo_universe_updates(universe){
 
 function mongo_universe_s3_index(user, prefix, start_after){
   var query = {_user: user, _registered: true, _type: {'$ne': 'failure'}};
-  var proj = {MD5sum:1, Package:1, Version:1, Built:1, _distro:1, _type:1, _id:1,  _published:1, _filesize:1};
+  var proj = {Package:1, Version:1, Built:1, _distro:1, _type:1, _id:1,  _published:1, _filesize:1, _sha256:1};
   return mongo_find(query).sort({_id: 1}).project(proj).toArray().then(function(docs){
     if(!docs.length) //should not happen because we checked earlier
       throw createError(404, `No packages found in ${user}`);
@@ -390,7 +390,7 @@ function mongo_universe_s3_index(user, prefix, start_after){
         if(!prefix || fpath.startsWith(prefix)) {
           files.push({
             Key: fpath,
-            ETag: doc.MD5sum,
+            ETag: doc._sha256,
             LastModified: doc._published.toISOString(),
             Size: doc._filesize
           });
