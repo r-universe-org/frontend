@@ -4,7 +4,7 @@ import {pipeline} from 'node:stream/promises';
 import archiver from 'archiver';
 import path from 'node:path';
 import {pkgfields, doc_to_dcf, doc_to_paths, extract_files_from_stream, doc_as_strings} from '../src/tools.js';
-import {mongo_download_stream, packages} from '../src/db.js';
+import {get_stream_by_url_or_key, packages} from '../src/db.js';
 import {packagesRDS} from "@r-universe/packages-rds";
 
 
@@ -50,7 +50,7 @@ async function packages_snapshot(files, archive, types, force_cdn){
         if(!indexes[dirname])
           indexes[dirname] = [];
         indexes[dirname].push(x);
-        await mongo_download_stream(x._fileid, force_cdn).then(function(stream){
+        await get_stream_by_url_or_key(x._fileid, force_cdn).then(function(stream){
           return archive.append_stream(stream, { name: filename, date: x._created }).finally(e => stream.destroy());
         }).catch(function(e){
           console.log(`Failed adding a file to snapshot: ${e}`);
@@ -74,7 +74,7 @@ async function packages_snapshot(files, archive, types, force_cdn){
     }
     for (var x of files.filter(x => x._type == 'src')){
       var pkgname = x.Package;
-      await mongo_download_stream(x._fileid, force_cdn).then(function(stream){
+      await get_stream_by_url_or_key(x._fileid, force_cdn).then(function(stream){
         return extract_files_from_stream(stream, `${pkgname}/extra/${pkgname}.html`).then(function([buf]){
           return archive.append(buf, { name: `docs/${pkgname}.html`, date: x._created });
         }).finally(e => stream.destroy());

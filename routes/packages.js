@@ -3,7 +3,7 @@ import {parse_stream} from 'rdesc-parser';
 import zlib from 'node:zlib';
 import rconstants from 'r-constants';
 import {extract_files_from_stream, trigger_rebuild, trigger_sync, get_submodule_hash} from '../src/tools.js';
-import {delete_file, delete_doc, delete_by_query, mongo_download_stream, crandb_store_file, mongo_set_progress, packages} from '../src/db.js';
+import {delete_file, delete_doc, delete_by_query, get_stream_by_url_or_key, crandb_store_file, check_download_hash, mongo_set_progress, packages} from '../src/db.js';
 import {Buffer} from "node:buffer";
 
 /* Local variables */
@@ -271,6 +271,14 @@ function add_meta_fields(description, meta){
   }
 }
 
+function process_uploaded_file(req, key, filename, metadata){
+  if(req.body){
+    return check_download_hash(req.body.downloadurl, key);
+  } else {
+    return crandb_store_file(req, key, filename, metadata);
+  }
+}
+
 router.delete('/api/packages/:package{/:version}{/:type}{/:built}', function(req, res, next){
   var query = {_user: res.locals.universe, Package: req.params.package};
   if(req.params.version && req.params.version != "any")
@@ -292,10 +300,11 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
   var builder = parse_builder_fields(req.headers) || {};
   var filename = get_filename(pkgname, version, type, builder.distro);
   var metadata = {user: user, commit: builder.commit.id};
-  return crandb_store_file(req, key, filename, metadata).then(function(filedata){
+  return process_uploaded_file(req, key, filename, metadata).then(function(filedata){
+    key = filedata['_id'];
     if(type == 'src'){
       var p1 = packages.countDocuments({_type: 'src', _indexed: true, '_rundeps': pkgname});
-      var p2 = mongo_download_stream(key).then(stream => extract_json_metadata(stream, pkgname));
+      var p2 = get_stream_by_url_or_key(key).then(stream => extract_json_metadata(stream, pkgname));
       var p3 = packages.find({_type: 'src', Package: pkgname, _indexed: true}).project({_user:1, _id:1}).next();
       return Promise.all([filedata, p1, p2, p3]);
     } else {
@@ -303,7 +312,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
     }
   }).then(function([filedata, usedby, headerdata, canonical]){
     //console.log(`Successfully stored file ${filename} with ${runrevdeps} runreveps`);
-    return mongo_download_stream(key).then(read_description).then(function(description){
+    return get_stream_by_url_or_key(key).then(read_description).then(function(description){
       description['MD5sum'] = filedata.md5;
       description['_user'] = user;
       description['_type'] = type;

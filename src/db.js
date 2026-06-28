@@ -1,5 +1,5 @@
 import {MongoClient, GridFSBucket} from 'mongodb';
-import {Readable} from "node:stream";
+import {Readable, Writable} from "node:stream";
 import {pipeline} from 'node:stream/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -784,7 +784,28 @@ function get_download_stream(url){
   });
 }
 
-export function mongo_download_stream(key, force_cdn = false){
+export function check_download_hash(downloadurl, key) {
+  const hash = crypto.createHash('sha256');
+  let size = 0;
+  const sink = new Writable({
+    write(chunk, encoding, cb) {
+      hash.update(chunk);
+      size += chunk.length;
+      cb();
+    }
+  });
+  return get_download_stream(downloadurl).then((stream) => pipeline(stream, sink)).then(function(){
+    if(key !== hash.digest('hex')){
+      throw new Error(`Checksum for ${downloadurl} does not match ${key}`);
+    }
+    return {_id: downloadurl, sha256: key, length: size};
+  });
+}
+
+export function get_stream_by_url_or_key(key, force_cdn = false){
+  if(key.startsWith("https://")){
+    return get_download_stream(key);
+  }
   if(production && !force_cdn){
     return get_bucket_stream(key).then(x => x.stream);
   } else {
@@ -793,12 +814,12 @@ export function mongo_download_stream(key, force_cdn = false){
   }
 }
 
-function mongo_package_stream(pkg, universe){
+export function get_src_package_stream(pkg, universe){
   var query = {Package: pkg, _user: universe, _type: 'src'};
   return packages.findOne(query, {sort: {'_id': -1}}).then(function(x){
     if(!x)
       throw createError(404, `Package ${pkg} not found in ${universe}`);
-    return mongo_download_stream(x._fileid);
+    return get_stream_by_url_or_key(x._fileid);
   });
 }
 
@@ -818,12 +839,8 @@ export function list_package_files(pkg, universe){
   return mongo_package_files(pkg, universe);
 }
 
-export function get_package_stream(pkg, universe){
-  return mongo_package_stream(pkg, universe);
-}
-
 export function get_package_file(pkg, universe, filename){
-  return get_package_stream(pkg, universe).then(function(stream){
+  return get_src_package_stream(pkg, universe).then(function(stream){
     if(!stream)
       throw createError(404, "Failed to create filestream");
     return extract_files_from_stream(stream, [`${pkg}/${filename}`]);
@@ -968,6 +985,10 @@ export async function mongo_rebuild_indexes(){
   await make_index({"_type":1, "_dependencies.package":1});
   await make_index({"_type":1, "_contributors.user":1});
 
+  // Special index that auto-deletes files at a given time
+  // Only use for CDN uploads because it does not cascade to gridfs files
+  await packages.createIndex({ "expiresAt": 1 }, { expireAfterSeconds: 0 })
+
   /* The text search index (only one is allowed) */
   //await packages.dropIndex("textsearch").catch(console.log);
   await packages.createIndex({
@@ -1047,9 +1068,13 @@ export function delete_file(key){
     if(doc){
       console.log("Found other references, not deleting file: " + key);
     } else {
-      return bucket.delete(key).then(function(){
-        console.log("Deleted file " + key);
-      });
+      if(key.startsWith("https://")) {
+        //TODO: delete from CDN?
+      } else {
+        return bucket.delete(key).then(function(){
+          console.log("Deleted file " + key);
+        });
+      }
     }
   });
 }

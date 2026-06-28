@@ -1,7 +1,7 @@
 import path from 'node:path';
 import express from 'express';
 import createError from 'http-errors';
-import {list_package_files, get_package_stream, get_package_file} from '../src/db.js';
+import {list_package_files, get_src_package_stream, get_package_file} from '../src/db.js';
 import {extract_files_from_stream, index_files_from_stream, cheerio_hljs, cheerio_page} from '../src/tools.js';
 
 const router = express.Router();
@@ -14,7 +14,7 @@ function send_package_file(req, res, filename, content_type){
 }
 
 function get_package_index(pkg, universe){
-  return get_package_stream(pkg, universe).then(function(stream){
+  return get_src_package_stream(pkg, universe).then(function(stream){
     if(!stream)
       throw createError(404, "Failed to create filestream");
     return index_files_from_stream(stream);
