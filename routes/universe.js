@@ -358,6 +358,13 @@ router.get("/sitemap_index.xml", function(req, res, next){
   });
 });
 
+router.get("/sitemap_universe.xml", function(req, res, next){
+  const endpoints = ['', 'builds', 'packages', 'articles', 'datasets',
+                     'contributors', 'badges', 'api', 'feed.xml'];
+  const urls = endpoints.map(page => `https://${res.locals.universe}.r-universe.dev/${page}`);
+  res.type('application/xml').render('sitemap', {urls: urls});
+});
+
 router.get("/feed.xml", function(req, res, next){
   var universe = res.locals.universe;
   var limit = parseInt(req.query.limit) || 50;

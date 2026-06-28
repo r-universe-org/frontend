@@ -1,5 +1,7 @@
 doctype xml
 sitemapindex(xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+  sitemap
+    loc https://#{universe}.r-universe.dev/sitemap_universe.xml
   each x in pkgdata
     sitemap
       loc https://#{x.universe}.r-universe.dev/#{x.package}/sitemap.xml

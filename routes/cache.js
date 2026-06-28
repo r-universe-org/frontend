@@ -16,7 +16,7 @@ export default function(req, res, next){
   const pkg = req.params.package || "";
   const reserved = ["", "api","apis","articles","badges","bin","builds","citation","contributors","datasets","docs",
     "favicon.ico","feed.xml","index.xml","manual","packages","readme","robots.txt", "shared", "sitemap_index.xml",
-    "sitemap.xml","src","stats", "card.png", "card.svg"];
+    "sitemap_universe.xml", "sitemap.xml","src","stats", "card.png", "card.svg"];
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};
