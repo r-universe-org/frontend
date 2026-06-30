@@ -313,7 +313,9 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
   }).then(function([filedata, usedby, headerdata, canonical]){
     //console.log(`Successfully stored file ${filename} with ${runrevdeps} runreveps`);
     return get_stream_by_url_or_key(key).then(read_description).then(function(description){
-      description['MD5sum'] = filedata.md5;
+      if(filedata.md5){
+        description['MD5sum'] = filedata.md5;
+      }
       description['_user'] = user;
       description['_type'] = type;
       description['_file'] = filename;
