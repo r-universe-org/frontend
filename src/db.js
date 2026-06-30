@@ -4,6 +4,7 @@ import {pipeline} from 'node:stream/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {pkgfields, doc_to_paths, extract_files_from_stream} from './tools.js';
+import {delete_from_cdn} from './r2.js';
 import createError from 'http-errors';
 
 const HOST = process.env.CRANLIKE_MONGODB_SERVER || '127.0.0.1';
@@ -1074,7 +1075,8 @@ export function delete_file(key){
       console.log("Found other references, not deleting file: " + key);
     } else {
       if(key.startsWith("https://")) {
-        //TODO: delete from CDN?
+        // Try to cleanup old file from CDN but not critical
+        return delete_from_cdn(key).catch(err => console.log(err));
       } else {
         return bucket.delete(key).then(function(){
           console.log("Deleted file " + key);
