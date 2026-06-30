@@ -207,13 +207,14 @@ export function doc_as_strings(doc, use_sha_file = false, mixed = false, overrid
     x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
   }
   if(use_sha_file){
+    var cdn = _fileid.startsWith("https://r2.ropensci.org") ? 'r2-sha256' : 'sha256';
     if(mixed || _type == 'linux') {
-      x.File = `${x.Package}_${x.Version}.tar.gz?sha256=${x.SHA256}`;
+      x.File = `${x.Package}_${x.Version}.tar.gz?${cdn}=${x.SHA256}`;
     } else if(_type == 'win' || _type == 'src'){
       // R copies the literal filename but '?' is illegal character on Windows
-      x.File = `sha256-${x.SHA256}`;
+      x.File = `${cdn}-${x.SHA256}`;
     } else if(_type == 'mac' || _type == 'wasm'){
-      x.File = `${x.Package}_${x.Version}.tgz?sha256=${x.SHA256}`;
+      x.File = `${x.Package}_${x.Version}.tgz?${cdn}=${x.SHA256}`;
     }
   }
   //x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
