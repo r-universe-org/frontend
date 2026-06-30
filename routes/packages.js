@@ -321,7 +321,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
       description['_filesize'] = filedata.length;
       description['_sha256'] = filedata.sha256;
       if(filedata.expires){
-        description['expiresAt'] = filedata.expires;
+        description['_expires'] = filedata.expires;
       }
       description['_created'] = get_created(description);
       description['_published'] = new Date();

@@ -992,7 +992,7 @@ export async function mongo_rebuild_indexes(){
 
   // Special index that auto-deletes files at a given time
   // Only use for CDN uploads because it does not cascade to gridfs files
-  await packages.createIndex({ "expiresAt": 1 }, { expireAfterSeconds: 0 })
+  await packages.createIndex({ "_expires": 1 }, { expireAfterSeconds: 0 })
 
   /* The text search index (only one is allowed) */
   //await packages.dropIndex("textsearch").catch(console.log);
