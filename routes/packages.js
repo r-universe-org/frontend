@@ -3,7 +3,7 @@ import {parse_stream} from 'rdesc-parser';
 import zlib from 'node:zlib';
 import rconstants from 'r-constants';
 import {extract_files_from_stream, trigger_rebuild, trigger_sync, get_submodule_hash} from '../src/tools.js';
-import {delete_file, delete_doc, delete_by_query, get_stream_by_url_or_key, crandb_store_file, check_download_hash, mongo_set_progress, packages} from '../src/db.js';
+import {delete_file, delete_doc, delete_by_query, get_stream_by_url_or_key, crandb_store_file, check_cdn_upload, mongo_set_progress, packages} from '../src/db.js';
 import {Buffer} from "node:buffer";
 
 /* Local variables */
@@ -273,7 +273,7 @@ function add_meta_fields(description, meta){
 
 function process_uploaded_file(req, key, filename, metadata){
   if(req.body){
-    return check_download_hash(req.body.downloadurl, key);
+    return check_cdn_upload(req.body, key);
   } else {
     return crandb_store_file(req, key, filename, metadata);
   }
@@ -320,6 +320,9 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
       description['_fileid'] = filedata['_id'];
       description['_filesize'] = filedata.length;
       description['_sha256'] = filedata.sha256;
+      if(filedata.expires){
+        description['expiresAt'] = filedata.expires;
+      }
       description['_created'] = get_created(description);
       description['_published'] = new Date();
       add_meta_fields(description, builder);

@@ -784,7 +784,12 @@ function get_download_stream(url){
   });
 }
 
-export function check_download_hash(downloadurl, key) {
+export function check_cdn_upload(args, key) {
+  const downloadurl = args.downloadurl;
+  const expires = new Date(args.expires);
+  if(!(expires > new Date())){
+    throw new Error(`Invalid expires value for CDN upload: ${args.expires}`);
+  }
   const hash = crypto.createHash('sha256');
   let size = 0;
   const sink = new Writable({
@@ -798,7 +803,7 @@ export function check_download_hash(downloadurl, key) {
     if(key !== hash.digest('hex')){
       throw new Error(`Checksum for ${downloadurl} does not match ${key}`);
     }
-    return {_id: downloadurl, sha256: key, length: size};
+    return {_id: downloadurl, sha256: key, length: size, expires: expires};
   });
 }
 
