@@ -70,7 +70,7 @@ app.use(function(err, req, res, next) {
   console.log("ERROR:", req.path)
   if(req.path.startsWith("/api/") || req.path.startsWith("/_global/api/")){
     // send API errors as plain-text (used by the search frontend)
-    res.status(err.status || 400).type('text/plain').send(`Error: ${err.message || err}`);
+    res.status(err.status || 400).type('text/plain').send(`Error: ${err.message || err}\n`);
   } else {
     res.locals.error = err;
     res.locals.mode = req.app.get('env')
