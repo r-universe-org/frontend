@@ -66,7 +66,13 @@ router.get("/:hash{/:postfix}", function(req, res, next) {
   let postfix = req.params.postfix || "send";
   if(hash.length != 64) //should sha256
     return next(createError(400, "Invalid hash length"));
-  return send_from_bucket(hash, postfix, res);
+  return send_from_bucket(hash, postfix, res).catch(function(err){
+    if(err.status == 410){ //temp fix during migration to R2
+      res.redirect(`https://r2.ropensci.org/${hash}`)
+    } else {
+      throw err;
+    }
+  });
 });
 
 /* index all the files on the cdn */

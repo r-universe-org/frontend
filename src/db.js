@@ -1075,8 +1075,7 @@ export function delete_file(key){
       console.log("Found other references, not deleting file: " + key);
     } else {
       if(key.startsWith("https://")) {
-        // Try to cleanup old file from CDN but not critical
-        return delete_from_cdn(key).catch(err => console.log(err));
+        return delete_from_cdn(key);
       } else {
         return bucket.delete(key).then(function(){
           console.log("Deleted file " + key);

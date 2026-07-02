@@ -70,6 +70,8 @@ export function delete_from_cdn(url){
       return;
     }
     const key = new URL(url).pathname.replace(/^\//, '');
-    return delete_from_r2(key);
+
+    // Try to cleanup old file from CDN but not critical if it errors
+    return delete_from_r2(key).catch(err => console.log(err));
   }
 }
