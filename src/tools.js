@@ -122,7 +122,7 @@ function fetch_github_app(url, opt = {}){
   return gh_app_token().then(function(token){
     opt.headers = {'Authorization': `token ${token}`, 'X-GitHub-Api-Version': '2026-03-10'};
     return fetch(url, opt).then(function(response){
-      if (!response.ok) {
+      if (!response.ok && opt.redirect !== 'manual') {
         return response.json().catch(e => response.text()).then(function(data){
           throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${data.message || data}`);
         });
@@ -136,8 +136,18 @@ function fetch_github_json(url, opt = {}){
   return fetch_github_app(url, opt).then(response => response.json());
 }
 
+/* Do not follow the redirect: that would start downloading the actual log/zip,
+   and dropping an unconsumed body can crash the process due to
+   https://github.com/nodejs/undici/issues/5360 (not yet fixed in node 22/24) */
 function fetch_github_redirect(url){
-  return fetch_github_app(url).then(response => response.url);
+  return fetch_github_app(url, {redirect: 'manual'}).then(function(response){
+    var location = response.headers.get('location');
+    response.body?.cancel();
+    if(!location){
+      throw createError(400, `GitHub API did not return a redirect (HTTP ${response.status})`);
+    }
+    return location;
+  });
 }
 
 export function github_buildlog(user, job){

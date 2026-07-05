@@ -507,6 +507,7 @@ router.post("/api/progress/:package", function(req, res, next) {
 });
 
 router.post("/api/r2info", function(req, res, next) {
+  req.resume(); //drain req body
   res.send(`${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}`);
 });
 
