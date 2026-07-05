@@ -216,8 +216,8 @@ export function doc_as_strings(doc, use_sha_file = false, mixed = false, overrid
   if(_type == 'linux' && override_arch){
     x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
   }
-  if(use_sha_file){
-    var cdn = _fileid.startsWith("https://r2.ropensci.org") ? 'r2-sha256' : 'sha256';
+  if(use_sha_file && (_fileid || "").startsWith("https://r2.ropensci.org")){
+    var cdn = 'sha256';
     if(mixed || _type == 'linux') {
       x.File = `${x.Package}_${x.Version}.tar.gz?${cdn}=${x.SHA256}`;
     } else if(_type == 'win' || _type == 'src'){

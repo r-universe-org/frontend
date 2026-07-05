@@ -36,8 +36,7 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
   }
   var format = req.params.format || "PACKAGES.json";
   if(format.startsWith("sha256-")){
-    //On r-universe.dev we redirect sha256:* with a cloudflare rule, so this is only for local use.
-    return res.redirect(301, `https://cdn.r-universe.dev/${format.substring(7)}`);
+    return res.redirect(301, `https://r2.ropensci.org/${format.substring(7)}`);
   }
   if(format.startsWith("r2-sha256-")){
     return res.redirect(301, `https://r2.ropensci.org/${format.substring(10)}`);

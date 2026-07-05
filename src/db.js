@@ -19,11 +19,17 @@ const production = process.env.NODE_ENV == 'production';
 console.log("Connecting to database....")
 const client = await MongoClient.connect(URL);
 const db = client.db('cranlike');
-const bucket = new GridFSBucket(db, {bucketName: 'files'});
 export const packages = db.collection('packages');
-const chunks = db.collection('files.chunks');
 const universes = packages.distinct('_universes');
 console.log("Connected to MongoDB!");
+
+/* These days only for local use */
+if(process.env.DISABLE_GRIDFS) {
+  console.log("GRIDFS is disabled!")
+} else {
+  var bucket = process.env.DISABLE_GRIDFS || new GridFSBucket(db, {bucketName: 'files'});
+  var chunks = process.env.DISABLE_GRIDFS || db.collection('files.chunks');
+}
 
 //removes and recreates all indexes
 if(process.env.REBUILD_INDEXES){
@@ -808,15 +814,11 @@ export function check_cdn_upload(args, key) {
   });
 }
 
-export function get_stream_by_url_or_key(key, force_cdn = false){
-  if(key.startsWith("https://")){
+export function get_stream_by_url_or_key(key){
+  if(key.startsWith("https://")) {
     return get_download_stream(key);
-  }
-  if(production && !force_cdn){
-    return get_bucket_stream(key).then(x => x.stream);
   } else {
-    console.warn(`Fetching from https://cdn.r-universe.dev/${key}`);
-    return get_download_stream(`https://cdn.r-universe.dev/${key}`);
+    return get_bucket_stream(key).then(x => x.stream);
   }
 }
 
