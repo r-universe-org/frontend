@@ -6,15 +6,15 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { fetch as undici_fetch } from 'undici';
 import app from '../app.js';
 
-/* Track outgoing (fetch) requests until their response is fully received.
-   Undici errors such as https://github.com/nodejs/undici/issues/5360 are thrown
-   from socket event handlers, so err.stack cannot show which fetch() caused them.
-   Instead we capture the fetch() call site here and print still-pending requests
-   in the uncaughtException handler below. */
-/* Use fetch from undici@8 instead of the copy bundled with node, because the
-   latter can crash the server when a connection closes while the parser is
-   paused under backpressure (see undici issue 5360 above). Remove this
-   dependency once node ships an undici version that includes the fix. */
+/* We mask default fetch() for 2 reasons:
+    - Unidici 8 uses HTTP/2 by default and is more robust against aborted streams
+      which happen in e.g. rdesc-parser when the promise resolves before the full
+      stream is consumed: https://github.com/nodejs/undici/issues/5360. Unidici 8
+      is the default in Node-26, we could switch back once this is in production.
+    - In order to get a helpful stack trace for stream errors we have to keep
+      track of pending fetches. Again, because we sometimes resolve/reject a
+      promises before the stream is fully consumed, any errors that appear later
+      may become uncaughtExceptions, for which we want a clear trace. */
 const fetch_context = new AsyncLocalStorage();
 globalThis.fetch = function(...args){
   const stack = new Error('fetch() was called here').stack;
