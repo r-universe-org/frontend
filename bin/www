@@ -3,6 +3,7 @@
 import http from 'node:http';
 import diagnostics_channel from 'node:diagnostics_channel';
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { fetch as undici_fetch } from 'undici';
 import app from '../app.js';
 
 /* Track outgoing (fetch) requests until their response is fully received.
@@ -10,11 +11,14 @@ import app from '../app.js';
    from socket event handlers, so err.stack cannot show which fetch() caused them.
    Instead we capture the fetch() call site here and print still-pending requests
    in the uncaughtException handler below. */
+/* Use fetch from undici@8 instead of the copy bundled with node, because the
+   latter can crash the server when a connection closes while the parser is
+   paused under backpressure (see undici issue 5360 above). Remove this
+   dependency once node ships an undici version that includes the fix. */
 const fetch_context = new AsyncLocalStorage();
-const real_fetch = globalThis.fetch;
 globalThis.fetch = function(...args){
   const stack = new Error('fetch() was called here').stack;
-  return fetch_context.run(stack, () => real_fetch(...args));
+  return fetch_context.run(stack, () => undici_fetch(...args));
 };
 
 const pending_requests = new Map();

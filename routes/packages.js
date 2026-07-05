@@ -23,6 +23,8 @@ function sanitize_keys(data){
 function read_description(stream){
   return parse_stream(stream).then(function(data){
     return sanitize_keys(data);
+  }).finally(function(){
+    stream.destroy(); //parse_stream stops reading after the DESCRIPTION entry
   });
 }
 
