@@ -1,13 +1,41 @@
 #!/usr/bin/env node
 
 import http from 'node:http';
+import diagnostics_channel from 'node:diagnostics_channel';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import app from '../app.js';
+
+/* Track outgoing (fetch) requests until their response is fully received.
+   Undici errors such as https://github.com/nodejs/undici/issues/5360 are thrown
+   from socket event handlers, so err.stack cannot show which fetch() caused them.
+   Instead we capture the fetch() call site here and print still-pending requests
+   in the uncaughtException handler below. */
+const fetch_context = new AsyncLocalStorage();
+const real_fetch = globalThis.fetch;
+globalThis.fetch = function(...args){
+  const stack = new Error('fetch() was called here').stack;
+  return fetch_context.run(stack, () => real_fetch(...args));
+};
+
+const pending_requests = new Map();
+diagnostics_channel.subscribe('undici:request:create', function({request}){
+  pending_requests.set(request, fetch_context.getStore() || 'unknown call site');
+});
+diagnostics_channel.subscribe('undici:request:trailers', function({request}){
+  pending_requests.delete(request);
+});
+diagnostics_channel.subscribe('undici:request:error', function({request}){
+  pending_requests.delete(request);
+});
 
 /* Last resort error handler, that should never happen but somehow it sometimes does.
    We quit because in a case of OOM/DOS, a restart may just be the best solution.
    See: https://github.com/r-universe-org/help/issues/310 */
 process.on('uncaughtException', function(err) {
-  console.log( "[UNCAUGHT EXCEPTION] " + err.stack || err.message );
+  console.log( "[UNCAUGHT EXCEPTION] " + (err.stack || err.message) );
+  pending_requests.forEach(function(stack, request){
+    console.log(`[PENDING REQUEST] ${request.method} ${request.origin}${request.path}\n  ${stack}`);
+  });
   process.exit(1);
 });
 
