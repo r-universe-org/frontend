@@ -210,24 +210,28 @@ function unpack_deps(x){
   return x;
 }
 
+function type_ext(type){
+  if(type == 'win') return 'zip';
+  if(type == 'mac' || type == 'wasm') return 'tgz';
+  return 'tar.gz';
+}
+
 export function doc_as_strings(doc, use_sha_file = false, mixed = false, override_arch = false){
   //this clones 'doc' and then deletes some fields
   const { _id, _fileid, _type, _sysdeps, Distro, ...x } = unpack_deps(doc);
   if(_type == 'linux' && override_arch){
     x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
   }
+  // We cannot use File: pkg.tar.gz?shasum=123 in PACKAGES because base download.packages() has
+  // a bug where it will save File as the verbatim filename, including ?=& characters, which
+  // are illegal on Windows. So we hack the "Path" to build a query string w/o using "File".
   if(use_sha_file) {
-    var cdn = 'sha256';
-    if(mixed || _type == 'linux') {
-      x.File = `${x.Package}_${x.Version}.tar.gz?${cdn}=${x.SHA256}`;
-    } else if(_type == 'win' || _type == 'src'){
-      // R copies the literal filename but '?' is illegal character on Windows
-      x.File = `${cdn}-${x.SHA256}`;
-    } else if(_type == 'mac' || _type == 'wasm'){
-      x.File = `${x.Package}_${x.Version}.tgz?${cdn}=${x.SHA256}`;
-    }
+    x.Path = `${doc.Package}_${doc.Version}.${type_ext(_type)}?sha256=${x.SHA256}&file=`;
+
+    //This helps pak, but if the cranlike repo gets mirrored, it URL may expire...
+    x.DownloadURL = _fileid;
   }
-  //x.DownloadURL = `https://cdn.r-universe.dev/${x.SHA256}`; //try to help pak
+
   if(Array.isArray(_sysdeps)){
     x.SystemRequirements = Array.from(new Set(_sysdeps.map(x => x.name))).join(', ');
     var libnames = _sysdeps.filter(x => x.headers).map(x => x.shlib || x.headers.replace("-dev", ""));
