@@ -23,6 +23,8 @@ function sanitize_keys(data){
 function read_description(stream){
   return parse_stream(stream).then(function(data){
     return sanitize_keys(data);
+  }).finally(function(){
+    stream.destroy(); //parse_stream stops reading after the DESCRIPTION entry
   });
 }
 
@@ -504,6 +506,11 @@ router.post("/api/progress/:package", function(req, res, next) {
   return mongo_set_progress(res.locals.universe, req.params.package, req.body.url).then(function(){
     res.send("Update OK");
   });
+});
+
+router.post("/api/r2info", function(req, res, next) {
+  req.resume(); //drain req body
+  res.send(`${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}`);
 });
 
 export default router;

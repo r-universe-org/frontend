@@ -1,3 +1,4 @@
+import {request, Agent, interceptors} from 'undici';
 import {MongoClient, GridFSBucket} from 'mongodb';
 import {Readable, Writable} from "node:stream";
 import {pipeline} from 'node:stream/promises';
@@ -19,11 +20,17 @@ const production = process.env.NODE_ENV == 'production';
 console.log("Connecting to database....")
 const client = await MongoClient.connect(URL);
 const db = client.db('cranlike');
-const bucket = new GridFSBucket(db, {bucketName: 'files'});
 export const packages = db.collection('packages');
-const chunks = db.collection('files.chunks');
 const universes = packages.distinct('_universes');
 console.log("Connected to MongoDB!");
+
+/* These days only for local use */
+if(process.env.DISABLE_GRIDFS) {
+  console.log("GRIDFS is disabled!")
+} else {
+  var bucket = process.env.DISABLE_GRIDFS || new GridFSBucket(db, {bucketName: 'files'});
+  var chunks = process.env.DISABLE_GRIDFS || db.collection('files.chunks');
+}
 
 //removes and recreates all indexes
 if(process.env.REBUILD_INDEXES){
@@ -785,6 +792,27 @@ function get_download_stream(url){
   });
 }
 
+/*  unidici.request() is supposed to be faster and more robust because it does
+    not enable compression (our files are alredy gz/zip) and returns a nodejs
+    stream so we do not need to wrap the Readable.fromWeb().
+    Note Unidici 8 uses HTTP/2 by default and is more robust against aborted
+    streams which happen in e.g. rdesc-parser when the promise resolves before
+    stream is fully consumed: https://github.com/nodejs/undici/issues/5360. Unidici 8
+    is the default in Node-26, we could switch back once this is in production. */
+const fast_dispatcher = new Agent().compose(interceptors.redirect({maxRedirections: 5}));
+function get_download_stream_fast(url){
+  return request(url, {
+    dispatcher: fast_dispatcher,
+    signal: AbortSignal.timeout(30000)
+  }).then(function({statusCode, body}){
+    if(statusCode >= 200 && statusCode < 300){
+      return body;
+    }
+    body.dump(); //free the connection, we don't use the body
+    throw new Error(`HTTP ${statusCode} for: ${url}`);
+  });
+}
+
 export function check_cdn_upload(args, key) {
   const downloadurl = args.downloadurl;
   const expires = new Date(args.expires);
@@ -808,15 +836,11 @@ export function check_cdn_upload(args, key) {
   });
 }
 
-export function get_stream_by_url_or_key(key, force_cdn = false){
-  if(key.startsWith("https://")){
+export function get_stream_by_url_or_key(key){
+  if(key.startsWith("https://")) {
     return get_download_stream(key);
-  }
-  if(production && !force_cdn){
-    return get_bucket_stream(key).then(x => x.stream);
   } else {
-    console.warn(`Fetching from https://cdn.r-universe.dev/${key}`);
-    return get_download_stream(`https://cdn.r-universe.dev/${key}`);
+    return get_bucket_stream(key).then(x => x.stream);
   }
 }
 
@@ -1075,8 +1099,7 @@ export function delete_file(key){
       console.log("Found other references, not deleting file: " + key);
     } else {
       if(key.startsWith("https://")) {
-        // Try to cleanup old file from CDN but not critical
-        return delete_from_cdn(key).catch(err => console.log(err));
+        return delete_from_cdn(key);
       } else {
         return bucket.delete(key).then(function(){
           console.log("Deleted file " + key);
