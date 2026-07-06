@@ -216,7 +216,7 @@ export function doc_as_strings(doc, use_sha_file = false, mixed = false, overrid
   if(_type == 'linux' && override_arch){
     x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
   }
-  if(use_sha_file && (_fileid || "").startsWith("https://r2.ropensci.org")){
+  if(use_sha_file) {
     var cdn = 'sha256';
     if(mixed || _type == 'linux') {
       x.File = `${x.Package}_${x.Version}.tar.gz?${cdn}=${x.SHA256}`;
