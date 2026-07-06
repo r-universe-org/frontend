@@ -1,3 +1,4 @@
+import {request, Agent, interceptors} from 'undici';
 import {MongoClient, GridFSBucket} from 'mongodb';
 import {Readable, Writable} from "node:stream";
 import {pipeline} from 'node:stream/promises';
@@ -788,6 +789,27 @@ function get_download_stream(url){
       return Readable.fromWeb(res.body);
     }
     throw new Error(`HTTP ${res.status} for: ${url}`);
+  });
+}
+
+/*  unidici.request() is supposed to be faster and more robust because it does
+    not enable compression (our files are alredy gz/zip) and returns a nodejs
+    stream so we do not need to wrap the Readable.fromWeb().
+    Note Unidici 8 uses HTTP/2 by default and is more robust against aborted
+    streams which happen in e.g. rdesc-parser when the promise resolves before
+    stream is fully consumed: https://github.com/nodejs/undici/issues/5360. Unidici 8
+    is the default in Node-26, we could switch back once this is in production. */
+const fast_dispatcher = new Agent().compose(interceptors.redirect({maxRedirections: 5}));
+function get_download_stream_fast(url){
+  return request(url, {
+    dispatcher: fast_dispatcher,
+    signal: AbortSignal.timeout(30000)
+  }).then(function({statusCode, body}){
+    if(statusCode >= 200 && statusCode < 300){
+      return body;
+    }
+    body.dump(); //free the connection, we don't use the body
+    throw new Error(`HTTP ${statusCode} for: ${url}`);
   });
 }
 
