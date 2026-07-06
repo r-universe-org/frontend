@@ -828,7 +828,7 @@ export function check_cdn_upload(args, key) {
       cb();
     }
   });
-  return get_download_stream(downloadurl).then((stream) => pipeline(stream, sink)).then(function(){
+  return get_download_stream_fast(downloadurl).then((stream) => pipeline(stream, sink)).then(function(){
     if(key !== hash.digest('hex')){
       throw new Error(`Checksum for ${downloadurl} does not match ${key}`);
     }
@@ -838,7 +838,7 @@ export function check_cdn_upload(args, key) {
 
 export function get_stream_by_url_or_key(key){
   if(key.startsWith("https://")) {
-    return get_download_stream(key);
+    return get_download_stream_fast(key);
   } else {
     return get_bucket_stream(key).then(x => x.stream);
   }
