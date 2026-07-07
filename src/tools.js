@@ -225,11 +225,19 @@ export function doc_as_strings(doc, use_sha_file = false, mixed = false, overrid
   // We cannot use File: pkg.tar.gz?shasum=123 in PACKAGES because base download.packages() has
   // a bug where it will save File as the verbatim filename, including ?=& characters, which
   // are illegal on Windows. So we hack the "Path" to build a query string w/o using "File".
+  // However pak() seems to have the same bug when adding ? in Path. However currently pak 
+  // ignores Path when we also set a File so we just do that.
   if(use_sha_file) {
-    x.Path = `${doc.Package}_${doc.Version}.${type_ext(_type)}?sha256=${x.SHA256}&file=`;
+    const filename = `${doc.Package}_${doc.Version}.${type_ext(_type)}`;
+    x.Path = `${filename}?sha256=${x.SHA256}&file=`;
+
+    //workaround for pak bug on Windows (fortunately pak ignores Path when File is present).
+    if(!mixed && (_type == 'win' || _type == 'src')){
+      x.File = filename;
+    }
 
     //This helps pak, but if the cranlike repo gets mirrored, it URL may expire...
-    x.DownloadURL = _fileid;
+    //x.DownloadURL = _fileid;
   }
 
   if(Array.isArray(_sysdeps)){
