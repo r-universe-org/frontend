@@ -803,7 +803,8 @@ const fast_dispatcher = new Agent().compose(interceptors.redirect({maxRedirectio
 function get_download_stream_fast(url){
   return request(url, {
     dispatcher: fast_dispatcher,
-    signal: AbortSignal.timeout(30000)
+    headersTimeout: 30000,
+    bodyTimeout: 30000 //max idle time between chunks, slow downloads are OK
   }).then(function({statusCode, body}){
     if(statusCode >= 200 && statusCode < 300){
       return body;
