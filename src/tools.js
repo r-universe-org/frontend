@@ -222,16 +222,15 @@ export function doc_as_strings(doc, use_sha_file = false, mixed = false, overrid
   if(_type == 'linux' && override_arch){
     x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
   }
-  // We cannot use File: pkg.tar.gz?shasum=123 in PACKAGES because base download.packages() has
+  // We cannot use File: pkg.tar.gz?shasum=123 in PACKAGES because download.packages() has
   // a bug where it will save File as the verbatim filename, including ?=& characters, which
   // are illegal on Windows. So we hack the "Path" to build a query string w/o using "File".
-  // However pak() seems to have the same bug when adding ? in Path. However currently pak 
-  // ignores Path when we also set a File so we just do that.
   if(use_sha_file) {
     const filename = `${doc.Package}_${doc.Version}.${type_ext(_type)}`;
     x.Path = `${filename}?sha256=${x.SHA256}&file=`;
 
     //workaround for pak bug on Windows (fortunately pak ignores Path when File is present).
+    //update: bug fixed in pak v0.11.0 (July 2026) so we can remove this eventualy
     if(!mixed && (_type == 'win' || _type == 'src')){
       x.File = filename;
     }
