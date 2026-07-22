@@ -126,13 +126,13 @@ html
                   span#github-user-name #{_universe_name}
                 p#github-user-bio.card-text #{_universe_bio}
               ul.list-group.list-group-flush.pb-2.sidebar-user-details
-                li#github-user-universe-row.list-group-item.border-light-subtle.text-truncate
-                  span.fa.fa-satellite-dish.fa-fw.me-3
-                  span#github-user-universe
-                  span#registry-status-spinner.spinner-border.spinner-border-sm(role='status')
-                  a#registry-status-link.ms-1.d-none(target='_blank')
+                li#github-user-universe-row.list-group-item.border-light-subtle.d-flex.align-items-center
+                  span.fa.fa-satellite-dish.fa-fw.me-3.flex-shrink-0
+                  span#github-user-universe.text-truncate
+                  span#registry-status-spinner.spinner-border.spinner-border-sm.flex-shrink-0(role='status')
+                  a#registry-status-link.ms-1.d-none.flex-shrink-0(target='_blank')
                     i.fa
-                  a#registry-status-refresh.text-dark.d-none(href="#" target='_blank')
+                  a#registry-status-refresh.text-dark.d-none.flex-shrink-0(href="#" target='_blank')
                     i.fa.fa-rotate.ms-1
                 li#github-user-company.d-none.list-group-item.border-light-subtle.text-truncate
                   span.fa.fa-building.fa-fw.me-3
