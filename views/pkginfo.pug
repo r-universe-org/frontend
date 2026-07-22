@@ -36,7 +36,7 @@ block content
         a.package-details-source(href=`/src/contrib/${Package}_${Version}.tar.gz`) #{Package}_#{Version}.tar.gz
 
         br
-        if _user !== 'cran'
+        if _grouped.win.length
           span.winmac-binaries
             a.fab.fa-windows.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
             span.package-details-windows
@@ -44,6 +44,7 @@ block content
                 a(href = bin.url) #{bin.filename}
                 span.px-1 (#{bin.repo})
             br
+        if _grouped.mac.length
             a.fab.fa-apple.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
             span.package-details-macos
               each bin in _grouped.mac
