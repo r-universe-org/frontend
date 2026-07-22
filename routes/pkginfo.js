@@ -86,9 +86,11 @@ function group_binaries(x){
   var binaries = x._binaries || [];
   var win = binaries.filter(x => x.os == 'win').sort(sortfun).map(function(binary){
     var build = binary.r.substring(0,3);
+    var arch = (binary.arch || "any").replace("aarch64", "arm64");
     var filename = `${pkg}_${binary.version}.zip`;
-    var repo = `r-${build}`;
-    var url = `/bin/windows/contrib/${build}/${filename}`;
+    var platform = arch.match("arm64") ? `clang-aarch64` : 'gcc-x86_64';
+    var repo = `r-${build}-${arch}`;
+    var url = `/bin/windows/${platform}/contrib/${build}/${filename}`;
     return {filename: filename, repo: repo, url: url};
   });
   var mac = binaries.filter(x => x.os == 'mac').sort(sortfun).map(function(binary){
