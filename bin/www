@@ -7,13 +7,6 @@ import app from '../app.js';
    We quit because in a case of OOM/DOS, a restart may just be the best solution.
    See: https://github.com/r-universe-org/help/issues/310 */
 process.on('uncaughtException', function(err) {
-  /* Undici h2 teardown races can emit socket errors that cannot be caught
-     in userland. A dead pooled connection does not corrupt process state,
-     so log and keep serving instead of restarting the container. */
-  if (err.code === 'UND_ERR_SOCKET') {
-    console.log("[IGNORED SOCKET ERROR] " + (err.stack || err.message));
-    return;
-  }
   console.log("[UNCAUGHT EXCEPTION] " + (err.stack || err.message));
   process.exit(1);
 });
