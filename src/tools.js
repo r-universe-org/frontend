@@ -270,7 +270,13 @@ export function doc_to_paths(doc){
   }
   var built = doc.Built && doc.Built.R && doc.Built.R.substring(0,3);
   if(type == 'win'){
-    return [`bin/windows/contrib/${built}/${doc.Package}_${doc.Version}.zip`];
+    var intel = `bin/windows/contrib/${built}/${doc.Package}_${doc.Version}.zip`;
+    var arm = `bin/windows/clang-aarch64/contrib/${built}/${doc.Package}_${doc.Version}.zip`;
+    if(doc.Built.Platform){
+      return [doc.Built.Platform.match("x86_64") ? intel : arm];
+    } else {
+      return [intel, arm];
+    }
   }
   if(type == 'mac'){
     var distro = built < "4.6" ? "big-sur" : "sonoma";
