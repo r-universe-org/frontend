@@ -213,7 +213,7 @@ router.get('/builds', get_user_bio, function(req, res, next) {
     pkgdata.forEach(function(row){
       row.check_icon_html = function(target, r_version){
         //sort_by_config makes arm64 be preferred over x86_64
-        const skiplist = /windows.*arm64/;
+        const skiplist = /windows-release-arm64/;
         var alljobs = (row._jobs || []).filter(x => !x.config.match(skiplist)).sort(sort_by_config);
         var job = r_version ?
           alljobs.find(x => x.r.includes(r_version) && x.config.includes(target.split("-")[0])) :
