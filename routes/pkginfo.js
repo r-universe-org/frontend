@@ -73,6 +73,9 @@ function job_info(job){
 
 function prepare_checks(pkgdata){
   var checks = pkgdata._jobs || [];
+  if(pkgdata.NeedsCompilation == "no"){
+    checks.forEach(x => x.config = x.config.replace(/-(x86_64|arm64)$/, ""));
+  }
   return checks.sort((x,y) => job_sort(x.config) < job_sort(y.config) ? -1 : 1).map(job_info);
 }
 
