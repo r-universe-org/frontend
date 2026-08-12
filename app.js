@@ -3,7 +3,6 @@ import createError from 'http-errors';
 import express from 'express';
 import logger from 'morgan';
 import cors from 'cors';
-import cdnRouter from './routes/cdn.js';
 import prepareRouter from './routes/prepare.js';
 import cacheRouter from './routes/cache.js';
 import globalApiRouter from './routes/global-api.js';
@@ -46,7 +45,6 @@ app.use('/_global/robots.txt', express.static('static/global-robots.txt'));
 app.use('/_global/static', express.static('static', {maxAge: '1d'}));
 
 //routers
-app.use('/cdn', cdnRouter);
 app.use('/', prepareRouter);
 app.use('/{:package}', cacheRouter);
 app.use('/_global/', globalApiRouter);
