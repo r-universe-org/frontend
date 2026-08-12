@@ -164,9 +164,8 @@ function load_maintainer_list(){
 function load_registry_status(){
   const tooltip_success = "Last sync was OK";
   const tooltip_failure = "There was a problem updating the registry. Click to inspect the log files.";
-  const apipath = '/repos/r-universe/' + universe + '/actions/workflows/sync.yml/runs?per_page=1&status=completed';
   $("#registry-status-link").attr("href", 'https://github.com/r-universe/' + universe + '/actions/workflows/sync.yml');
-  return github_api(apipath).then(function(data){
+  return get_json('/api/registry').then(function(data){
     if(data && data.workflow_runs && data.workflow_runs.length) {
       const last_job = data.workflow_runs[0];
       const success = last_job.conclusion == 'success';

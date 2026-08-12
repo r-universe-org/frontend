@@ -1,12 +1,18 @@
 import express from 'express';
 import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps} from '../src/db.js';
-import {cursor_stream, build_query, send_results, github_buildlog, github_artifact} from '../src/tools.js';
+import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info} from '../src/tools.js';
 
 const router = express.Router();
 
 router.get('/api/ls', function(req, res, next) {
   ls_packages(res.locals.universe).then(x => res.send(x));
+});
+
+router.get('/api/registry', function(req, res, next) {
+  return get_registry_info(res.locals.universe).then(function(x){
+    res.set('Cache-Control', 'max-age=120, public').send(x);
+  });
 });
 
 router.get('/api/packages', function(req, res, next) {
