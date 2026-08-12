@@ -11,7 +11,10 @@ router.get('/api/ls', function(req, res, next) {
 
 router.get('/api/registry', function(req, res, next) {
   return get_registry_info(res.locals.universe).then(function(x){
-    res.set('Cache-Control', 'max-age=120, public').send(x);
+    //prevents the revalidation mechanism from serving old responses
+    res.removeHeader('ETag');
+    res.removeHeader('Last-Modified');
+    res.set('Cache-Control', 'max-age=120, stale-if-error=3600, public').send(x);
   });
 });
 
