@@ -194,11 +194,11 @@ router.get('/', function(req, res, next) {
   if(req.query['list-type']){
     return send_s3_list(req, res);
   }
-  res.set('Cache-control', 'private, max-age=604800'); // Vary does not work in cloudflare currently
+  res.set('Cache-control', 'private, max-age=86400'); // Vary does not work in cloudflare currently
   const accept = req.headers['accept'];
   if(accept && accept.includes('html')){
     /* Langing page (TODO) */
-    res.redirect(`/builds`);
+    res.redirect(`/packages`);
   } else {
     res.send(`Welcome to the ${res.locals.universe} universe!`);
   }
