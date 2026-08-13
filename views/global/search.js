@@ -272,7 +272,7 @@ function organization_card(x){
 function load_organizations(){
   var pages = 8;
   var pagesize = 12;
-  var pinned = ['ropensci', 'bioc', 'tidyverse', 'r-spatial', 'pharmaverse', 'vimc',
+  var pinned = ['ropensci', 'bioc', 'tidyverse', 'r-spatial', 'pharmaverse', 'posit-dev',
               'lcbc-uio', 'rstudio', 'ropengov', 'r-lib', 'stan-dev', 'carpentries'];
   get_ndjson('https://r-universe.dev/api/organizations?limit=96&stream=1').then(function(data){
     data = data.sort((x,y) => pinned.includes(x.universe) ? -1 : 1);
