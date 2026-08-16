@@ -69,9 +69,8 @@ block content
             a.text-dark.wasm-binary-help(target='_blank' href='https://docs.r-universe.dev/install/binaries.html')
               i.far.fa-question-circle
             br
-        if _assets.includes("manual.pdf")
-          a.fas.fa-file-pdf.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
-          a.package-details-manual.pe-1(target='_blank' href=`/${Package}/${Package}.pdf`) manual.pdf
+        a.fas.fa-file-pdf.package-details-logs.text-dark.text-decoration-none.grow-on-over(style='width: 20px' href=_buildurl)
+        a.package-details-manual.pe-1(target='_blank' href=`/${Package}/doc/manual.pdf`) manual.pdf
         |  |
         a.px-1.package-details-htmlmanual(target='_blank' href=`/${Package}/doc/manual.html`) manual.html
         | &#x2728;

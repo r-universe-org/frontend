@@ -29,6 +29,9 @@ function normalize_doc_path(file, pkgname){
       return `extra/readme.md`;
     case `manual.html`:
       return `extra/${pkgname}.html`;
+    case `manual.pdf`:
+      //return `extra/manual.pdf`; //TODO
+      return `manual.pdf`;
     default:
       return `inst/doc/${file}`;
   }
@@ -50,12 +53,6 @@ router.get('/:package/LICENSE', function(req, res, next) {
   return send_package_file(req, res, 'LICENSE', 'text/plain');
 });
 
-router.get('/:package/:file.pdf', function(req, res, next){
-  if(req.params.package != req.params.file)
-    throw createError(404, `File not found, did you mean ${req.params.package}.pdf?`)
-  return send_package_file(req, res, 'manual.pdf');
-});
-
 router.get('/:package/NEWS{:ext}', function(req, res, next){
   var ext = req.params.ext || '.html';
   return send_package_file(req, res, `extra/NEWS${ext}`);
@@ -75,6 +72,7 @@ router.get('/:package/doc', function(req, res, next){
       if(m) output.push(m[1]);
     });
     output.unshift('manual.html')
+    output.unshift('manual.pdf');
     return res.send(output);
   });
 });
