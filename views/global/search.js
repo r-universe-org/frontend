@@ -151,7 +151,7 @@ function make_pkg_card(pkg, i){
   item.find('.package-name').text(pkg.Package);
   item.find('.package-title').text(pkg.Title);
   item.find('.description-maintainer').text(`Maintained by ${maintainer.name}. `);
-  item.find('.package-description').text(pkg.Description.replace('\n', ' '));
+  item.find('.package-description').text(pkg.Description?.replace('\n', ' '));
   if(pkg.updated){
     item.find('.description-last-updated').text(`Last updated ${pretty_time_diff(pkg.updated)}.`);
   }
@@ -227,6 +227,7 @@ function update_results(){
     populate_search_results(x.results);
   }).catch(function(err){
     if(err.name !== 'AbortError'){
+      console.log(err)
       $('#search-results-comment').empty().text(err.message);
     }
   });
