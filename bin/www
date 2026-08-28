@@ -6,8 +6,10 @@ import app from '../app.js';
 /* Last resort error handler, that should never happen but somehow it sometimes does.
    We quit because in a case of OOM/DOS, a restart may just be the best solution.
    See: https://github.com/r-universe-org/help/issues/310 */
-process.on('uncaughtException', function(err) {
-  console.log("[UNCAUGHT EXCEPTION] " + (err.stack || err.message));
+process.on('uncaughtException', function(err, origin) {
+  //origin is either 'uncaughtException' (event emitter leak) or
+  //'unhandledRejection' (promise without catch), which helps finding the leak
+  console.log(`[UNCAUGHT EXCEPTION] (${origin}) ` + (err.stack || err.message));
   process.exit(1);
 });
 
