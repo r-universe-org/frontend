@@ -42,12 +42,12 @@ export function extract_files_from_stream(input, files){
   var output = Array(files.length);
   function process_entry(header, filestream, next_entry) {
     filestream.on('end', next_entry);
-    //filestream.on('error', reject);
+    filestream.on('error', function(){}); //entry errors reject the pipeline below
     var index = files.indexOf(header.name);
     if(index > -1){
       stream2buffer(filestream).then(function(buf){
         output[index] = buf;
-      });
+      }, function(){}); //entry errors reject the pipeline below
     } else {
       filestream.resume();
     }
@@ -62,7 +62,7 @@ export function index_files_from_stream(input){
   let files = [];
   function process_entry(header, stream, next_entry) {
     stream.on('end', next_entry);
-    //stream.on('error', reject);
+    stream.on('error', function(){}); //entry errors reject the pipeline below
     if(header.size > 0 && header.name.match(/\/.*/)){
       files.push({
         filename: header.name,
