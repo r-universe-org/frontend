@@ -799,7 +799,10 @@ function get_download_stream(url){
     streams which happen in e.g. rdesc-parser when the promise resolves before
     stream is fully consumed: https://github.com/nodejs/undici/issues/5360. Unidici 8
     is the default in Node-26, we could switch back once this is in production. */
-const fast_dispatcher = new Agent().compose(interceptors.redirect({maxRedirections: 5}));
+/*  Disable HTTP/2 for now: undici h2 session handling still has bugs where a
+    GOAWAY or dead session stalls all multiplexed requests until headersTimeout,
+    e.g. https://github.com/nodejs/undici/pull/5740 */
+const fast_dispatcher = new Agent({allowH2: false}).compose(interceptors.redirect({maxRedirections: 5}));
 function get_download_stream_fast(url){
   return request(url, {
     dispatcher: fast_dispatcher,
