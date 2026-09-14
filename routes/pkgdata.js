@@ -30,8 +30,7 @@ function normalize_doc_path(file, pkgname){
     case `manual.html`:
       return `extra/${pkgname}.html`;
     case `manual.pdf`:
-      //return `extra/manual.pdf`; //TODO
-      return `manual.pdf`;
+      return `extra/manual.pdf`;
     default:
       return `inst/doc/${file}`;
   }

@@ -301,7 +301,7 @@ router.get('/:package/sitemap.xml', function(req, res, next) {
     var urls = [
       `${pkgurl}`,
       `${baseurl}/api/packages/${pkg}`,
-      `${pkgurl}/${pkg}.pdf`,
+      `${pkgurl}/doc/manual.pdf`,
       `${pkgurl}/doc/manual.html`
     ];
     if(assets.includes('extra/NEWS.html')){
