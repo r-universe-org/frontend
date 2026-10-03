@@ -40,6 +40,8 @@ export function stream2buffer(stream) {
 
 export function extract_files_from_stream(input, files){
   var output = Array(files.length);
+  var remaining = new Set(files);
+  var controller = new AbortController();
   function process_entry(header, filestream, next_entry) {
     filestream.on('end', next_entry);
     filestream.on('error', function(){}); //entry errors reject the pipeline below
@@ -47,13 +49,21 @@ export function extract_files_from_stream(input, files){
     if(index > -1){
       stream2buffer(filestream).then(function(buf){
         output[index] = buf;
+        remaining.delete(header.name);
+        if(!remaining.size){
+          controller.abort(); //found everything, no need to read the rest of the archive
+        }
       }, function(){}); //entry errors reject the pipeline below
     } else {
       filestream.resume();
     }
   }
   var extract = tar.extract({allowUnknownFormat: true}).on('entry', process_entry);
-  return pipeline(input, gunzip(), extract).then(function(){
+  return pipeline(input, gunzip(), extract, {signal: controller.signal}).catch(function(err){
+    if(err.name !== 'AbortError'){
+      throw err;
+    }
+  }).then(function(){
     return output;
   });
 }
