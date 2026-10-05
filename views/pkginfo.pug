@@ -177,8 +177,8 @@ block content
           span On BioConductor:
             each rls in _bioc
               u.ms-1
-                a.text-dark(href=`https://bioconductor.org/packages/${rls.branch}/bioc/html/${Package}.html`) #{Package}-#{rls.version}
-              span.ms-1.text-muted (bioc #{rls.bioc})
+                a.text-dark(href=`https://bioconductor.org/packages/${rls.branch}/${rls.repository || 'bioc'}/html/${Package}.html`) #{Package}-#{rls.version}
+              span.ms-1.text-muted (#{rls.repository || 'bioc'} #{rls.bioc})
         else
           span.release-title On CRAN:
           u
