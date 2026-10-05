@@ -51,20 +51,18 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
   }
   var cursor = get_packages_index(query, fields, mixed);
 
-  //TODO: User-Agent wont prevent serving cached files
-  var use_sha_file = (req.headers['user-agent'] || '').match(/rclone/) ? false : true;
   if(format == 'PACKAGES.rds'){
     return cursor.toArray().then(function(data){
-      let strdata = data.map(x => doc_as_strings(x, use_sha_file, mixed, override_arch));
+      let strdata = data.map(x => doc_as_strings(x, mixed, override_arch));
       let compression = (query._type == 'win' || query._type == 'mac' || query._type == 'wasm') ? "zstd" : "gzip";
       return res.send(packagesRDS(strdata, { compress: compression }));
     });
   }
   switch (format) {
     case 'PACKAGES':
-      return cursor_stream(cursor, res.type('text/plain'), x => doc_to_dcf(x, use_sha_file, mixed, override_arch));
+      return cursor_stream(cursor, res.type('text/plain'), x => doc_to_dcf(x, mixed, override_arch));
     case 'PACKAGES.gz':
-      return cursor_stream(cursor, res.type('application/x-gzip'), x => doc_to_dcf(x, use_sha_file, mixed, override_arch), true);
+      return cursor_stream(cursor, res.type('application/x-gzip'), x => doc_to_dcf(x, mixed, override_arch), true);
     case 'PACKAGES.json':
       return cursor_stream(cursor, res.type('text/plain'), doc_to_ndjson);
   }
