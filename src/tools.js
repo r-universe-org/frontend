@@ -196,8 +196,13 @@ export function get_submodule_hash(user, submodule){
 }
 
 export function get_registry_info(user){
-  const url = 'https://api.github.com/repos/r-universe/' + user + '/actions/workflows/sync.yml/runs?per_page=1&status=completed';
-  return fetch_github_json(url);
+  const url = `https://api.github.com/repos/r-universe/${user}/actions/workflows/sync.yml/runs?per_page=10`;
+  return fetch_github_json(url).then(function(data){
+    if(Array.isArray(data.workflow_runs)){
+      data.workflow_runs = data.workflow_runs.filter(x => x.status == 'completed');
+    }
+    return data;
+  });
 }
 
 //sanitize for weird versions bugs like: R (>= r81283)
