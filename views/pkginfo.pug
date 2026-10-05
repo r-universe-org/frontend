@@ -266,6 +266,12 @@ block content
           |  for more information.
 
       div#checktable.collapse(data-title='Check table' data-intro='After clicking the link above, this table shows per-platform build/check results' data-position="left")
+
+
+        if _datapkg
+          p.alert.alert-info(role='alert')
+            | This is a data package. Data packages may be large and do not get checked across all platforms.
+
         table.table.table-sm.table-bordered.border-primary-subtle.table-hover(style="max-width: 400px")
           thead
             tr
