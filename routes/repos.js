@@ -52,7 +52,7 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
   var cursor = get_packages_index(query, fields, mixed);
 
   //TODO: User-Agent wont prevent serving cached files
-  var use_sha_file = req.headers['user-agent'].match(/rclone/) ? false : true;
+  var use_sha_file = (req.headers['user-agent'] || '').match(/rclone/) ? false : true;
   if(format == 'PACKAGES.rds'){
     return cursor.toArray().then(function(data){
       let strdata = data.map(x => doc_as_strings(x, use_sha_file, mixed, override_arch));
