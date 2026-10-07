@@ -165,9 +165,8 @@ function load_registry_status(){
   const tooltip_success = "Last sync was OK";
   const tooltip_failure = "There was a problem updating the registry. Click to inspect the log files.";
   $("#registry-status-link").attr("href", 'https://github.com/r-universe/' + universe + '/actions/workflows/sync.yml');
-  return get_json('/api/registry?nocache=2').then(function(data){
-    if(data && data.workflow_runs && data.workflow_runs.length) {
-      const last_job = data.workflow_runs[0];
+  return get_json('/api/registry?nocache=4').then(function(last_job){
+    if(last_job) {
       const success = last_job.conclusion == 'success';
       $("#registry-status-link").removeClass('d-none').tooltip({title: success ? tooltip_success : tooltip_failure});
       $("#registry-status-link").find("i") .addClass(success ? 'fa-check' : 'fa-exclamation-triangle').addClass(success ? 'text-success' : 'text-danger')

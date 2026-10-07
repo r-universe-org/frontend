@@ -195,13 +195,11 @@ export function get_submodule_hash(user, submodule){
   });
 }
 
+/* GitHub has a bug that yields old results when filtering status=completed on server side */
 export function get_registry_info(user){
-  const url = `https://api.github.com/repos/r-universe/${user}/actions/workflows/sync.yml/runs?per_page=10`;
+  const url = `https://api.github.com/repos/r-universe/${user}/actions/workflows/sync.yml/runs?per_page=5`;
   return fetch_github_json(url).then(function(data){
-    if(Array.isArray(data.workflow_runs)){
-      data.workflow_runs = data.workflow_runs.filter(x => x.status == 'completed');
-    }
-    return data;
+    return data.workflow_runs?.find(x => x.status == 'completed');
   });
 }
 

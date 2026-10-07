@@ -43,10 +43,10 @@ router.get('/badges/\\::meta', function(req, res, next) {
     });
   } else if(meta == 'registry'){
     /* This badge mimics https://github.com/r-universe/jeroen/actions/workflows/sync.yml/badge.svg (which is super slow) */
-      return get_registry_info(user).then(function(data){
-        if(data && data.workflow_runs && data.workflow_runs.length){
-          const success = data.workflow_runs[0].conclusion == 'success';
-          const linkto = 'https://github.com/r-universe/' + user + '/actions/workflows/sync.yml';
+      return get_registry_info(user).then(function(last_run){
+        if(last_run){
+          const success = last_run.conclusion == 'success';
+          const linkto = `https://github.com/r-universe/${user}/actions/workflows/sync.yml`;
           badge.label = "Update universe";
           badge.color = success ? 'green' : 'red';
           badge.status = success ? 'passing' : 'failure';
@@ -58,7 +58,7 @@ router.get('/badges/\\::meta', function(req, res, next) {
         }
       });
   } else {
-    throw "Unsupported badge type :" + meta;
+    throw `Unsupported badge type ${meta}`;
   }
 });
 
