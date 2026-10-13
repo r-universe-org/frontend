@@ -82,5 +82,6 @@ $(function(){
     }
   });
 
-  render();
+  // No initial render(): the server already sends the items in the default order,
+  // and re-attaching thousands of rows on page load is slow for large universes.
 });

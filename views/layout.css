@@ -240,3 +240,17 @@ canvas {
 #global-sidebar:hover .menu-collapsed {
   display: none;
 }
+
+/* Skip layout and paint of offscreen rows in long lists (thousands for large universes) */
+.article-item, .dataset-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100px;
+}
+
+/* content-visibility scopes counters to the item, so increment on the item rather than its ::before */
+.list-group-numbered > .dataset-item {
+  counter-increment: section;
+}
+.list-group-numbered > .dataset-item::before {
+  counter-increment: none;
+}
