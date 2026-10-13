@@ -20,7 +20,11 @@ $(function(){
   });
 
   // Snapshot every card as a lightweight record we can filter/sort without touching the DOM.
-  const cards = Array.from(container.querySelectorAll('.package-card-col')).map(function(el){
+  // Most cards start out in an inert <template>; they get attached once rendered.
+  const template = document.getElementById('package-card-template');
+  const card_elements = Array.from(container.querySelectorAll('.package-card-col'))
+    .concat(Array.from(template.content.querySelectorAll('.package-card-col')));
+  const cards = card_elements.map(function(el){
     return {
       el: el,
       name: el.getAttribute('data-package') || '',

@@ -1,5 +1,59 @@
 extends layout
 
+mixin package_card(x)
+  .col-lg-6.package-card-col(
+    data-package=(x.Package || '').toLowerCase()
+    data-title=(x.Title || '')
+    data-author=(x.Author || '')
+    data-topics=(x._topics ? x._topics.join(' ') : '')
+    data-description=(x.Description || '')
+    data-score=(x._score || 0)
+    data-stars=(x._stars || 0)
+    data-dependents=(x._usedby || 0)
+    data-scripts=(x._searchresults || 0)
+    data-downloads=(x._downloads && x._downloads.count ? x._downloads.count : 0)
+    data-updated=(x._commit && x._commit.time ? x._commit.time : 0)
+  )
+    .card.mt-4.package-description-card
+      .card-body
+        if x._pkglogo
+          img.package-details-logo.img-fluid.me-3.float-start(src=x._pkglogo loading="lazy" style='max-height: 80px; max-width: 80px;')
+        - var prefix = x._user == universe ? "" : `https://${x._user}.r-universe.dev`
+        a.text-decoration-none.text-reset(href=`${prefix}/${x.Package}`)
+          if x._user != universe
+            i.float-end.text-secondary.cross-universe-icon.mx-1.fas.fa-external-link-alt
+          h2.h5.pb-1
+            span.text-dark #{x.Package}
+            small.text-secondary  - #{x.Title}
+          p.card-text.fst-italic #{x.Description}
+        p.card-text.pt-2
+          small.text-muted.description-last-updated Last updated
+            span.ms-1.package-show-difftime(data-timestamp=`${new Date(x._commit.time * 1000).toISOString()}`)
+          if x._topics
+            p.card-text
+              each topic in x._topics
+                span.badge.badge-topic.me-1 #{topic}
+        if x._score
+          span.text-muted.badge.badge-light.p-1.border.me-1
+            i.fas.fa-chart-line.text-primary
+            |  #{x._score.toFixed(2)} score
+        if x._stars
+          span.text-muted.badge.badge-light.p-1.border.me-1
+            i.fas.fa-star.text-warning
+            |  #{format_count(x._stars)} stars
+        if x._usedby
+          span.text-muted.badge.badge-light.p-1.border.me-1
+            i.fas.fa-cubes.text-success
+            |  #{format_count(x._usedby)} dependents
+        if x._searchresults
+          span.text-muted.badge.badge-light.p-1.border.me-1
+            i.fa-solid.fa-code.text-danger
+            |  #{format_count(x._searchresults)} scripts
+        if x._downloads && x._downloads.count > 0
+          span.text-muted.badge.badge-light.p-1.border.me-1
+            i.fas.fa-download.text-success-emphasis
+            |  #{format_count(x._downloads.count)} downloads
+
 block content
   .d-flex.flex-column.flex-sm-row.align-items-stretch.align-items-sm-center.gap-2.mt-3.mb-1#package-toolbar
     .flex-grow-1.position-relative
@@ -45,61 +99,15 @@ block content
     i.fas.fa-box-open.fa-2x.mb-3.d-block.text-secondary
     | No packages match
     span#filter-noresults-term.fw-bold
+  //- Only the first cards are rendered right away; the others live in an inert <template>
+  //- (no style, layout or image loading) until packages.js needs them for scrolling or filtering.
+  - var cards = pkgdata.filter(x => x._type !== 'failure')
   .row#package-card-container
-    each x,i in pkgdata
-      if x._type !== 'failure'
-        .col-lg-6.package-card-col(
-          data-package=(x.Package || '').toLowerCase()
-          data-title=(x.Title || '')
-          data-author=(x.Author || '')
-          data-topics=(x._topics ? x._topics.join(' ') : '')
-          data-description=(x.Description || '')
-          data-score=(x._score || 0)
-          data-stars=(x._stars || 0)
-          data-dependents=(x._usedby || 0)
-          data-scripts=(x._searchresults || 0)
-          data-downloads=(x._downloads && x._downloads.count ? x._downloads.count : 0)
-          data-updated=(x._commit && x._commit.time ? x._commit.time : 0)
-        )
-          .card.mt-4.package-description-card
-            .card-body
-              if x._pkglogo
-                img.package-details-logo.img-fluid.me-3.float-start(src=x._pkglogo loading="lazy" style='max-height: 80px; max-width: 80px;')
-              - var prefix = x._user == universe ? "" : `https://${x._user}.r-universe.dev`
-              a.text-decoration-none.text-reset(href=`${prefix}/${x.Package}`)
-                if x._user != universe
-                  i.float-end.text-secondary.cross-universe-icon.mx-1.fas.fa-external-link-alt
-                h2.h5.pb-1
-                  span.text-dark #{x.Package}
-                  small.text-secondary  - #{x.Title}
-                p.card-text.fst-italic #{x.Description}
-              p.card-text.pt-2
-                small.text-muted.description-last-updated Last updated
-                  span.ms-1.package-show-difftime(data-timestamp=`${new Date(x._commit.time * 1000).toISOString()}`)
-                if x._topics
-                  p.card-text
-                    each topic in x._topics
-                      span.badge.badge-topic.me-1 #{topic}
-              if x._score
-                span.text-muted.badge.badge-light.p-1.border.me-1
-                  i.fas.fa-chart-line.text-primary
-                  |  #{x._score.toFixed(2)} score
-              if x._stars
-                span.text-muted.badge.badge-light.p-1.border.me-1
-                  i.fas.fa-star.text-warning
-                  |  #{format_count(x._stars)} stars
-              if x._usedby
-                span.text-muted.badge.badge-light.p-1.border.me-1
-                  i.fas.fa-cubes.text-success
-                  |  #{format_count(x._usedby)} dependents
-              if x._searchresults
-                span.text-muted.badge.badge-light.p-1.border.me-1
-                  i.fa-solid.fa-code.text-danger
-                  |  #{format_count(x._searchresults)} scripts
-              if x._downloads && x._downloads.count > 0
-                span.text-muted.badge.badge-light.p-1.border.me-1
-                  i.fas.fa-download.text-success-emphasis
-                  |  #{format_count(x._downloads.count)} downloads
+    each x in cards.slice(0, 30)
+      +package_card(x)
+  template#package-card-template
+    each x in cards.slice(30)
+      +package_card(x)
 
   #scrollbottom.scrollbottom(style="height:10px")
 

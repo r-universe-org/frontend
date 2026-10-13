@@ -164,7 +164,7 @@ function load_maintainer_list(){
         add_maintainer_icon(maintainer);
       };
     });
-    $(".maintainer-list-panel").toggle($('#maintainer-list').children().length > 0);
+    $(".maintainer-list-panel").toggleClass("d-none", $("#maintainer-list").children().length == 0);
   });
 }
 
