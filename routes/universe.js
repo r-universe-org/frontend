@@ -212,6 +212,7 @@ router.get('/builds', get_user_bio, function(req, res, next) {
     pkgdata.sort((x,y) => y._registered - x._registered)
     pkgdata.forEach(function(row){
       row.check_icon_html = function(target, r_version){
+        //icon classes go directly on the <a>: an extra <i> per icon adds ~30k elements for large universes
         //sort_by_config makes arm64 be preferred over x86_64
         const skiplist = /windows-release-arm64/;
         var alljobs = (row._jobs || []).filter(x => !x.config.match(skiplist)).sort(sort_by_config);
@@ -220,10 +221,10 @@ router.get('/builds', get_user_bio, function(req, res, next) {
           alljobs.find(x => x.config.includes(target));
         if(job){
           var tooltip = `${job.config}: ${job.check}`;
-          return `<a data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}/job/${job_link(job)}" target="_blank"><i class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}"></i></a>`;
+          return `<a class="grow-on-over fa-fw ${os_icon(job)} ${check_to_color(job.check)}" data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}/job/${job_link(job)}" target="_blank"></a>`;
         } else {
           var tooltip = `Missing/skipped ${target}`;
-          return `<a data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}"><i class="grow-on-over fa-fw fa-solid fa-minus text-dark"></i></a>`;
+          return `<a class="grow-on-over fa-fw fa-solid fa-minus text-dark" data-bs-toggle="tooltip" data-bs-title="${tooltip}" href="${row._buildurl}"></a>`;
         }
       };
     });
