@@ -64,19 +64,7 @@ function github_api(path){
 }
 
 function load_github_user_info(){
-  var ghuser = universe;
-  if(universe === 'bioc' || universe === 'bioc-release'){
-    //bioc is the mirror or for bioconductor
-    ghuser = 'bioconductor';
-  }
-  if(universe === 'r-multiverse-staging'){
-    ghuser = 'r-multiverse';
-  }
-  if(universe === 'ropensci-champions'){
-    ghuser = 'ropensci';
-  }
-  $(".navbar img").attr('src', $(".navbar img").attr('src').replace(`/${universe}.png`, `/${ghuser}.png`));
-  $("#github-user-avatar").attr('src', $("#github-user-avatar").attr('src').replace(`/${universe}.png`, `/${ghuser}.png`));
+  var ghuser = window.ghuser; //mapped and preloaded in layout.pug
   //$("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
   /*
   get_text(`https://r-universe.dev/avatars/${ghuser}.keys`).then(function(res){
