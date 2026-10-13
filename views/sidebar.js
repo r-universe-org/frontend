@@ -1,3 +1,10 @@
+//note: the jquery .tooltip() plugin only becomes available after DOMContentLoaded
+function add_tooltip(el, title){
+  return $(el).each(function(){
+    bootstrap.Tooltip.getOrCreateInstance(this, {title: title});
+  });
+}
+
 function a(link, txt){
   return $('<a>').text(txt || link).attr('href', link);
 }
@@ -121,7 +128,7 @@ function add_maintainer_icon(maintainer){
     item.find('.maintainer-avatar').attr('src', avatar_url(maintainer.uuid || maintainer.login, 140));
   } else {
     item.attr('target', '_blank').attr('href', 'https://docs.r-universe.dev/publish/metadata.html#how-to-link-a-maintainer-email-addresses-to-a-username-on-r-universe');
-    item.find('.maintainer-avatar').tooltip({title: `<${maintainer.emails}> not associated with any GitHub account.`});
+    add_tooltip(item.find('.maintainer-avatar'), `<${maintainer.emails}> not associated with any GitHub account.`);
   }
   item.appendTo('#maintainer-list');
 }
@@ -148,7 +155,7 @@ function load_maintainer_list(){
       }
       if(maintainer.login == universe && maintainer.emails && maintainer.emails.length){
         $("#github-user-emails").removeClass("d-none").find(".content").append(maintainer.emails.join("<br/>"));
-        $("#github-user-emails").tooltip({title: `Maintainer email address from package descriptions`});
+        add_tooltip("#github-user-emails", `Maintainer email address from package descriptions`);
       }
       if(maintainer.login == universe && maintainer.orgs){
         maintainer.orgs.filter(org => org != universe).forEach(org => add_maintainer_icon({login: org, name: org}));
@@ -168,10 +175,9 @@ function load_registry_status(){
   return get_json('/api/registry?nocache=4').then(function(last_job){
     if(last_job) {
       const success = last_job.conclusion == 'success';
-      $("#registry-status-link").removeClass('d-none').tooltip({title: success ? tooltip_success : tooltip_failure});
+      add_tooltip($("#registry-status-link").removeClass('d-none'), success ? tooltip_success : tooltip_failure);
       $("#registry-status-link").find("i") .addClass(success ? 'fa-check' : 'fa-exclamation-triangle').addClass(success ? 'text-success' : 'text-danger')
-      $("#registry-status-refresh").removeClass('d-none')
-        .tooltip({title: 'Check for package updates'})
+      add_tooltip($("#registry-status-refresh").removeClass('d-none'), 'Check for package updates')
         .click(function(e){
           const link = $(this);
           e.preventDefault();
@@ -212,7 +218,10 @@ function load_universe_stats(){
     for (const [key, value] of Object.entries(stats)) {
       $(`#github-user-${key} .content`).text(`${value || 0} ${key}`);
       if(!value){
-        $('a[href="/' + key + '"]').addClass("disabled").removeClass("text-dark").addClass("text-secondary");
+        //links may also appear in main content which may not have been parsed yet
+        $(function(){
+          $('a[href="/' + key + '"]').addClass("disabled").removeClass("text-dark").addClass("text-secondary");
+        });
       }
       if(key == 'filesize'){
         $("#github-user-totalsize").text(`(${formatBytes(value)})`);
@@ -306,15 +315,18 @@ function start_introjs_tour(){
   }).start();
 }
 
-/* Load sidebar and globals */
+/* Load sidebar right away: this script is included directly after the sidebar markup,
+ * so the sidebar can populate while the main content is still being parsed */
+var isdev = window.location.hostname == 'localhost';
+window.server = isdev ? 'https://' + universe + '.r-universe.dev' : "";
+load_registry_status();
+load_universe_stats();
+load_maintainer_list();
+load_github_user_info();
+update_searchbox();
+
+/* Globals that need the full page */
 $(function(){
-  var isdev = window.location.hostname == 'localhost';
-  window.server = isdev ? 'https://' + universe + '.r-universe.dev' : "";
   $(".nocran").toggle(universe != 'cran');
   show_timestamps();
-  load_registry_status();
-  load_universe_stats();
-  load_maintainer_list();
-  load_github_user_info();
-  update_searchbox();
 });

@@ -32,6 +32,10 @@ html
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css')
+    //- start fetching sidebar data right away, rather than after the (possibly large) page has been parsed
+    link(rel='preload' href='/api/summary' as='fetch' crossorigin)
+    link(rel='preload' href='/api/maintainers?limit=25' as='fetch' crossorigin)
+    link(rel='preload' href='/api/registry?nocache=4' as='fetch' crossorigin)
     block after_head
     style
       include layout.css
@@ -171,27 +175,28 @@ html
                 a.text-muted.py-1(data-bs-toggle='collapse' href='#maintainer-list' role='button')
                   span.fa.collapse-icon
               #maintainer-list.collapse.show.list-group.list-group-flush
+          #templatezone.d-none
+            a.maintainer-item.list-group-item.list-group-item-action.border-light.text-truncate.p-0(href='#')
+              .row.g-0
+                .col-md-3.maintainer-link
+                  img.rounded.maintainer-avatar.card-img(src='https://r-universe.dev/static/nobody.jpg' loading="lazy")
+                .col-md-9.my-2
+                  .card-body
+                    p.card-text.maintainer-name
+
+            li.revdep-item.list-group-item.border-light.p-1
+              .row.align-items-center
+                a.col-auto.revdep-user-link
+                  img.rounded.revdep-user-avatar.card-img(src='https://r-universe.dev/static/nobody.jpg' style='width: 60px;' loading="lazy")
+                .col.revdep-user-packages
+          //- load sidebar early: it can populate while a (possibly large) main content is still being parsed
+          script
+            | window.universe="#{universe}"
+          include includes/core-scripts.pug
+          script
+            include sidebar.js
         main.col.mx-sm-2(style="min-width: 0")
           block content
-    #templatezone.d-none
-      a.maintainer-item.list-group-item.list-group-item-action.border-light.text-truncate.p-0(href='#')
-        .row.g-0
-          .col-md-3.maintainer-link
-            img.rounded.maintainer-avatar.card-img(src='https://r-universe.dev/static/nobody.jpg' loading="lazy")
-          .col-md-9.my-2
-            .card-body
-              p.card-text.maintainer-name
-
-      li.revdep-item.list-group-item.border-light.p-1
-        .row.align-items-center
-          a.col-auto.revdep-user-link
-            img.rounded.revdep-user-avatar.card-img(src='https://r-universe.dev/static/nobody.jpg' style='width: 60px;' loading="lazy")
-          .col.revdep-user-packages
-
-    script
-      | window.universe="#{universe}"
     block before_scripts
-    include includes/default-scripts.pug
-    script
-      include sidebar.js
+    include includes/extra-scripts.pug
     block after_scripts
