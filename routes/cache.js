@@ -28,7 +28,7 @@ export default function(req, res, next){
     //var cdn_cache = 60;
   } else {
     var query = {_user: universe, Package: pkg, _registered: true}; //remotes dont have webpage
-    var max_age = 60;
+    var max_age = 61;
     //var cdn_cache = 30;
   }
   return get_latest(query).then(function(doc){
