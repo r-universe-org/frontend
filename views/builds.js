@@ -61,11 +61,8 @@ function make_activity_chart(){
 }
 
 function update_retry_buttons(){
- $(".retry-button").each(function(){
-    var link = $(this);
-    link.tooltip({title: `Retry failed builds for ${link.attr('data-pkgver')}`});
-  });
-  $(".retry-button").click(function(e){
+  //delegated handler: binding to thousands of buttons individually is slow for large universes
+  $(document).on('click', '.retry-button', function(e){
     e.preventDefault();
     var link = $(this)
     fetch(link.attr("data-retry-url"), {
@@ -78,33 +75,22 @@ function update_retry_buttons(){
       }
       alert(`Success! Retrying failed build for: ${link.attr('data-pkgver')}`);
       window.location = link.attr("href");
-    }).catch(alert).finally(function(){
-      // tooltip.dispose()
-    })
-  });
-}
-
-function update_tooltips(){
-  $('.cross-universe-icon').each(function(){
-    var icon = $(this);
-    icon.tooltip({title: `Package from other universe (${icon.attr('data-universe')})`});
+    }).catch(alert);
   });
 }
 
 function enable_default_tooltips(){
-  $('[data-bs-toggle="tooltip"]').each(function(){
-    var link = $(this);
-    var tooltip = bootstrap.Tooltip.getOrCreateInstance(link, {delay:{show:300}});
-    link.click(function(){
-      link.blur();
-      tooltip.hide();
-    })
+  //lazily create tooltips on hover, instead of instantiating thousands of them on page load
+  const selector = '[data-bs-toggle="tooltip"]';
+  new bootstrap.Tooltip(document.body, {selector: selector, delay: {show:300}});
+  $(document).on('click', selector, function(){
+    this.blur();
+    bootstrap.Tooltip.getInstance(this)?.hide();
   });
 }
 
 $(function(){
   update_retry_buttons();
-  update_tooltips();
   enable_default_tooltips();
   make_activity_chart();
 });

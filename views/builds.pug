@@ -39,7 +39,7 @@ block content
                     a.ms-1(href=`https://github.com/r-universe/${universe}/blob/HEAD/.remotes.json` target='_blank')
                       small.text-dark (remote/noindex)
                   if row._registered !== false && row._type !== 'failure' && row._user !== universe
-                    small.text-secondary.cross-universe-icon.mx-1.fas.fa-external-link-alt(data-universe=row._user)
+                    small.text-secondary.cross-universe-icon.mx-1.fas.fa-external-link-alt(data-bs-toggle='tooltip' data-bs-title=`Package from other universe (${row._user})`)
                   if row.OS_type
                     small.fw-medium.ms-1 (#{row.OS_type} only)
               td
@@ -81,12 +81,15 @@ block content
                 if row._progress_url && (new Date() - row._published < 7200000)
                   a.text-decoration-none.mx-3.fa-solid.fa-cog.fa-spin.d-none.d-xl-inline-block(href=row._progress_url target="_blank" data-bs-toggle="tooltip" data-bs-title="Newer build in progress..." )
                 else if !all_ok(row)
-                  a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=build_url(row) data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row._failure ? row._failure.version : row.Version}`)
+                  a.text-decoration-none.retry-button.mx-3.fa.fa-sync-alt.d-none.d-xl-inline(href=build_url(row) data-retry-url=retry_url(row), data-pkgver=`${row.Package} ${row._failure ? row._failure.version : row.Version}` data-bs-toggle='tooltip' data-bs-title=`Retry failed builds for ${row.Package} ${row._failure ? row._failure.version : row.Version}`)
                 if row._failure
                   a.link-danger.link-offset-2.link-underline-opacity-25.link-underline-opacity-100-hover(href=`${row._failure.buildurl}/job/${row._failure.job ? row._failure.job.job : '..'}`)
                     div.fw-bold.ms-1 update failure for v#{row._failure.version}
               td.text-nowrap.d-none.d-xl-table-cell.text-secondary
                 span.package-show-difftime(data-timestamp=`${(row._failure ? row._failure.date : row._created).toISOString()}`)
+
+block after_head
+  link(rel='preload' href='/api/updates' as='fetch' crossorigin)
 
 block after_scripts
   script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js')
