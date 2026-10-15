@@ -778,7 +778,11 @@ export function get_bucket_stream(hash){
     //stream.on('error', function(err){
     //  throw `Mongo stream error for ${key} (${err})`;
     //});
-    pkg.stream = bucket.openDownloadStream(hash);
+    // stream.destroy() does not kill the cursor (only abort() does) which leaks
+    // server-side cursors when a stream is not fully consumed, e.g. pipeline aborts
+    var stream = bucket.openDownloadStream(hash);
+    stream.once('close', () => stream.abort().catch(() => {}));
+    pkg.stream = stream;
     return pkg;
   });
 }

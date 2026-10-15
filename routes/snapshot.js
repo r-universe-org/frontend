@@ -75,7 +75,7 @@ async function packages_snapshot(files, archive, types){
     for (var x of files.filter(x => x._type == 'src')){
       var pkgname = x.Package;
       await get_stream_by_url_or_key(x._fileid).then(function(stream){
-        return extract_files_from_stream(stream, `${pkgname}/extra/${pkgname}.html`).then(function([buf]){
+        return extract_files_from_stream(stream, [`${pkgname}/extra/${pkgname}.html`]).then(function([buf]){
           return archive.append(buf, { name: `docs/${pkgname}.html`, date: x._created });
         }).finally(e => stream.destroy());
       }).catch(function(e){
