@@ -3,7 +3,7 @@ import createError from 'http-errors';
 import {mongo_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes, mongo_summary, summary_bio} from '../src/db.js';
 import {check_to_color, job_link} from '../src/tools.js';
-import {generateUniverseSvg, svgToPng} from '@r-universe/r-universe-cards';
+import {generateUniverseSvg, svgToPngSubprocess} from '@r-universe/r-universe-cards';
 const router = express.Router();
 
 function os_icon(job){
@@ -401,7 +401,7 @@ router.get('/card.svg', function(req, res, next) {
 
 router.get('/card.png', function(req, res, next) {
   return mongo_summary(res.locals.universe).then(function(data){
-    return generateUniverseSvg(data).then((svg) => svgToPng(svg)).then(buf => res.type('image/png').send(buf));
+    return generateUniverseSvg(data).then(svg => svgToPngSubprocess(svg, `${res.locals.universe} universe card`)).then(buf => res.type('image/png').send(buf));
   });
 });
 

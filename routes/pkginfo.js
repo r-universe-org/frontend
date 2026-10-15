@@ -3,7 +3,7 @@ import createError from 'http-errors';
 import url from 'node:url';
 import {get_package_info, get_all_universes} from '../src/db.js';
 import {check_to_color, job_link} from '../src/tools.js';
-import { generatePackageSvg, svgToPng } from '@r-universe/r-universe-cards';
+import { generatePackageSvg, svgToPngSubprocess } from '@r-universe/r-universe-cards';
 
 const router = express.Router();
 
@@ -402,7 +402,8 @@ router.get('/:package/card.svg', function(req, res, next) {
 
 router.get('/:package/card.png', function(req, res, next) {
   return get_package_info(req.params.package, req.universe).then(function(pkgdata){
-    return generatePackageSvg(pkgdata).then((svg) => svgToPng(svg)).then(buf => res.type('image/png').send(buf));
+    var label = `${req.universe}/${req.params.package} card (logo: ${pkgdata._pkglogo || 'none'})`;
+    return generatePackageSvg(pkgdata).then(svg => svgToPngSubprocess(svg, label)).then(buf => res.type('image/png').send(buf));
   });
 });
 
