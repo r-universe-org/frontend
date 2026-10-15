@@ -4,6 +4,7 @@ import {Readable, Writable} from "node:stream";
 import {pipeline} from 'node:stream/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import cluster from 'node:cluster';
 import {pkgfields, doc_to_paths, extract_files_from_stream} from './tools.js';
 import {delete_from_cdn} from './r2.js';
 import createError from 'http-errors';
@@ -33,7 +34,8 @@ if(process.env.DISABLE_GRIDFS) {
 }
 
 //removes and recreates all indexes
-if(process.env.REBUILD_INDEXES){
+//with multiple frontend workers (see bin/www) only rebuild in the first one
+if(process.env.REBUILD_INDEXES && (!cluster.isWorker || cluster.worker.id === 1)){
   console.log("REBUILDING INDEXES!")
   mongo_rebuild_indexes();
 }

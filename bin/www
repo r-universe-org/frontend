@@ -1,114 +1,25 @@
 #!/usr/bin/env node
 
-import http from 'node:http';
-import fs from 'node:fs';
-import inspector from 'node:inspector/promises';
-import {monitorEventLoopDelay} from 'node:perf_hooks';
-import app from '../app.js';
+import cluster from 'node:cluster';
 
-/* Last resort error handler, that should never happen but somehow it sometimes does.
-   We quit because in a case of OOM/DOS, a restart may just be the best solution.
-   See: https://github.com/r-universe-org/help/issues/310 */
-process.on('uncaughtException', function(err, origin) {
-  //origin is either 'uncaughtException' (event emitter leak) or
-  //'unhandledRejection' (promise without catch), which helps finding the leak
-  console.log(`[UNCAUGHT EXCEPTION] (${origin}) ` + (err.stack || err.message));
-  process.exit(1);
-});
+/* Node is single threaded, so a single process only uses one cpu core. With
+   FRONTEND_WORKERS > 1 we start multiple server processes that share the same
+   port; the primary process accepts connections and distributes them over the
+   workers (round-robin), and restarts workers when they exit (e.g. after an
+   uncaught exception or a crash). */
+const workers = parseInt(process.env.FRONTEND_WORKERS || '1');
 
-var port = parseInt(process.env.PORT || '3000');
-app.set('port', port);
-
-var server = http.createServer(app);
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
-/**
- * This must be greater than the nginx timeout (60s)
- * https://shuheikagawa.com/blog/2019/04/25/keep-alive-timeout/
- */
-server.keepAliveTimeout = 62*1000;
-server.headersTimeout = 65*1000;
-
-/**
- * Log when the event loop gets blocked, to distinguish CPU blocking (high delay)
- * from slow upstreams (normal delay but slow responses) or memory leaks.
- */
-const loopdelay = monitorEventLoopDelay({resolution: 20});
-loopdelay.enable();
-setInterval(function(){
-  const max = loopdelay.max / 1e6;
-  if(max > 500){
-    const mem = process.memoryUsage();
-    console.log(`[EVENT LOOP DELAY] max ${max.toFixed(0)}ms p99 ${(loopdelay.percentile(99) / 1e6).toFixed(0)}ms ` +
-      `rss ${(mem.rss / 1e6).toFixed(0)}MB heap ${(mem.heapUsed / 1e6).toFixed(0)}MB`);
+if(workers > 1 && cluster.isPrimary){
+  console.log(`Starting ${workers} frontend workers`);
+  cluster.setupPrimary({exec: new URL('./server.js', import.meta.url).pathname});
+  for (let i = 0; i < workers; i++) {
+    cluster.fork();
   }
-  if(max > 1000 && Date.now() - last_profile > 3600 * 1000){
-    last_profile = Date.now();
-    cpu_profile(60).catch(e => console.log(`[CPU PROFILE] failed: ${e.message}`));
-  }
-  loopdelay.reset();
-}, 10000).unref();
-
-/**
- * Record a CPU profile when the event loop is blocked for more than 1s (at most once
- * per hour) to find what blocks it. Open in Chrome DevTools > Performance.
- */
-var last_profile = 0;
-async function cpu_profile(seconds){
-  const file = `logs/cpu-${new Date().toISOString().replaceAll(':', '-')}.cpuprofile`;
-  const session = new inspector.Session();
-  session.connect();
-  try {
-    await session.post('Profiler.enable');
-    await session.post('Profiler.start');
-    console.log(`[CPU PROFILE] recording ${seconds}s to ${file}`);
-    await new Promise(resolve => setTimeout(resolve, seconds * 1000));
-    const {profile} = await session.post('Profiler.stop');
-    await fs.promises.writeFile(file, JSON.stringify(profile));
-    console.log(`[CPU PROFILE] saved ${file}`);
-  } finally {
-    session.disconnect();
-  }
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  console.log('Listening on ' + bind);
+  cluster.on('exit', function(worker, code, signal){
+    console.log(`[CLUSTER] worker ${worker.process.pid} exited (code ${code}, signal ${signal}), restarting`);
+    //wait a bit to avoid a restart loop when something is broken, e.g. the database is down
+    setTimeout(() => cluster.fork(), 1000);
+  });
+} else {
+  await import('./server.js');
 }
