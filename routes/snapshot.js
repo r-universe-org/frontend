@@ -4,7 +4,8 @@ import {promisify} from 'node:util';
 import {pipeline} from 'node:stream/promises';
 import archiver from 'archiver';
 import path from 'node:path';
-import {pkgfields, doc_to_dcf, doc_to_paths, extract_files_from_stream, doc_as_strings} from '../src/tools.js';
+import {Readable} from 'node:stream';
+import {pkgfields, doc_to_dcf, doc_to_paths, extract_files_from_stream, doc_as_strings, stream2buffer} from '../src/tools.js';
 import {get_stream_by_url_or_key, packages} from '../src/db.js';
 import {packagesRDSAsync} from "@r-universe/packages-rds";
 
@@ -28,6 +29,36 @@ function new_zipfile(format){
   return archive;
 }
 
+/* Files are small (median ~200kB) and each R2 request has ~50ms latency, so fetching
+   them one by one is slow. Prefetch small files into memory a few at a time, while
+   adding them to the archive in order. Large files are streamed directly instead. */
+const prefetch_concurrency = 8;
+const prefetch_max_size = 8 * 1024 * 1024;
+
+// Runs fn(item) for up to 'concurrency' items ahead, yielding results in order.
+async function* prefetch_map(items, fn, concurrency = prefetch_concurrency){
+  const pending = [];
+  let next = 0;
+  const start = () => {
+    const item = items[next++];
+    const p = Promise.resolve().then(() => fn(item)).then(value => ({item, value}), error => ({item, error}));
+    pending.push(p);
+  };
+  while(next < items.length && pending.length < concurrency) start();
+  while(pending.length){
+    const result = await pending.shift();
+    if(next < items.length) start();
+    yield result;
+  }
+}
+
+function prefetch_file(x){
+  if(!(x.Filesize > 0 && x.Filesize <= prefetch_max_size)){
+    return null; //large or unknown size: stream when it is our turn
+  }
+  return get_stream_by_url_or_key(x._fileid).then(stream2buffer);
+}
+
 async function packages_snapshot(files, archive, types){
   
   var abort = false;
@@ -42,22 +73,25 @@ async function packages_snapshot(files, archive, types){
   });
 
   var indexes = {};
-  for (var x of files){
-    if(types.includes(x._type)){
-      for (var filename of doc_to_paths(x)){
-        if(abort){
-          throw abort;
-        }
-        var dirname = path.dirname(filename);
-        if(!indexes[dirname])
-          indexes[dirname] = [];
-        indexes[dirname].push(x);
-        await get_stream_by_url_or_key(x._fileid).then(function(stream){
-          return archive.append_stream(stream, { name: filename, date: x._created }).finally(e => stream.destroy());
-        }).catch(function(e){
-          console.log(`Failed adding a file to snapshot: ${e}`);
-        });
+  var selected = files.filter(x => types.includes(x._type));
+  for await (const {item: x, value: buf, error} of prefetch_map(selected, prefetch_file)){
+    for (const filename of doc_to_paths(x)){
+      if(abort){
+        throw abort;
       }
+      var dirname = path.dirname(filename);
+      if(!indexes[dirname])
+        indexes[dirname] = [];
+      indexes[dirname].push(x);
+      if(error){
+        console.log(`Failed adding a file to snapshot: ${error}`);
+        continue;
+      }
+      await (buf ? Promise.resolve(Readable.from([buf])) : get_stream_by_url_or_key(x._fileid)).then(function(stream){
+        return archive.append_stream(stream, { name: filename, date: x._created }).finally(e => stream.destroy());
+      }).catch(function(e){
+        console.log(`Failed adding a file to snapshot: ${e}`);
+      });
     }
   };
 
@@ -74,15 +108,18 @@ async function packages_snapshot(files, archive, types){
     if(abort){
       throw abort;
     }
-    for (var x of files.filter(x => x._type == 'src')){
-      var pkgname = x.Package;
-      await get_stream_by_url_or_key(x._fileid).then(function(stream){
-        return extract_files_from_stream(stream, [`${pkgname}/extra/${pkgname}.html`]).then(function([buf]){
-          return archive.append(buf, { name: `docs/${pkgname}.html`, date: x._created });
-        }).finally(e => stream.destroy());
-      }).catch(function(e){
-        console.log(`Failed adding a docs file to snapshot: ${e}`);
-      });
+    const extract_docs = (x) => get_stream_by_url_or_key(x._fileid).then(function(stream){
+      return extract_files_from_stream(stream, [`${x.Package}/extra/${x.Package}.html`]).finally(() => stream.destroy());
+    });
+    for await (const {item: x, value, error} of prefetch_map(files.filter(x => x._type == 'src'), extract_docs)){
+      if(abort){
+        throw abort;
+      }
+      if(error || !value[0]){
+        console.log(`Failed adding a docs file to snapshot: ${error || 'no html manual found'}`);
+        continue;
+      }
+      archive.append(value[0], { name: `docs/${x.Package}.html`, date: x._created });
     };
   }
 }
