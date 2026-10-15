@@ -204,23 +204,25 @@ export function get_registry_info(user){
 }
 
 //sanitize for weird versions bugs like: R (>= r81283)
+const valid_dep_version = /^[<>=]+\s+[0-9-.]+$/;
 function dep_to_string(x){
-  const validate = /^[<>=]+\s+[0-9-.]+$/;
-  if(x.package && x.version && validate.test(x.version)) {
+  if(x.package && x.version && valid_dep_version.test(x.version)) {
     return `${x.package} (${x.version})`;
   } else {
     return x.package || x;
   }
 }
 
-function unpack_deps(x){
-  var alldeps = x['_dependencies'] || [];
-  var deptypes = new Set(alldeps.map(dep => dep.role));
-  deptypes.forEach(function(type){
-    x[type] = alldeps.filter(dep => dep.role == type).map(dep_to_string).join(", ");
-  });
-  delete x['_dependencies'];
-  return x;
+//returns e.g. {Depends: "R (>= 4.1)", Imports: "cli, rlang"} in order of first appearance
+function unpack_deps(alldeps = []){
+  const out = {};
+  for (const dep of alldeps) {
+    (out[dep.role] ??= []).push(dep_to_string(dep));
+  }
+  for (const role of Object.keys(out)) {
+    out[role] = out[role].join(", ");
+  }
+  return out;
 }
 
 function type_ext(type){
@@ -229,9 +231,33 @@ function type_ext(type){
   return 'tar.gz';
 }
 
+//fields of the db document that are not part of the PACKAGES index
+const skip_fields = new Set(['_id', '_fileid', '_type', '_sysdeps', 'Distro', '_dependencies']);
+
+//any whitespace other than a regular space, which we replace with a space
+const other_whitespace = /[^\S ]/;
+const other_whitespace_all = /[^\S ]/g;
+
+function as_field_value(value){
+  if(typeof value === 'object') {
+    value = JSON.stringify(value);
+  }
+  value = value.toString();
+  return other_whitespace.test(value) ? value.replace(other_whitespace_all, ' ') : value;
+}
+
+/* This is called for every package when generating PACKAGES indexes, which can be
+   25k packages for cran, so we try to keep it fast: build a new object rather than
+   cloning and deleting fields from the db document (does not modify 'doc'). */
 export function doc_as_strings(doc, mixed = false, override_arch = false){
-  //this clones 'doc' and then deletes some fields
-  const { _id, _fileid, _type, _sysdeps, Distro, ...x } = unpack_deps(doc);
+  const {_type, _sysdeps} = doc;
+  const x = {};
+  for (const key of Object.keys(doc)) {
+    if(!skip_fields.has(key)) {
+      x[key] = doc[key];
+    }
+  }
+  Object.assign(x, unpack_deps(doc._dependencies));
   if(_type == 'linux' && override_arch){
     x.Platform = `${override_arch}-${override_arch == 'x86_64' ? 'pc' : 'unknown'}-linux-gnu`; //pak cannot identify multi-arch binaries
   }
@@ -257,20 +283,17 @@ export function doc_as_strings(doc, mixed = false, override_arch = false){
       x.SystemRequirements = `${x.SystemRequirements} (${Array.from(new Set(libnames)).join(' ')})`;
     }
   }
-  if(typeof x.Built === 'object'){
+  if(x.Built && typeof x.Built === 'object'){
     x.Built = "R " + Object.values(x.Built).join("; ");
   }
-  for (let [key, value] of Object.entries(x)) {
-    if(value === null || value === undefined) {
-      delete x[key];
-      continue;
+  const out = {};
+  for (const key of Object.keys(x)) {
+    const value = x[key];
+    if(value !== null && value !== undefined) {
+      out[key] = as_field_value(value);
     }
-    if(typeof value === 'object') {
-      value = JSON.stringify(value)
-    }
-    x[key] = value.toString().replace(/\s/gi, ' ');
   }
-  return x;
+  return out;
 }
 
 export function doc_to_dcf(doc, mixed = false, override_arch = false){
