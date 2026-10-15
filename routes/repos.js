@@ -3,7 +3,7 @@ import {pipeline} from 'node:stream/promises';
 import createError from 'http-errors';
 import {doc_to_dcf, cursor_stream, doc_as_strings} from '../src/tools.js';
 import {get_universe_binaries, get_packages_index, get_package_hash} from '../src/db.js';
-import { packagesRDS } from "@r-universe/packages-rds";
+import { packagesRDSAsync } from "@r-universe/packages-rds";
 
 const router = express.Router();
 
@@ -55,7 +55,7 @@ function packages_index(query, req, res, mixed = false, override_arch = false){
     return cursor.toArray().then(function(data){
       let strdata = data.map(x => doc_as_strings(x, mixed, override_arch));
       let compression = (query._type == 'win' || query._type == 'mac' || query._type == 'wasm') ? "zstd" : "gzip";
-      return res.send(packagesRDS(strdata, { compress: compression }));
+      return packagesRDSAsync(strdata, { compress: compression }).then(buf => res.send(buf));
     });
   }
   switch (format) {

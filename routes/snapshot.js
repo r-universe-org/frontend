@@ -1,13 +1,15 @@
 import express from 'express';
 import zlib from 'node:zlib';
+import {promisify} from 'node:util';
 import {pipeline} from 'node:stream/promises';
 import archiver from 'archiver';
 import path from 'node:path';
 import {pkgfields, doc_to_dcf, doc_to_paths, extract_files_from_stream, doc_as_strings} from '../src/tools.js';
 import {get_stream_by_url_or_key, packages} from '../src/db.js';
-import {packagesRDS} from "@r-universe/packages-rds";
+import {packagesRDSAsync} from "@r-universe/packages-rds";
 
 
+const gzip = promisify(zlib.gzip);
 const router = express.Router();
 
 function new_zipfile(format){
@@ -63,8 +65,8 @@ async function packages_snapshot(files, archive, types){
   for (const [path, files] of Object.entries(indexes)) {
     var packages = files.map(x => doc_to_dcf(x)).join('');
     archive.append(packages, { name: `${path}/PACKAGES` });
-    archive.append(zlib.gzipSync(packages), { name: `${path}/PACKAGES.gz`});
-    archive.append(packagesRDS(files.map(x => doc_as_strings(x)), { compress: 'gzip' }), { name: `${path}/PACKAGES.rds`});
+    archive.append(await gzip(packages), { name: `${path}/PACKAGES.gz`});
+    archive.append(await packagesRDSAsync(files.map(x => doc_as_strings(x)), { compress: 'gzip' }), { name: `${path}/PACKAGES.rds`});
   }
 
   /* Extract html manual pages. This is a bit slower so doing this last */
