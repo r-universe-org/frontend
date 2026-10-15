@@ -260,7 +260,11 @@ export function doc_as_strings(doc, mixed = false, override_arch = false){
   if(typeof x.Built === 'object'){
     x.Built = "R " + Object.values(x.Built).join("; ");
   }
-  for (const [key, value] of Object.entries(x)) {
+  for (let [key, value] of Object.entries(x)) {
+    if(value === null || value === undefined) {
+      delete x[key];
+      continue;
+    }
     if(typeof value === 'object') {
       value = JSON.stringify(value)
     }
