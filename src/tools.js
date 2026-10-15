@@ -1,9 +1,8 @@
 import {Buffer} from "node:buffer";
 import {pipeline} from 'node:stream/promises';
-import {createGzip, deflateSync, inflateSync } from "node:zlib";
+import {createGzip, createGunzip, deflateSync, inflateSync } from "node:zlib";
 import tar from 'tar-stream';
 import fs from 'node:fs';
-import gunzip from 'gunzip-maybe';
 import {load as cheerio_load} from 'cheerio';
 import hljs from 'highlight.js';
 import createError from 'http-errors';
@@ -36,6 +35,12 @@ export function stream2buffer(stream) {
     stream.on("end", () => resolve(Buffer.concat(_buf)));
     stream.on("error", (err) => reject(err));
   });
+}
+
+// All our archives are tar.gz. Larger output chunks than the 16kb default mean
+// fewer callbacks through the stream pipeline, which saves main thread cpu.
+export function gunzip(){
+  return createGunzip({chunkSize: 64 * 1024});
 }
 
 export function extract_files_from_stream(input, files){

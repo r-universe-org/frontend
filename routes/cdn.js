@@ -1,9 +1,8 @@
 import express from 'express';
-import gunzip from 'gunzip-maybe';
 import {pipeline} from 'node:stream/promises';
 import createError from 'http-errors';
 import {get_bucket_stream, bucket_find} from '../src/db.js';
-import {index_files_from_stream, cursor_stream} from '../src/tools.js';
+import {index_files_from_stream, cursor_stream, gunzip} from '../src/tools.js';
 
 const router = express.Router();
 
