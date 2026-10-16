@@ -65,6 +65,14 @@ app.use(function(req, res, next) {
 
 // global error handler
 app.use(function(err, req, res, next) {
+  // A streaming response failed halfway, usually because the client disconnected.
+  // We cannot send an error anymore, only make sure the response gets aborted.
+  if(res.headersSent){
+    if(err.code !== 'ERR_STREAM_PREMATURE_CLOSE'){
+      console.log(`ERROR: ${req.path} (after headers sent): ${err.message || err}`);
+    }
+    return res.destroy();
+  }
   console.log("ERROR:", req.path)
   if(req.path.startsWith("/api/") || req.path.startsWith("/_global/api/")){
     // send API errors as plain-text (used by the search frontend)
