@@ -43,7 +43,7 @@ if(process.env.REBUILD_INDEXES && (!cluster.isWorker || cluster.worker.id === 1)
 function mongo_latest(q){
   if(!packages || !packages.find)
     throw new Error("No mongodb connection available.");
-  return packages.findOne(q, {sort:{_published: -1}, project: {_id: 1, _published: 1, _user: 1, Package: 1}});
+  return packages.findOne(q, {sort:{_published: -1}, projection: {_id: 1, _published: 1, _user: 1, Package: 1}});
 }
 
 function mongo_find(q){
@@ -239,7 +239,7 @@ function mongo_package_info(pkg, universe){
 }
 
 function mongo_package_hash(query){
-  var options = {project: {_fileid: 1, Version: 1}};
+  var options = {projection: {_fileid: 1, Version: 1}};
   if(query['$or']){
     options.sort = {_type: 1}; //prefer linux binary over src packages
   }
