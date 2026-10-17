@@ -11,7 +11,7 @@ block content
         small.form-text.text-muted Information about packages in this universe
       .row.g-3.mb-3
         .col-md-6
-          select#api-packages-package.form-control.form-select.form-select-sm
+          select#api-packages-package.form-control.form-select.form-select-sm(data-bs-toggle='tooltip' data-bs-title='List all packages from this universe or select one.')
             option(value='') All packages in '#{universe}' (JSON format)
             option(value='?stream=1') All packages '#{universe}' (NDJSON stream)
             each x in pkgdata
@@ -19,6 +19,10 @@ block content
                 option #{x.Package}
               else
                 option(data-universe=x._user) #{x.Package}
+        .col-md-5
+          input#api-packages-fields.form-control.form-control-sm(type='text' placeholder='fields' data-bs-toggle='tooltip' data-bs-title='Optional: string with comma-separated list to filter fields to return. For example: Package,Verion,_maintainer,_binaries')
+        .col-md-1
+          input#api-packages-limit.form-control.form-control-sm(type='number' min='1' placeholder='limit' data-bs-toggle='tooltip' data-bs-title='Optional: maximum number of packages to return (most recently updated first).')
 
   .card.mb-4#api-dataset-container
     h2.h5.card-title.card-header.text-center.text-dark Export datasets
@@ -86,6 +90,10 @@ block content
             each x in pkgdata
               if x._user === universe
                 option #{x.Package}
+
+block after_head
+  style.
+    .tooltip { --bs-tooltip-max-width: 400px; }
 
 block after_scripts
   script

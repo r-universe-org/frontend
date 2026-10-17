@@ -3,8 +3,26 @@ function update_api_callbacks(){
   function update_packages_url(){
     var package = $('#api-packages-package').val();
     var pkguniv = $('#api-packages-package option:selected').attr("data-universe") || universe;
-    var postfix = (package && package[0] !== '?') ? `/${package}` : package;
-    var url = `https://${pkguniv}.r-universe.dev/api/packages${postfix}`;
+    var single = package && package[0] !== '?';
+    // The fields and limit parameters only apply to the list of all packages
+    $('#api-packages-fields,#api-packages-limit').prop('disabled', single);
+    var url = `https://${pkguniv}.r-universe.dev/api/packages`;
+    if(single){
+      url = `${url}/${package}`;
+    } else {
+      var params = package ? [package.substring(1)] : [];
+      var fields = $('#api-packages-fields').val().replace(/\s/g, ',');
+      var limit = $('#api-packages-limit').val();
+      if(fields.length){
+        params.push(`fields=${fields}`);
+      }
+      if(limit.length){
+        params.push(`limit=${limit}`);
+      }
+      if(params.length){
+        url = url + "?" + params.join("&");
+      }
+    }
     $("#api-packages-url input").val(url);
     $("#api-packages-url a").attr('href', url);
   }
@@ -61,6 +79,7 @@ function update_api_callbacks(){
     $("input:checkbox[name=binaries]").prop('disabled', !need_binaries);
   }
   $('#snapshot-form input,#snapshot-form select').change(update_snapshot_url).trigger('change');
+  $('#api-packages-fields,#api-packages-limit').on('input', update_packages_url);
   $('#api-packages-package').change(update_packages_url).trigger("change");
   $('#api-dataset-data').change(update_dataset_formats);
   $('#api-dataset-data,#api-dataset-format').change(update_dataset_url);
@@ -73,5 +92,9 @@ function update_api_callbacks(){
 }
 
 $(function(){
+  new bootstrap.Tooltip(document.body, {selector: '[data-bs-toggle="tooltip"]'});
+  $('[data-bs-toggle="tooltip"]').on('input blur', function(){
+    bootstrap.Tooltip.getInstance(this)?.hide();
+  });
   update_api_callbacks()
 });
