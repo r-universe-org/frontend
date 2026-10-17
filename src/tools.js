@@ -208,6 +208,43 @@ export function get_registry_info(user){
   });
 }
 
+// Owner info from the git hosting platform (currently only GitHub)
+export function get_user_info(universe){
+  const aliases = {'bioc': 'bioconductor', 'bioc-release': 'bioconductor', 'r-multiverse-staging': 'r-multiverse', 'ropensci-champions': 'ropensci'};
+  const login = aliases[universe] || universe;
+  if(/^(gitlab|bitbucket|codeberg)-/.test(login))
+    throw createError(404, `No user info available for ${login}`);
+  return fetch_github_json(`https://api.github.com/users/${login}`).then(function(user){
+    return {
+      provider: 'github',
+      login: user.login,
+      url: user.html_url,
+      type: user.type?.toLowerCase(),
+      name: user.name,
+      bio: user.bio,
+      company: user.company,
+      location: user.location,
+      website: user.blog,
+      followers: user.followers
+    };
+  });
+}
+
+// Upstream repository info from the git hosting platform (currently only GitHub)
+export function get_upstream_info(upstream){
+  const repo = upstream && upstream.match(/^https:\/\/github\.com\/([^/]+\/[^/]+?)(\.git)?\/?$/);
+  if(!repo || /^(cran|bioc|r-forge)\//i.test(repo[1]))
+    throw createError(404, `No upstream info available for ${upstream}`);
+  return fetch_github_json(`https://api.github.com/repos/${repo[1]}`).then(function(data){
+    return {
+      provider: 'github',
+      url: data.html_url,
+      archived: data.archived,
+      open_issues: data.open_issues_count
+    };
+  });
+}
+
 //sanitize for weird versions bugs like: R (>= r81283)
 const valid_dep_version = /^[<>=]+\s+[0-9-.]+$/;
 function dep_to_string(x){

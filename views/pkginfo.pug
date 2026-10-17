@@ -440,9 +440,8 @@ block after_head
   link(rel='preload' href=`https://r-universe.dev/condastatus/${Package.toLowerCase()}` as='fetch' crossorigin)
   if universe != 'bioc' && universe != 'bioc-release'
     link(rel='preload' href=`https://r-universe.dev/cranstatus/${Package}` as='fetch' crossorigin)
-  - var ghrepo = _bugtracker && _bugtracker.match('github.com/([^/]+/[^/]+)')
-  if ghrepo
-    link(rel='preload' href=`https://r-universe.dev/gh/repos/${ghrepo[1]}` as='fetch' crossorigin)
+  if _bugtracker
+    link(rel='preload' href=`${server}/${Package}/api/upstream` as='fetch' crossorigin)
   link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css')
   link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/prism.css')
   link(rel='stylesheet' type='text/css' href='https://r-universe.dev/static/manual.css')

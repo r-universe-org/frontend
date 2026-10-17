@@ -878,6 +878,15 @@ export function get_package_info(pkg, universe){
   return mongo_package_info(pkg, universe);
 }
 
+export function get_package_upstream(pkg, universe){
+  if(!packages || !packages.find)
+    throw new Error("No mongodb connection available.");
+  const query = {_user: universe, Package: pkg, _registered: true};
+  return packages.findOne(query, {sort: {_published: -1}, projection: {_upstream: 1, _devurl: 1}}).then(function(doc){
+    return doc && (doc._devurl || doc._upstream);
+  });
+}
+
 export function list_package_files(pkg, universe){
   return mongo_package_files(pkg, universe);
 }

@@ -18,23 +18,17 @@ function update_copy_gist(){
   link.tooltip({title: tooltip_text});
 }
 
-function github_repo_info(repo){
-  return github_api('/repos/' + repo).then(function(data){
-    if(data.archived){
-      $('.open-issues-count').text(`ARCHIVED on GitHub`)
-    } else if(data.open_issues_count !== undefined){
-      $('.open-issues-count').text(`${data.open_issues_count} issues`)
-    }
-  });
-}
-
-function update_open_issues(src, details){
-  var bugtracker = pkginfo.bugtracker;
-  if(bugtracker){
-    const ghrepo = bugtracker.match('github.com/([^/]+/[^/]+)');
-    if(ghrepo){
-      github_repo_info(ghrepo[1]);
-    }
+function update_open_issues(){
+  if(pkginfo.bugtracker){
+    return get_json(`${server}/${package}/api/upstream`).then(function(data){
+      if(data.archived){
+        $('.open-issues-count').text(`ARCHIVED upstream`)
+      } else if(data.open_issues !== undefined){
+        $('.open-issues-count').text(`${data.open_issues} issues`)
+      }
+    }).catch(function(err){
+      console.log(`No upstream info: ${err}`);
+    });
   }
 }
 

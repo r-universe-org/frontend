@@ -56,13 +56,6 @@ function avatar_url(login, size){
   return `https://images.r-universe.dev/${login}.png${param}`;
 }
 
-function github_api(path){
-  return get_json('https://r-universe.dev/gh' + path).catch(function(err){
-    console.log("Failed to use GH proxy.")
-    return get_json('https://api.github.com' + path);
-  });
-}
-
 function load_github_user_info(){
   var ghuser = window.ghuser; //mapped and preloaded in layout.pug
   //$("#github-user-avatar").attr('src', avatar_url(ghuser, 248));
@@ -73,12 +66,12 @@ function load_github_user_info(){
     }
   });
   */
-  return github_api('/users/' + ghuser).then(function(user){
+  return get_json('/api/user').then(function(user){
     $("#github-user-name").text(user.name || ghuser);
 
     if(user.name){
       // use same name->title format as GitHub itself
-      if(user.type === 'Organization'){
+      if(user.type === 'organization'){
         $("title.default-fallback-title").text(`R packages by ${user.name}`);
       } else {
         $("title.default-fallback-title").text(`R packages by ${ghuser} (${user.name})`);
@@ -86,8 +79,8 @@ function load_github_user_info(){
     }
 
     $("#github-user-bio").text(user.bio);
-    if(user.type === 'User'){
-      $("#github-user-github").removeClass("d-none").attr('href', `https://github.com/${ghuser}`);
+    if(user.type === 'user'){
+      $("#github-user-github").removeClass("d-none").attr('href', user.url);
     }
     if(user.company){
       $("#github-user-company").toggleClass("d-none").find('.content').text(user.company);
@@ -95,14 +88,14 @@ function load_github_user_info(){
     if(user.location){
       $("#github-user-location").toggleClass("d-none").find('.content').text(user.location);
     }
-    if(user.blog){
-      var blog = user.blog.startsWith("http") ? user.blog : "https://" + user.blog;
+    if(user.website){
+      var blog = user.website.startsWith("http") ? user.website : "https://" + user.website;
       $("#github-user-blog").toggleClass("d-none").find('.content').append(a(blog));
     }
     if(user.followers){
       $("#github-user-followers").toggleClass("d-none").find('.content').text(countstr(user.followers) + " followers");
     }
-    $("#github-user-avatar").toggleClass("rounded-circle", user.type == 'User');
+    $("#github-user-avatar").toggleClass("rounded-circle", user.type == 'user');
   }).catch(function(err){
     $("#github-user-bio").text(err);
   });

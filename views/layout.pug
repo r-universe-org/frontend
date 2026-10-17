@@ -38,7 +38,7 @@ html
     link(rel='preload' href='/api/registry?nocache=4' as='fetch' crossorigin)
     //- github account shown in the sidebar (some universes mirror another account)
     - var ghuser = {'bioc': 'bioconductor', 'bioc-release': 'bioconductor', 'r-multiverse-staging': 'r-multiverse', 'ropensci-champions': 'ropensci'}[universe] || universe
-    link(rel='preload' href=`https://r-universe.dev/gh/users/${ghuser}` as='fetch' crossorigin)
+    link(rel='preload' href='/api/user' as='fetch' crossorigin)
     block after_head
     style
       include layout.css

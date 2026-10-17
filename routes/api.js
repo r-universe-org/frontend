@@ -1,7 +1,9 @@
 import express from 'express';
 import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
-  mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps} from '../src/db.js';
-import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info} from '../src/tools.js';
+  mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps,
+  get_package_upstream} from '../src/db.js';
+import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info,
+  get_user_info, get_upstream_info} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -15,6 +17,24 @@ router.get('/api/registry', function(req, res, next) {
     res.removeHeader('ETag');
     res.removeHeader('Last-Modified');
     res.set('Cache-Control', 'max-age=120, stale-if-error=3600, public').send(x);
+  });
+});
+
+router.get('/api/user', function(req, res, next) {
+  return get_user_info(res.locals.universe).then(function(x){
+    //data comes from upstream platform, so do not use package-based revalidation
+    res.removeHeader('ETag');
+    res.removeHeader('Last-Modified');
+    res.set('Cache-Control', 'max-age=3600, stale-while-revalidate=86400, stale-if-error=86400, public').send(x);
+  });
+});
+
+router.get('/:package/api/upstream', function(req, res, next) {
+  return get_package_upstream(req.params.package, res.locals.universe).then(get_upstream_info).then(function(x){
+    //data comes from upstream platform, so do not use package-based revalidation
+    res.removeHeader('ETag');
+    res.removeHeader('Last-Modified');
+    res.set('Cache-Control', 'max-age=3600, stale-while-revalidate=86400, stale-if-error=86400, public').send(x);
   });
 });
 
