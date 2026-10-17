@@ -2,7 +2,7 @@ import express from 'express';
 import createError from 'http-errors';
 import url from 'node:url';
 import {get_package_info, get_all_universes} from '../src/db.js';
-import {check_to_color, job_link} from '../src/tools.js';
+import {check_to_color, job_link, proxy_logo} from '../src/tools.js';
 import { generatePackageSvg, svgToPngSubprocess } from '@r-universe/r-universe-cards';
 
 const router = express.Router();
@@ -18,7 +18,7 @@ function avatar_url(login, size){
   if(login.startsWith('gitlab-')) login = 'gitlab';
   if(login.startsWith('bitbucket-')) login = 'atlassian';
   login = login.replace('[bot]', '');
-  return `https://r-universe.dev/avatars/${login}.png${param}`;
+  return `https://images.r-universe.dev/${login}.png${param}`;
 }
 
 function normalize_authors(str){
@@ -266,6 +266,7 @@ router.get('/:package', function(req, res, next) {
     pkgdata.title = `${pkgdata.Package}: ${pkgdata.Title}`;
     pkgdata.Author = normalize_authors(pkgdata.Author);
     pkgdata._created = date_to_string(pkgdata._created);
+    pkgdata._pkglogo = proxy_logo(pkgdata._pkglogo);
     pkgdata._grouped = group_binaries(pkgdata);
     pkgdata._bugtracker = guess_tracker_url(pkgdata);
     pkgdata._sysdeps = filter_sysdeps(pkgdata);

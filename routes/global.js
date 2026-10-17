@@ -88,7 +88,7 @@ router.get("/builds", function(req, res, next){
 router.get("/organizations", function(req, res, next){
   return get_organizations().then(function(orgs){
     orgs.forEach(function(x){
-      x.avatar = x.uuid ? `https://avatars.githubusercontent.com/u/${x.uuid}` : `https://r-universe.dev/avatars/${x.universe}.png`;
+      x.avatar = x.uuid ? `https://avatars.githubusercontent.com/u/${x.uuid}` : `https://images.r-universe.dev/${x.universe}.png`;
     });
     res.render('global/organizations', {
       title: "R-universe - community",

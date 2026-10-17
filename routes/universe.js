@@ -2,7 +2,7 @@ import express from 'express';
 import createError from 'http-errors';
 import {mongo_universe_packages, get_universe_s3_index, get_universe_vignettes, get_package_info,
         get_universe_contributors, get_universe_contributions, get_all_universes, mongo_summary, summary_bio} from '../src/db.js';
-import {check_to_color, job_link} from '../src/tools.js';
+import {check_to_color, job_link, proxy_logo} from '../src/tools.js';
 import {generateUniverseSvg, svgToPngSubprocess} from '@r-universe/r-universe-cards';
 const router = express.Router();
 
@@ -246,7 +246,7 @@ router.get("/packages", get_user_bio, function(req, res, next){
     res.render('packages', {
       format_count: format_count,
       format_time_since: format_time_since,
-      pkgdata: pkgdata.sort(sort_by_score)
+      pkgdata: pkgdata.map(x => ({...x, _pkglogo: proxy_logo(x._pkglogo)})).sort(sort_by_score)
     });
   });
 });

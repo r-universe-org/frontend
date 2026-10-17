@@ -103,7 +103,7 @@ function make_contributor_chart(max, imsize){
     const logins = contributors.map(x => x.login);
     const totals = contributors.map(x => x.total);
     const counts = contributors.map(x => sort_packages(x.repos).map(x => x.upstream.split(/[\\/]/).pop()));
-    const avatars = logins.map(x => `https://r-universe.dev/avatars/${x.replace('[bot]', '')}.png?size=${size}`);
+    const avatars = logins.map(x => `https://images.r-universe.dev/${x.replace('[bot]', '')}.png?size=${size}`);
     const images = avatars.map(x => undefined);
     const promises = avatars.map(download_avatar);
 

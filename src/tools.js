@@ -363,6 +363,14 @@ export function check_to_color(check, icons = true){
   }
 }
 
+// Serve GitHub-hosted package logos via our caching image proxy
+export function proxy_logo(logo){
+  if(typeof logo === 'string' && /^https:\/\/github\.com\/[^/]+\/[^/]+\/raw\/.+\.(png|svg|jpe?g|gif|webp)$/i.test(logo)){
+    return logo.replace('https://github.com/', 'https://images.r-universe.dev/');
+  }
+  return logo;
+}
+
 export function job_link(job){
   if(!job.job) return '..';
   if(job.check == 'WARNING' || job.check == 'NOTE'){

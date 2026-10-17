@@ -321,7 +321,7 @@ function avatar_url(login, size){
   if(login.startsWith('gitlab-')) login = 'gitlab';
   if(login.startsWith('bitbucket-')) login = 'atlassian';
   login = login.replace('[bot]', '');
-  return `https://r-universe.dev/avatars/${login}.png${param}`;
+  return `https://images.r-universe.dev/${login}.png${param}`;
 }
 
 

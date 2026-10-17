@@ -78,7 +78,7 @@ html
 
         nav.navbar.navbar-expand-sm
           a.navbar-toggler.float-start(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
-            img.rounded.me-2(src=`https://r-universe.dev/avatars/${ghuser}.png?size=40` style="height:40px;")
+            img.rounded.me-2(src=`https://images.r-universe.dev/${ghuser}.png?size=40` style="height:40px;")
             span.navbar-brand.mx-1 #{universe}
           .collapse.navbar-collapse.py-2.float-start#navbarNav
             ul.navbar-nav.me-lg-auto.mb-0.justify-content-center(data-title='Tabs to other content in this universe' data-intro='<ul><li>Builds: recent updates</li><li>Packages: browse other packages</li><li>Articles: all vignettes</li><li>Datasets: download datasets</li><li>Contribution: people doing the work</li><li>API: programmatic endpoints</li><li>Feed: RSS update</li></ul>' data-step=1003)
@@ -116,7 +116,7 @@ html
           div(style='width:280px;')
             .sidebar-metadata(data-position="right" data-title='Owner information' data-intro='The sidebar shows information about the owner of this universe')
               a(href='/')
-                img#github-user-avatar.rounded.card-img-top.p-3(src=`https://r-universe.dev/avatars/${ghuser}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
+                img#github-user-avatar.rounded.card-img-top.p-3(src=`https://images.r-universe.dev/${ghuser}.png?size=248` style='min-height: 262px;' class=`${_universe_type === 'organization' ? '' : 'rounded-circle'}`)
               p.fs-6.float-end.mb-0(style="margin-top: -10px;")
                 a#github-user-github(href=`https://github.com/${_universe_name}` target='_blank' class=`${_universe_type !== 'user' ? 'd-none' : ''}`)
                   span.fa-brands.fa-github.fa-fw.me-1.text-dark.grow-on-over
