@@ -37,7 +37,7 @@ if(process.env.DISABLE_GRIDFS) {
 //with multiple frontend workers (see bin/www) only rebuild in the first one
 //wait for the universes query above, else dropping its index kills the query
 if(process.env.REBUILD_INDEXES && (!cluster.isWorker || cluster.worker.id === 1)){
-  universes.then(function(){
+  await universes.then(function(){
     console.log("REBUILDING INDEXES!")
     return mongo_rebuild_indexes().catch(err => console.log(`Failed to rebuild indexes: ${err.message}`));
   });
