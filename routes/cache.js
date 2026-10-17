@@ -21,14 +21,17 @@ export default function(req, res, next){
   if(pkg == '_global'){
     var query = {};
     var max_age = req.path.includes("_global/builds") ? 60 : 600;
+    var cache_tag = 'global';
     //var cdn_cache = req.path.includes("_global/builds") ? 60 : 3600;
   } else if (metapage){
     var query = {_universes: universe};
     var max_age = universe == 'cran' ? 600 : 60;
+    var cache_tag = 'universe';
     //var cdn_cache = 60;
   } else {
     var query = {_user: universe, Package: pkg, _registered: true}; //remotes dont have webpage
     var max_age = 61;
+    var cache_tag = 'package';
     //var cdn_cache = 30;
   }
   return get_latest(query).then(function(doc){
@@ -38,10 +41,11 @@ export default function(req, res, next){
     //res.set('Cache-Control', 'public, max-age=60');
     //also cache 404 errors below
     res.set('Cache-Control', `public, max-age=${max_age}`);
+    res.set('Cache-Tag', cache_tag);
     //res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 40; // bump to invalidate all caches
+      const revision = 0; // bump to invalidate all caches
       const cachetime = doc._published.getTime() + revision * 1000;
       const etag = `W/"${cachetime}"`;
       const date = new Date(cachetime).toUTCString();
