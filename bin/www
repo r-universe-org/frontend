@@ -9,7 +9,7 @@ import cluster from 'node:cluster';
    uncaught exception or a crash). */
 const workers = parseInt(process.env.FRONTEND_WORKERS || '1');
 
-if(workers > 1 && cluster.isPrimary){
+if(!process.env.REBUILD_INDEXES && workers > 1 && cluster.isPrimary){
   console.log(`Starting ${workers} frontend workers`);
   cluster.setupPrimary({exec: new URL('./server.js', import.meta.url).pathname});
   for (let i = 0; i < workers; i++) {
