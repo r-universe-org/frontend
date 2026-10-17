@@ -1,4 +1,5 @@
 import express from 'express';
+import createError from 'http-errors';
 import {badgen} from 'badgen';
 import {get_registry_info} from '../src/tools.js';
 import {get_distinct, get_package_info} from '../src/db.js';
@@ -54,11 +55,11 @@ router.get('/badges/\\::meta', function(req, res, next) {
           res.set('ETag', "").set('Last-Modified', new Date().toUTCString());
           send_badge(badge, user, res, linkto);
         } else {
-          throw "Failed to query workflow status from GitHub";
+          throw createError(502, "Failed to query workflow status from GitHub");
         }
       });
   } else {
-    throw `Unsupported badge type ${meta}`;
+    throw createError(404, `Unsupported badge type ${meta}`);
   }
 });
 

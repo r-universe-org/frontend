@@ -73,7 +73,13 @@ app.use(function(err, req, res, next) {
     }
     return res.destroy();
   }
-  console.log("ERROR:", req.path)
+  const status = err.status || 500;
+  if(status >= 500){
+    // log the cause of server errors, 4xx are already in logs/frontend.log
+    console.log(`ERROR: ${req.path} (${status}): ${err.stack || err.message || err}`);
+  } else {
+    console.log("ERROR:", req.path)
+  }
   if(req.path.startsWith("/api/") || req.path.startsWith("/_global/api/")){
     // send API errors as plain-text (used by the search frontend)
     res.status(err.status || 400).type('text/plain').send(`Error: ${err.message || err}\n\n${err.stack}\n`);
