@@ -10,7 +10,8 @@ block content
     i.fas.fa-table.fa-2x.mb-3.d-block.text-secondary
     | No datasets match
     span#dataset-noresults-term.fw-bold
-  ol.list-group.list-group-numbered.mt-4#dataset-list
+  - var dataset_index = 0
+  ol.list-group.mt-4#dataset-list
     each pkg in pkgdata
       if pkg._datasets
         - var prefix = pkg._user == universe ? "" : `https://${pkg._user}.r-universe.dev`
@@ -20,6 +21,7 @@ block content
             data-title=(x.title || '')
             data-class=(Array.isArray(x.class) ? x.class.join(' ') : (x.class || ''))
           )
+            span.dataset-index #{++dataset_index}.
             .ms-2.me-auto
               .fw-bold #{pkg.Package}::#{x.name}
               i #{x.title}

@@ -6,6 +6,7 @@ $(function(){
   const items = Array.from(list.querySelectorAll('.dataset-item')).map(function(el){
     return {
       el: el,
+      index: el.querySelector('.dataset-index'),
       name: el.getAttribute('data-name') || '',
       title: el.getAttribute('data-title') || '',
       klass: el.getAttribute('data-class') || ''
@@ -45,7 +46,10 @@ $(function(){
     const ordered = compute();
     items.forEach(it => { if(it.el.parentNode === list) list.removeChild(it.el); });
     const frag = document.createDocumentFragment();
-    ordered.forEach(it => frag.appendChild(it.el));
+    ordered.forEach(function(it, i){
+      it.index.textContent = (i + 1) + '.';
+      frag.appendChild(it.el);
+    });
     list.appendChild(frag);
 
     const total = items.length;

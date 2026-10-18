@@ -247,10 +247,8 @@ canvas {
   contain-intrinsic-size: auto 100px;
 }
 
-/* content-visibility scopes counters to the item, so increment on the item rather than its ::before */
-.list-group-numbered > .dataset-item {
-  counter-increment: section;
-}
-.list-group-numbered > .dataset-item::before {
-  counter-increment: none;
+/* Numbers are rendered in the html: content-visibility implies style containment,
+   which breaks css counters across items in Safari */
+.dataset-item > .dataset-index {
+  flex-shrink: 0;
 }
