@@ -1,6 +1,4 @@
 import http from 'node:http';
-import fs from 'node:fs';
-import inspector from 'node:inspector/promises';
 import {monitorEventLoopDelay} from 'node:perf_hooks';
 import app from '../app.js';
 
@@ -42,34 +40,8 @@ setInterval(function(){
     console.log(`[EVENT LOOP DELAY] pid ${process.pid} max ${max.toFixed(0)}ms p99 ${(loopdelay.percentile(99) / 1e6).toFixed(0)}ms ` +
       `rss ${(mem.rss / 1e6).toFixed(0)}MB heap ${(mem.heapUsed / 1e6).toFixed(0)}MB`);
   }
-  if(max > 1000 && Date.now() - last_profile > 3600 * 1000){
-    last_profile = Date.now();
-    cpu_profile(60).catch(e => console.log(`[CPU PROFILE] failed: ${e.message}`));
-  }
   loopdelay.reset();
 }, 10000).unref();
-
-/**
- * Record a CPU profile when the event loop is blocked for more than 1s (at most once
- * per hour) to find what blocks it. Open in Chrome DevTools > Performance.
- */
-var last_profile = 0;
-async function cpu_profile(seconds){
-  const file = `logs/cpu-${new Date().toISOString().replaceAll(':', '-')}-${process.pid}.cpuprofile`;
-  const session = new inspector.Session();
-  session.connect();
-  try {
-    await session.post('Profiler.enable');
-    await session.post('Profiler.start');
-    console.log(`[CPU PROFILE] recording ${seconds}s to ${file}`);
-    await new Promise(resolve => setTimeout(resolve, seconds * 1000));
-    const {profile} = await session.post('Profiler.stop');
-    await fs.promises.writeFile(file, JSON.stringify(profile));
-    console.log(`[CPU PROFILE] saved ${file}`);
-  } finally {
-    session.disconnect();
-  }
-}
 
 /**
  * Event listener for HTTP server "error" event.
