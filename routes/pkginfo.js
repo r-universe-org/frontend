@@ -84,6 +84,10 @@ function summarize_checks(checks){
   return Object.entries(results).map(([k,v]) => `${v} ${k}`).join(", ");
 }
 
+function sha_postfix(x){
+  return x.fileid.startsWith('https://r2.ropensci.org/') ? `?sha256=${x.fileid.substring(24)}` : "";
+}
+
 function group_binaries(x){
   var pkg = x.Package;
   var binaries = x._binaries || [];
@@ -91,9 +95,10 @@ function group_binaries(x){
     var build = binary.r.substring(0,3);
     var arch = (binary.arch || "any").replace("aarch64", "arm64");
     var filename = `${pkg}_${binary.version}.zip`;
-    var platform = arch.match("arm64") ? `clang-aarch64` : 'gcc-x86_64';
+    var platform = arch.match("arm64") ? `arm64` : 'x86_64';
     var repo = `r-${build}-${arch}`;
-    var url = `/bin/windows/${platform}/contrib/${build}/${filename}`;
+    var sha = sha_postfix(binary);
+    var url = `/bin/windows/${platform}/contrib/${build}/${filename}${sha}`;
     return {filename: filename, repo: repo, url: url};
   });
   var mac = binaries.filter(x => x.os == 'mac').sort(sortfun).map(function(binary){
@@ -103,7 +108,8 @@ function group_binaries(x){
     var distro = build < "4.6" ? "big-sur" : "sonoma";
     var platform = arch.match("arm64") ? `${distro}-arm64` : 'big-sur-x86_64';
     var repo = `r-${build}-${arch}`
-    var url = `/bin/macosx/${platform}/contrib/${build}/${filename}`;
+    var sha = sha_postfix(binary);
+    var url = `/bin/macosx/${platform}/contrib/${build}/${filename}${sha}`;
     return {filename: filename, repo: repo, url: url};
   });
   var linux = binaries.filter(x => x.os == 'linux').map(function(binary){
@@ -112,14 +118,16 @@ function group_binaries(x){
     var filename = `${pkg}_${binary.version}.tar.gz`;
     var distro = `${binary.distro}-${binary.arch || 'x86_64'}`
     var repo = `r-${build}-${arch}`;
-    var url = `/bin/linux/${distro}/contrib/${build}/${filename}`;
+    var sha = sha_postfix(binary);
+    var url = `/bin/linux/${distro}/contrib/${build}/${filename}${sha}`;
     return {filename: filename, repo: repo, url: url};
   });
   var wasm = binaries.filter(x => x.os == 'wasm').sort(sortfun).map(function(binary){
     var build = binary.r.substring(0,3);
     var filename = `${pkg}_${binary.version}.tgz`;
     var repo = `r-${build}-emscripten`;
-    var url = `/bin/emscripten/contrib/${build}/${filename}`;
+    var sha = sha_postfix(binary);
+    var url = `/bin/emscripten/contrib/${build}/${filename}${sha}`;
     return {filename: filename, repo: repo, url: url};
   });
   return {win: win, mac: mac, linux: linux, wasm: wasm};
