@@ -1,3 +1,4 @@
+import createError from 'http-errors';
 import express from 'express';
 import zlib from 'node:zlib';
 import {promisify} from 'node:util';
@@ -136,7 +137,7 @@ router.get('/api/snapshot{/:format}', function(req, res, next) {
   var cursor = packages.find(query).project(pkgfields).sort({"_type" : 1});
   return cursor.toArray().then(function(files){
     if(!files.length)
-      throw "Query returned no packages";
+      throw createError(404, "Query returned no packages");
     if(req.query.binaries){
       var allowed = req.query.binaries.split(",");
       files = files.filter(function(doc){

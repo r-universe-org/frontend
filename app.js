@@ -73,23 +73,25 @@ app.use(function(err, req, res, next) {
     }
     return res.destroy();
   }
-  const status = err.status || 500;
+  // API errors without a status are client errors, other pages server errors
+  const api = req.path.startsWith("/api/") || req.path.startsWith("/_global/api/");
+  const status = err.status || (api ? 400 : 500);
   if(status >= 500){
     // log the cause of server errors, 4xx are already in logs/frontend.log
     console.log(`ERROR: ${req.path} (${status}): ${err.stack || err.message || err}`);
   } else {
     console.log("ERROR:", req.path)
   }
-  if(req.path.startsWith("/api/") || req.path.startsWith("/_global/api/")){
+  if(api){
     // send API errors as plain-text (used by the search frontend)
-    res.status(err.status || 400).type('text/plain').send(`Error: ${err.message || err}\n\n${err.stack}\n`);
+    res.status(status).type('text/plain').send(`Error: ${err.message || err}\n\n${err.stack}\n`);
     //console.log(err.stack)
   } else {
     res.locals.error = err;
     res.locals.mode = req.app.get('env')
 
     // render the error page
-    res.status(err.status || 500);
+    res.status(status);
     res.header(err.headers);
     res.type('text/html');
     res.render('error');
