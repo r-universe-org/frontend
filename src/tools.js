@@ -138,8 +138,15 @@ function fetch_github_app(url, opt = {}){
     opt.headers = {'Authorization': `token ${token}`, 'X-GitHub-Api-Version': '2026-03-10'};
     return fetch(url, opt).then(function(response){
       if (!response.ok && opt.redirect !== 'manual') {
-        return response.json().catch(e => response.text()).then(function(data){
-          throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${data.message || data}`);
+        // the body can only be read once, so read it as text and then try json
+        return response.text().then(function(text){
+          var message = text;
+          try {
+            message = JSON.parse(text).message || text;
+          } catch {
+            // not json, use the text
+          }
+          throw createError(response.status, `GitHub API returned HTTP ${response.status}: ${message}`);
         });
       }
       return response;

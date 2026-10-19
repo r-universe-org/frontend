@@ -385,6 +385,8 @@ router.get('/robots.txt', function(req, res, next) {
   return mongo_universe_packages(res.locals.universe, ['Package', '_datasets']).then(function(pkgdata){
     pkgdata = pkgdata.filter(x => x._datasets);
     var str = pkgdata.map(x => `Disallow: /${x.Package}/data/`);
+    str.unshift('Disallow: /src/');
+    str.unshift('Disallow: /bin/'); // package binaries are for R, not crawlers
     str.unshift('Disallow: /api/actions/');
     str.unshift('User-agent: *');
     str.push("");
