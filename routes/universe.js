@@ -289,9 +289,6 @@ router.get("/api", get_user_bio, function(req, res, next){
   });
 });
 
-//legacy redirect
-router.get("/apis", (req, res) => res.redirect('/api'));
-
 
 router.get("/datasets", get_user_bio, function(req, res, next){
   var fields = ['_datasets', '_registered'];

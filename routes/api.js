@@ -1,7 +1,9 @@
 import express from 'express';
+import createError from 'http-errors';
+import {reserved, make_etag} from './cache.js';
 import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps,
-  get_package_upstream} from '../src/db.js';
+  get_package_upstream, get_universe_lastmodified} from '../src/db.js';
 import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info,
   get_user_info, get_upstream_info} from '../src/tools.js';
 
@@ -9,6 +11,22 @@ const router = express.Router();
 
 router.get('/api/ls', function(req, res, next) {
   ls_packages(res.locals.universe).then(x => res.send(x));
+});
+
+// Lightweight index for the edge worker: the ETag of the universe pages, and of the page
+// of each package in the universe (null for packages from other universes, which redirect).
+// This endpoint itself is revalidated with the universe ETag, see routes/cache.js.
+router.get('/api/etags', function(req, res, next) {
+  return get_universe_lastmodified(res.locals.universe).then(function(x){
+    if(!x.latest)
+      throw createError(404, `No packages found for this owner or maintainer: ${res.locals.universe}`);
+    res.send({
+      universe: res.locals.universe,
+      etag: make_etag(x.latest),
+      packages: Object.fromEntries(Object.entries(x.packages).map(([k, v]) => [k, v && make_etag(v)])),
+      reserved: reserved
+    });
+  });
 });
 
 router.get('/api/registry', function(req, res, next) {

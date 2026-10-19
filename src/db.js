@@ -955,6 +955,49 @@ export function get_latest(query){
   return mongo_latest(query);
 }
 
+// All packages in a universe (also from other universes, and packages that only have a
+// 'failure') with the last time each was published, in a single query. These are the same
+// dates as get_latest() in routes/cache.js: for package pages {_user, Package, _registered}
+// which includes binaries, and for universe pages {_universes} which does not (binaries
+// have no _universes). Packages from other universes have no date: their pages redirect.
+// Each part only reads index keys (DISTINCT_SCAN), no documents.
+export function get_universe_lastmodified(universe){
+  return packages.aggregate([
+    // own packages incl binaries: newest key per package of {_user, _registered, Package, _published}
+    {$match: {_user: universe, _registered: true}},
+    {$sort: {Package: -1, _published: -1}},
+    {$group: {_id: '$Package', modified: {$first: '$_published'}}},
+    // names of packages in the universe, also from other universes
+    {$unionWith: {coll: 'packages', pipeline: [
+      {$match: {_universes: universe}},
+      {$sort: {Package: 1}},
+      {$group: {_id: '$Package'}}
+    ]}},
+    // the last time anything in the universe was published
+    {$unionWith: {coll: 'packages', pipeline: [
+      {$match: {_universes: universe}},
+      {$sort: {_published: -1}},
+      {$limit: 1},
+      {$project: {_id: null, universe: '$_published'}}
+    ]}}
+  ]).toArray().then(function(docs){
+    let latest = null;
+    const pkgs = {};
+    docs.forEach(function(x){
+      if(x._id === null){
+        latest = x.universe;
+      } else if(x.modified || !pkgs[x._id]){
+        pkgs[x._id] = x.modified || null;
+      }
+    });
+    const names = Object.keys(pkgs).sort();
+    return {
+      packages: Object.fromEntries(names.map(x => [x, pkgs[x]])),
+      latest: latest
+    };
+  });
+}
+
 export function get_packages_index(query, fields = [], mixed = false){
   let projection = {...pkgfields};
   fields.forEach(function (f) {

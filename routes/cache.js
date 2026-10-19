@@ -1,6 +1,21 @@
 import createError from 'http-errors';
 import {get_latest} from '../src/db.js';
 
+// Top-level pages that get the last-modified date of the universe, rather than of a package
+export const reserved = ["", "api", "src", "bin", "stats", "articles", "builds", "packages",
+  "badges","contributors","datasets", "favicon.ico","feed.xml","index.xml", "robots.txt",
+  "sitemap_index.xml", "sitemap_universe.xml", "sitemap.xml", "sitemaps.xml", "card.png", "card.svg"];
+
+// The ETag of pages is based on the last time the universe or package was published.
+// Also used by /api/etags so the edge worker can revalidate pages without us.
+const revision = 41; // bump to invalidate all caches
+export function cache_time(published){
+  return published.getTime() + revision * 1000;
+}
+export function make_etag(published){
+  return `W/"${cache_time(published)}"`;
+}
+
 // check if package/universe exists and handle caching
 export default function(req, res, next){
   if(req.method != 'GET' && req.method != 'HEAD'){
@@ -14,9 +29,6 @@ export default function(req, res, next){
   }
   const universe = res.locals.universe;
   const pkg = req.params.package || "";
-  const reserved = ["", "api", "src", "bin", "stats", "articles", "builds", "packages",
-    "badges","contributors","datasets", "favicon.ico","feed.xml","index.xml", "robots.txt",
-    "sitemap_index.xml", "sitemap_universe.xml", "sitemap.xml", "card.png", "card.svg"];
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};
@@ -45,10 +57,8 @@ export default function(req, res, next){
     //res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
     if(doc){
-      const revision = 41; // bump to invalidate all caches
-      const cachetime = doc._published.getTime() + revision * 1000;
-      const etag = `W/"${cachetime}"`;
-      const date = new Date(cachetime).toUTCString();
+      const etag = make_etag(doc._published);
+      const date = new Date(cache_time(doc._published)).toUTCString();
       res.set('ETag', etag);
       res.set('Last-Modified', date);
       //clients may cache front-end pages for 60s before revalidating.
