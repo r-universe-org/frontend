@@ -6,6 +6,7 @@ import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_pa
   get_package_upstream, get_universe_lastmodified} from '../src/db.js';
 import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info,
   get_user_info, get_upstream_info} from '../src/tools.js';
+import {get_downloads} from '../src/downloads.js';
 
 const router = express.Router();
 
@@ -62,6 +63,33 @@ router.get('/:package/api/upstream', function(req, res, next) {
     res.removeHeader('ETag');
     res.removeHeader('Last-Modified');
     res.set('Cache-Control', 'max-age=3600, stale-while-revalidate=86400, stale-if-error=86400, public').send(x);
+  });
+});
+
+// Package downloads in the last ?days= (default 30, max 90) as counted by the edge worker
+router.get('/api/downloads', function(req, res, next) {
+  const days = Math.min(Math.max(parseInt(req.query.days) || 30, 1), 90);
+  const universe = res.locals.universe;
+  return Promise.all([get_downloads(universe, days), ls_packages(universe)]).then(function([rows, names]){
+    // The stats have lowercase names, use the real names of current packages
+    const realnames = Object.fromEntries(names.map(x => [x.toLowerCase(), x]));
+    const packages = {};
+    for (const row of rows) {
+      const name = realnames[row.package] || row.package;
+      const pkg = packages[name] = packages[name] || {package: name, downloads: 0, platforms: {}};
+      pkg.downloads += row.downloads;
+      pkg.platforms[row.platform] = row.downloads;
+    }
+    const list = Object.values(packages).sort((a, b) => b.downloads - a.downloads);
+    //stats do not change with the packages, so do not use package-based revalidation
+    res.removeHeader('ETag');
+    res.removeHeader('Last-Modified');
+    res.set('Cache-Control', 'max-age=3600, stale-while-revalidate=86400, stale-if-error=86400, public').send({
+      universe: universe,
+      days: days,
+      downloads: list.reduce((total, x) => total + x.downloads, 0),
+      packages: list
+    });
   });
 });
 
