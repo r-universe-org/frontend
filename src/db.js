@@ -61,13 +61,18 @@ function mongo_aggregate(q){
   return packages.aggregate(q);
 }
 
-function mongo_ls_packages(universe){
+function mongo_ls_packages(universe, all = false){
   if(!packages || !packages.aggregate)
     throw new Error("No mongodb connection available.");
   // include remotes here because we use it to identify missing builds
   let query = {_type: {$in: ['src', 'failure']}};
-  if(universe != '_global')
-    query._user = universe;
+  if(universe != '_global'){
+    if(all){
+      query._universes = universe;
+    } else {
+      query._user = universe;
+    }
+  }
   return packages.distinct('Package', query);
 }
 
@@ -1134,8 +1139,8 @@ export function get_distinct(key, query){
   return mongo_distinct(key, query);
 }
 
-export function ls_packages(universe){
-  return mongo_ls_packages(universe);
+export function ls_packages(universe, all = false){
+  return mongo_ls_packages(universe, all = all);
 }
 
 export function bucket_find(query, options = {}){

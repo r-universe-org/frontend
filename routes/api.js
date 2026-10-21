@@ -10,7 +10,16 @@ import {cursor_stream, build_query, send_results, github_buildlog, github_artifa
 const router = express.Router();
 
 router.get('/api/ls', function(req, res, next) {
-  ls_packages(res.locals.universe).then(x => res.send(x));
+  return ls_packages(res.locals.universe).then(x => res.send(x));
+});
+
+router.get('/api/allowlist', function(req, res, next) {
+  return ls_packages(res.locals.universe, true).then(function(packages){
+    res.send({
+      packages: packages.map(x => x.toLowerCase()).sort(),
+      universe: reserved
+    })
+  });
 });
 
 // Lightweight index for the edge worker: the ETag of the universe pages, and of the page
