@@ -176,8 +176,8 @@ router.get(["/index.xml", "/feed.xml"], function(req, res, next){
 });
 
 router.get('/condastatus/:package', function(req, res, next) {
+  //cache policy in routes/cache.js
   return fetch(`https://api.anaconda.org/package/conda-forge/r-${req.params.package}`).then(function(response){
-    res.set('Cache-Control', 'max-age=3600, public');
     if (response.ok) {
       return response.json().then(function(conda){
         /* Workaround sorting bug https://github.com/conda/infrastructure/issues/1122
@@ -201,8 +201,9 @@ router.get('/mongostatus', function(req, res, next) {
 });
 
 router.get('/cranstatus/:package', function(req, res, next) {
+  //cache policy in routes/cache.js
   return get_cran_desc(req.params.package).then(function(info){
-    return res.set('Cache-Control', 'max-age=3600, public').send(info);
+    return res.send(info);
   });
 });
 

@@ -16,6 +16,24 @@ export function make_etag(published){
   return `W/"${cache_time(published)}"`;
 }
 
+// Pages with their own Cache-Control. It is set here, so that 304 responses get it too: these
+// update the headers of a cached page. Pages with revalidate: false do not come from our db,
+// so they get no ETag (nor existence check), and are refreshed after max-age instead.
+function page_cache_policy(pkg, req){
+  if(pkg == 'api' && req.path == '/allowlist'){
+    //the edge worker loads this for every universe, and it changes rarely
+    return {cache_control: 'public, max-age=300, stale-while-revalidate=3600'};
+  }
+  if(pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)){
+    //data from CRAN and conda-forge
+    return {cache_control: 'public, max-age=3600', revalidate: false};
+  }
+  if(pkg == '' && req.path == '/' && !req.query['list-type'] && !req.query['x-id']){
+    //the homepage depends on the Accept header, and Vary does not work in cloudflare currently
+    return {cache_control: 'private, max-age=86400'};
+  }
+}
+
 // check if package/universe exists and handle caching
 export default function(req, res, next){
   if(req.method != 'GET' && req.method != 'HEAD'){
@@ -46,13 +64,19 @@ export default function(req, res, next){
     var cache_tag = 'package';
     //var cdn_cache = 30;
   }
+  const policy = page_cache_policy(pkg, req);
+  if(policy && policy.revalidate === false){
+    res.set('Cache-Control', policy.cache_control);
+    res.set('Cache-Tag', cache_tag);
+    return next();
+  }
   return get_latest(query).then(function(doc){
     //Using 'CDN-Cache-Control' would make nginx also do this and we'd need to refresh twice?
     //Switch back when fixed in cloudflare: https://community.cloudflare.com/t/support-for-stale-while-revalidate/496788/35
     //res.set('Cloudflare-CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
     //res.set('Cache-Control', 'public, max-age=60');
     //also cache 404 errors below
-    res.set('Cache-Control', `public, max-age=${max_age}`);
+    res.set('Cache-Control', policy ? policy.cache_control : `public, max-age=${max_age}`);
     res.set('Cache-Tag', cache_tag);
     //res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
