@@ -16,7 +16,8 @@ router.get('/api/ls', function(req, res, next) {
 
 router.get('/api/allowlist', function(req, res, next) {
   return ls_packages(res.locals.universe, true).then(function(packages){
-    res.send({
+    //the edge worker loads this for every universe: it changes rarely, so cache it longer
+    res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600').send({
       packages: packages.map(x => x.toLowerCase()).sort(),
       universe: reserved
     })
