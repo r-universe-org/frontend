@@ -32,7 +32,7 @@ export default function(req, res, next){
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
     var query = {};
-    var max_age = req.path.includes("_global/builds") ? 60 : 600;
+    var max_age = req.path.includes("/builds") ? 60 : 600;
     var cache_tag = 'global';
     //var cdn_cache = req.path.includes("_global/builds") ? 60 : 3600;
   } else if (metapage){
