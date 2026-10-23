@@ -27,9 +27,13 @@ export function make_etag(published){
 // update the headers of a cached page. Pages with revalidate: false do not come from our db,
 // so they get no ETag (nor existence check), and are refreshed after max-age instead.
 function page_cache_policy(pkg, req){
-  if((pkg == 'api' && req.path == '/allowlist') || (pkg == '_global' && req.path == '/api/allowlist')){
+  if(pkg == 'api' && req.path == '/allowlist'){
     //the edge worker loads this for every universe, and it changes rarely
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600'};
+  }
+  if(pkg == '_global' && req.path == '/api/allowlist'){
+    //the pages of r-universe.dev: these only change with the code, not with the db
+    return {cache_control: 'public, max-age=300, stale-while-revalidate=3600', revalidate: false};
   }
   if(pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)){
     //data from CRAN and conda-forge
