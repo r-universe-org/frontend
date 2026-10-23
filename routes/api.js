@@ -104,11 +104,10 @@ router.get('/api/maintainers', function(req, res, next) {
 });
 
 router.get("/api/search", function(req, res, next) {
-  var query = {_type: 'src', _registered : true, _universes: res.locals.universe};
   var limit = parseInt(req.query.limit) || 100;
   var skip = parseInt(req.query.skip) || 0;
   return Promise.resolve().then(() => {
-    build_query(query, req.query.q || "");
+    var query = build_query(req.query.q || "", res.locals.universe);
     return mongo_search(query, limit, skip).then(x => res.send(x));
   });
 });

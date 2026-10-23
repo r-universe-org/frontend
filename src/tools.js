@@ -506,7 +506,7 @@ export function send_results(cursor, res, stream = false, transform = (x) => x){
 }
 
 /* NB: regex queries are slow because not indexable! */
-export function build_query(query, str){
+export function build_query(str, universe){
   function substitute(name, field, insensitive, partial){
     var re = new RegExp(`${name}:(\\S*)`, "i"); //the name is insensitive e.g.: "Package:jsonlite"
     var found = str.match(re);
@@ -546,6 +546,10 @@ export function build_query(query, str){
       str = str.replace(re, "");
     }
   }
+  var query = {_type: 'src', _registered: true};
+  if(universe){
+    query._universes = universe; //can overide below
+  }
   match_partial('author', 'Author');
   match_partial('maintainer', 'Maintainer');
   match_exact('needs', '_rundeps');
@@ -566,6 +570,10 @@ export function build_query(query, str){
   if(str){
     query['$text'] = { $search: str, $caseSensitive: false};
   }
+  if(!query._universes){
+    query._indexed = true;
+  }
+  return query;
 }
 
 /* This is the algorithm used by the webR demo IDE to save state in the URL fragment */
