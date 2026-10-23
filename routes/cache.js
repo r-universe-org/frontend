@@ -6,6 +6,13 @@ export const reserved = ["", "api", "src", "bin", "stats", "articles", "builds",
   "badges","contributors","datasets", "favicon.ico","feed.xml","index.xml", "robots.txt",
   "sitemap_index.xml", "sitemap_universe.xml", "sitemap.xml", "sitemaps.xml", "card.png", "card.svg"];
 
+// Top-level pages of r-universe.dev, which nginx serves from /_global (the first four it serves
+// itself). Other pages are rejected here, and by the edge worker via /_global/api/allowlist.
+export const global_pages = ["", "scores", "manuals", "webhook", "search", "activity", "builds",
+  "organizations", "repositories", "articles", "datasets", "packages", "sysdeps", "galaxy", "welcome",
+  "sitemap_index.xml", "sitemap.xml", "sitemaps.xml", "condastatus", "mongostatus", "cranstatus",
+  "redirect", "api", "stats", "favicon.ico", "robots.txt", "static"];
+
 // The ETag of pages is based on the last time the universe or package was published.
 // Also used by /api/etags so the edge worker can revalidate pages without us.
 const revision = 41; // bump to invalidate all caches
@@ -20,7 +27,7 @@ export function make_etag(published){
 // update the headers of a cached page. Pages with revalidate: false do not come from our db,
 // so they get no ETag (nor existence check), and are refreshed after max-age instead.
 function page_cache_policy(pkg, req){
-  if(pkg == 'api' && req.path == '/allowlist'){
+  if((pkg == 'api' && req.path == '/allowlist') || (pkg == '_global' && req.path == '/api/allowlist')){
     //the edge worker loads this for every universe, and it changes rarely
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600'};
   }
@@ -49,6 +56,10 @@ export default function(req, res, next){
   const pkg = req.params.package || "";
   const metapage = reserved.includes(pkg);
   if(pkg == '_global'){
+    if(!global_pages.includes(req.path.split('/')[1].toLowerCase())){
+      res.set('Cache-Control', 'public, max-age=600');
+      return next(createError(404, "Page not found."));
+    }
     var query = {};
     var max_age = req.path.includes("/builds") ? 60 : 600;
     var cache_tag = 'global';

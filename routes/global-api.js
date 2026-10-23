@@ -2,7 +2,13 @@ import express from 'express';
 import {mongo_all_universes, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary, 
   mongo_universe_topics, mongo_usedbyorg, mongo_all_sysdeps} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
+import {global_pages} from './cache.js';
 const router = express.Router();
+
+// Top-level pages of r-universe.dev, for the edge worker (same format as /api/allowlist of a universe)
+router.get('/api/allowlist', function(req, res, next) {
+  res.send({packages: [], universe: global_pages});
+});
 
 router.get('/api/revdeps/:package', function(req, res, next){
   var cursor = mongo_usedbyorg(req.params.package);
