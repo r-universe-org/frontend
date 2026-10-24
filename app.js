@@ -79,6 +79,9 @@ app.use(function(err, req, res, next) {
   if(status >= 500){
     // log the cause of server errors, 4xx are already in logs/frontend.log
     console.log(`ERROR: ${req.path} (${status}): ${err.stack || err.message || err}`);
+    // prevent revalidation of (intermittent) server errors
+    res.removeHeader('ETag');
+    res.removeHeader('Last-Modified');
   } else {
     console.log("ERROR:", req.path)
   }
