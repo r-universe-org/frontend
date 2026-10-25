@@ -219,7 +219,8 @@ router.get('/cranstatus/:package', function(req, res, next) {
 
 router.get('/redirect/:package{/*path}', function(req, res, next) {
   return find_cran_package(req.params.package).then(function(x){
-    var path = req.headers.host == 'docs.cran.dev' ? '/doc/manual.html' : unsplat(req.params.path);
+    //nginx sets Host to r-universe.dev, the original host is in r-universe-vhost (see routes/prepare.js)
+    var path = res.locals.vhost == 'docs.cran.dev' ? '/doc/manual.html' : unsplat(req.params.path);
     res.redirect(`https://${x._realowner || 'cran'}.r-universe.dev/${x.Package}${path}`);
   });
 });
