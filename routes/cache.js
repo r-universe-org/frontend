@@ -68,6 +68,9 @@ export default function(req, res, next){
     }
     var query = {};
     var max_age = req.path.includes("/builds") ? 60 : 600;
+    //these pages are slow to generate, and change with every publish anywhere (so revalidation
+    //rarely gives a 304): refresh in the background, and serve stale for at most an hour
+    var stale = ', stale-while-revalidate=3600, stale-if-error=3600';
     var cache_tag = 'global';
     //var cdn_cache = req.path.includes("_global/builds") ? 60 : 3600;
   } else if (metapage){
@@ -93,7 +96,7 @@ export default function(req, res, next){
     //res.set('Cloudflare-CDN-Cache-Control', `public, max-age=60, stale-while-revalidate=${cdn_cache}`);
     //res.set('Cache-Control', 'public, max-age=60');
     //also cache 404 errors below
-    res.set('Cache-Control', policy ? policy.cache_control : `public, max-age=${max_age}`);
+    res.set('Cache-Control', policy ? policy.cache_control : `public, max-age=${max_age}${stale || ''}`);
     res.set('Cache-Tag', cache_tag);
     //res.set('Cache-Control', `public, max-age=${max_age}, stale-while-revalidate=${cdn_cache}`);
 
