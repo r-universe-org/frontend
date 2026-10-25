@@ -117,6 +117,8 @@ function make_contributor_chart(max, imsize){
       });
     }
 
+    var hovered = -1;
+
     function render_avatars(){
       var xAxis = myChart.scales.x;
       var yAxis = myChart.scales.y;
@@ -125,7 +127,24 @@ function make_contributor_chart(max, imsize){
         var img = images[index];
         if(!img) return;
         myChart.ctx.drawImage(img, xAxis.left - size - 105, y - size/2, size, size);
+        if(index === hovered){
+          myChart.ctx.save();
+          myChart.ctx.beginPath();
+          myChart.ctx.roundRect(xAxis.left - size - 107, y - size/2 - 2, size + 4, size + 4, 4);
+          myChart.ctx.lineWidth = 3;
+          myChart.ctx.strokeStyle = 'rgba(255, 99, 132, 1)';
+          myChart.ctx.stroke();
+          myChart.ctx.restore();
+        }
       });
+    }
+
+    // redraw the chart to add or remove the ring around the hovered avatar
+    function set_hovered(index){
+      if(index === hovered) return;
+      hovered = index;
+      myChart.draw();
+      render_avatars();
     }
 
     // index of the avatar at chart position (x, y), or -1
@@ -150,7 +169,12 @@ function make_contributor_chart(max, imsize){
     // set the cursor here, not in onHover: chart.js only calls that inside the chart area
     ctx.onmousemove = function(e){
       const pts = myChart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
-      ctx.style.cursor = (pts.length || avatar_at(e.offsetX, e.offsetY) > -1) ? 'pointer' : 'default';
+      const avatar = avatar_at(e.offsetX, e.offsetY);
+      ctx.style.cursor = (pts.length || avatar > -1) ? 'pointer' : 'default';
+      set_hovered(avatar);
+    };
+    ctx.onmouseleave = function(){
+      set_hovered(-1);
     };
 
     const myChart = new Chart(ctx, {
