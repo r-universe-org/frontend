@@ -39,19 +39,33 @@ function make_contributor_chart(max = 20){
     });
   }
 
+  // index of the avatar at chart position (x, y), or -1
+  function avatar_at(x, y){
+    var xAxis = myChart.scales.x;
+    var yAxis = myChart.scales.y;
+    if(x < xAxis.right + 5 || x > xAxis.right + 5 + size) return -1;
+    return yAxis.ticks.findIndex((value, index) => Math.abs(y - yAxis.getPixelForTick(index)) <= size/2);
+  }
+
   const ctx = document.getElementById('contributors-canvas');
   $(ctx).height(logins.length * (size + 10) + 50);
   ctx.onclick = function(e){
     const pts = myChart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
-    if(pts.length){
-      const x = pts[0];
-      const contrib = logins[x.index];
+    const index = pts.length ? pts[0].index : avatar_at(e.offsetX, e.offsetY);
+    if(index > -1){
+      const contrib = logins[index];
       window.location.href = `https://${contrib}.r-universe.dev/contributors`;
     }
   };
 
   /* NB: to disable animation alltogether (for performance) we need to set
      options.animation: false, and uncomment the afterDraw handler */
+
+  // set the cursor here, not in onHover: chart.js only calls that inside the chart area
+  ctx.onmousemove = function(e){
+    const pts = myChart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
+    ctx.style.cursor = (pts.length || avatar_at(e.offsetX, e.offsetY) > -1) ? 'pointer' : 'default';
+  };
 
   const myChart = new Chart(ctx, {
     type: 'bar',
@@ -121,9 +135,6 @@ function make_contributor_chart(max = 20){
         padding: {
           right: 60
         }
-      },
-      onHover: function(event, el){
-        event.native.target.style.cursor = el[0] ? 'pointer' : 'default';
       },
       scales: {
         y: {

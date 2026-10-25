@@ -128,15 +128,29 @@ function make_contributor_chart(max, imsize){
       });
     }
 
+    // index of the avatar at chart position (x, y), or -1
+    function avatar_at(x, y){
+      var xAxis = myChart.scales.x;
+      var yAxis = myChart.scales.y;
+      if(x < xAxis.left - size - 105 || x > xAxis.left - 105) return -1;
+      return yAxis.ticks.findIndex((value, index) => Math.abs(y - yAxis.getPixelForTick(index)) <= size/2);
+    }
+
     const ctx = document.getElementById('contributors-canvas');
     $(ctx).height(logins.length * (size + 10) + 50);
     ctx.onclick = function(e){
       const pts = myChart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
-      if(pts.length){
-        const x = pts[0];
-        const user = logins[x.index];
+      const index = pts.length ? pts[0].index : avatar_at(e.offsetX, e.offsetY);
+      if(index > -1){
+        const user = logins[index];
         window.open(`https://${user}.r-universe.dev/contributors`, "_blank");
       }
+    };
+
+    // set the cursor here, not in onHover: chart.js only calls that inside the chart area
+    ctx.onmousemove = function(e){
+      const pts = myChart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
+      ctx.style.cursor = (pts.length || avatar_at(e.offsetX, e.offsetY) > -1) ? 'pointer' : 'default';
     };
 
     const myChart = new Chart(ctx, {
