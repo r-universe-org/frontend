@@ -175,9 +175,17 @@ router.get(["/index.xml", "/feed.xml"], function(req, res, next){
   res.status(404).send("Global feeds are no longer supported.");
 });
 
+// Upstream failures of the status pages are server errors without a Cache-Control, so that they
+// are not cached and cloudflare keeps serving the previous response (stale-if-error)
+function upstream_error(res, err){
+  res.removeHeader('Cache-Control');
+  res.status(502).send({error: `Upstream failure: ${err.message || err}`});
+}
+
 router.get('/condastatus/:package', function(req, res, next) {
   //cache policy in routes/cache.js
-  return fetch(`https://api.anaconda.org/package/conda-forge/r-${req.params.package}`).then(function(response){
+  const url = `https://api.anaconda.org/package/conda-forge/r-${req.params.package}`;
+  return fetch(url, {signal: AbortSignal.timeout(20000)}).then(function(response){
     if (response.ok) {
       return response.json().then(function(conda){
         /* Workaround sorting bug https://github.com/conda/infrastructure/issues/1122
@@ -187,10 +195,12 @@ router.get('/condastatus/:package', function(req, res, next) {
           name: conda.full_name, url: conda.html_url, version: latest_version, date: conda.modified_at
         });
       });
-    } else { //always send HTTP 200 to ensure caching
+    } else if (response.status == 404) { //not on conda-forge: send HTTP 200 to ensure caching
       res.send({error: "Failed"});
+    } else {
+      throw new Error(`HTTP ${response.status} from anaconda.org`);
     }
-  });
+  }).catch(err => upstream_error(res, err));
 });
 
 router.get('/mongostatus', function(req, res, next) {
@@ -204,7 +214,7 @@ router.get('/cranstatus/:package', function(req, res, next) {
   //cache policy in routes/cache.js
   return get_cran_desc(req.params.package).then(function(info){
     return res.send(info);
-  });
+  }).catch(err => upstream_error(res, err));
 });
 
 router.get('/redirect/:package{/*path}', function(req, res, next) {

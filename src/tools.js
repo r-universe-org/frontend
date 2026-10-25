@@ -430,14 +430,14 @@ export function job_link(job){
 function get_cran_url(path){
   var mirror1 = `https://cloud.r-project.org/${path}`;
   var mirror2 = `http://cran.r-project.org/${path}`;
-  return fetch(mirror1).then(function(res){
+  return fetch(mirror1, {signal: AbortSignal.timeout(10000)}).then(function(res){
     if(res.status == 200 || res.status == 404){
       return res;
     }
     throw("Unexpected response from cran mirror; trying fallback");
   }).catch(function(){
     // Fallback when something is wrong with cloud mirror
-    return fetch(mirror2);
+    return fetch(mirror2, {signal: AbortSignal.timeout(10000)});
   });
 }
 
@@ -472,6 +472,7 @@ export function get_cran_desc(pkg){
         if(res2.status == 404){
           return {package:pkg, version: null};
         }
+        throw `HTTP ${res2.status} from CRAN archive`;
       });
     }
     throw "Failed to lookup CRAN version";

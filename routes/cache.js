@@ -36,8 +36,10 @@ function page_cache_policy(pkg, req){
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600', revalidate: false};
   }
   if(pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)){
-    //data from CRAN and conda-forge
-    return {cache_control: 'public, max-age=3600', revalidate: false};
+    //data from CRAN and conda-forge, which can be slow or down: serve stale while refreshing in the
+    //background, and when the refresh fails (server errors are not cached, see routes/global.js).
+    //No s-maxage: cloudflare does not serve stale content with it.
+    return {cache_control: 'public, max-age=3600, stale-while-revalidate=604800, stale-if-error=2592000', revalidate: false};
   }
   if(pkg == '' && req.path == '/' && !req.query['list-type'] && !req.query['x-id']){
     //the homepage depends on the Accept header, and Vary does not work in cloudflare currently
