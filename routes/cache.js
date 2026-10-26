@@ -73,8 +73,9 @@ export default function(req, res, next){
     var query = {};
     var max_age = req.path.includes("/builds") ? 60 : 600;
     //these pages are slow to generate, and change with every publish anywhere (so revalidation
-    //rarely gives a 304): refresh in the background, and serve stale for at most an hour
-    var stale = ', stale-while-revalidate=3600, stale-if-error=3600';
+    //rarely gives a 304): refresh in the background. They get few visitors per data center, so
+    //serve stale for up to a day: with an hour, the first visitor often waited for the backend.
+    var stale = ', stale-while-revalidate=86400, stale-if-error=86400';
     var cache_tag = 'global';
     //var cdn_cache = req.path.includes("_global/builds") ? 60 : 3600;
   } else if (metapage){
