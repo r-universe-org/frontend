@@ -185,7 +185,8 @@ function upstream_error(res, err){
 router.get('/condastatus/:package', function(req, res, next) {
   //cache policy in routes/cache.js
   const url = `https://api.anaconda.org/package/conda-forge/r-${req.params.package}`;
-  return fetch(url, {signal: AbortSignal.timeout(20000)}).then(function(response){
+  //anaconda.org usually responds in <0.5s but sometimes hangs: fail fast, cloudflare serves stale
+  return fetch(url, {signal: AbortSignal.timeout(5000)}).then(function(response){
     if (response.ok) {
       return response.json().then(function(conda){
         /* Workaround sorting bug https://github.com/conda/infrastructure/issues/1122
