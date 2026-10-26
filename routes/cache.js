@@ -31,6 +31,10 @@ function page_cache_policy(pkg, req){
     //the edge worker loads this for every universe, and it changes rarely
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600'};
   }
+  if(pkg == 'api' && req.path == '/summary'){
+    //loaded on every page and changes slowly: refresh in the background, like the global pages
+    return {cache_control: 'public, max-age=300, stale-while-revalidate=86400, stale-if-error=86400'};
+  }
   if(pkg == '_global' && req.path == '/api/allowlist'){
     //the pages of r-universe.dev: these only change with the code, not with the db
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600', revalidate: false};
