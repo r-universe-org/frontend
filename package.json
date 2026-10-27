@@ -10,7 +10,7 @@
   "dependencies": {
     "@octokit/auth-app": "^8.2.0",
     "@r-universe/packages-rds": "^0.3.0",
-    "@r-universe/r-universe-cards": "^0.8.1",
+    "@r-universe/r-universe-cards": "^0.8.2",
     "archiver": "^7.0.1",
     "badgen": "^3.3.2",
     "cheerio": "^1.2.0",
