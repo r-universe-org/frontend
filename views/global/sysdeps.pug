@@ -19,7 +19,7 @@ block content
             td.text-nowrap #{x.description}
             td
               each deb in x.headers
-                a.text-nowrap(href=`https://packages.ubuntu.com/${x.distro}/${deb}`) #{deb}
+                a.text-nowrap(href=`https://packages.debian.org/testing/${deb}`) #{deb}
                 br
             td
               each pkg in x.usedby
