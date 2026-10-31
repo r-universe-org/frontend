@@ -2,7 +2,7 @@ import express from 'express';
 import createError from 'http-errors';
 import {reserved, make_etag} from './cache.js';
 import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
-  mongo_search, mongo_everyone, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps,
+  mongo_search, mongo_everyone, mongo_abi_revdeps, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps,
   get_package_upstream, get_universe_lastmodified} from '../src/db.js';
 import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info,
   get_user_info, get_upstream_info} from '../src/tools.js';
@@ -94,6 +94,10 @@ router.get('/api/packages/:package', function(req, res, next) {
 router.get('/api/revdeps/:package', function(req, res, next){
   var cursor = mongo_usedbyorg(req.params.package, res.locals.universe);
   return send_results(cursor, res.type('text/plain'), req.query.stream);
+});
+
+router.get('/api/abi-revdeps/:package', function(req, res, next){
+  return mongo_abi_revdeps(req.params.package, res.locals.universe).then(x => res.send(x));
 });
 
 router.get('/api/maintainers', function(req, res, next) {

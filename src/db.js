@@ -573,6 +573,54 @@ export function mongo_summary(universe){
   });
 }
 
+// For each ABI export of a package (abitools), the packages in the universe that import it. Imports
+// of keys that the package no longer exports are listed under 'removed'. Packages that imported a
+// different version of an export, or a removed one, need a rebuild and are listed under 'dirty'.
+export async function mongo_abi_revdeps(pkgname, universe){
+  const query = {_user: universe, _type: 'src', _registered: true};
+  const target = await packages.findOne({...query, Package: pkgname}, {projection: {_abi: 1}});
+  if(!target)
+    throw createError(404, `Package ${pkgname} not found in ${universe}`);
+  if(!target._abi)
+    throw createError(404, `No ABI data for package ${pkgname} in ${universe}`);
+  //keys are <package>::<class>, <package>::<function>() or <package>/include
+  const prefix = new RegExp(`^${pkgname.replaceAll('.', '\\.')}(::|/)`);
+  const docs = await packages.aggregate([
+    {$match: {...query, '_abi.imports.key': prefix}},
+    {$project: {_id: 0, Package: 1, imports: {$filter: {
+      input: '$_abi.imports', cond: {$regexMatch: {input: '$$this.key', regex: prefix}}}}}},
+    {$sort: {Package: 1}}
+  ]).toArray();
+  const current = new Map(target._abi.exports.map(x => [x.key, x.hash]));
+  const exports = new Map(target._abi.exports.map(x => [x.key, {key: x.key, dependents: []}]));
+  const removed = new Map();
+  const dirty = [];
+  for (const doc of docs) {
+    const changed = [];
+    const gone = [];
+    for (const x of doc.imports) {
+      if(current.has(x.key)){
+        exports.get(x.key).dependents.push(doc.Package);
+        if(current.get(x.key) !== x.hash)
+          changed.push(x.key);
+      } else {
+        if(!removed.has(x.key))
+          removed.set(x.key, {key: x.key, dependents: []});
+        removed.get(x.key).dependents.push(doc.Package);
+        gone.push(x.key);
+      }
+    }
+    if(changed.length || gone.length)
+      dirty.push({package: doc.Package, changed: changed, removed: gone});
+  }
+  return {
+    package: pkgname,
+    exports: Array.from(exports.values()),
+    removed: Array.from(removed.values()),
+    dirty: dirty
+  };
+}
+
 export function mongo_usedbyorg(pkgname, universe){
   var query = {_type: 'src', '_dependencies.package': pkgname, '_indexed': true};
   if(universe){
@@ -1085,6 +1133,7 @@ export async function mongo_rebuild_indexes(){
   await make_index({"_user":1, "_type":1, "_registered":1, "_commit.time":1});
   await make_index({"_type":1, "_rundeps":1});
   await make_index({"_type":1, "_dependencies.package":1});
+  await make_index({"_type":1, "_abi.imports.key":1});
   await make_index({"_type":1, "_contributors.user":1});
 
   // Special index that auto-deletes files at a given time
