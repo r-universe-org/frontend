@@ -576,7 +576,7 @@ export function mongo_summary(universe){
 // For each ABI export of a package (abitools), the packages in the universe that import it. Imports
 // of keys that the package no longer exports are listed under 'removed'. Packages that imported a
 // different version of an export, or a removed one, need a rebuild and are listed under 'dirty'.
-export async function mongo_abi_revdeps(pkgname, universe){
+export async function mongo_abi_summary(pkgname, universe){
   const query = {_user: universe, _type: 'src', _registered: true};
   const target = await packages.findOne({...query, Package: pkgname}, {projection: {_abi: 1}});
   if(!target)
