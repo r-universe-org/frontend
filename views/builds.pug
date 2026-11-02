@@ -63,7 +63,7 @@ block content
                 else
                   td
                     span.ms-1 –
-              td !{row.check_icon_html('source')}
+              td(class=(row._failure ? 'opacity-25' : '')) !{row.check_icon_html('source')}
               td.text-nowrap
                 span(class=(row._failure ? 'opacity-25' : ''))
                   | !{row.check_icon_html('linux-devel', '4.7')}
