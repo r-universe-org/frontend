@@ -46,6 +46,12 @@ app.use('/_global/static', express.static('static', {maxAge: '1d'}));
 
 //routers
 app.use('/', prepareRouter);
+// Identify the repository type to clients, analogous to RSPM/P3M. Set before the cacheRouter,
+// so that 304 responses also have it (cloudflare updates cached headers from these).
+app.use(['/src', '/bin'], function(req, res, next) {
+  res.set('X-Repository-Type', 'r-universe');
+  next();
+});
 app.use('/{:package}', cacheRouter);
 app.use('/_global/', globalApiRouter);
 app.use('/_global/', globalRouter);
