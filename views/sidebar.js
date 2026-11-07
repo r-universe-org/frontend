@@ -164,6 +164,7 @@ function load_registry_status(){
           e.preventDefault();
           var win = window.open("", '_blank');
           win.document.write(`Triggering new sync run for r-universe/${universe}. Please wait...`);
+          win.document.close();
           fetch('/api/sync', {
             method: "PATCH"
           }).then(function(sync){
@@ -176,7 +177,7 @@ function load_registry_status(){
             }
           }).then(function(output){
             win.location.href = output.html_url;
-          }).catch(err => win.document.write("ERROR:" + err));
+          }).catch(err => win.document.body.textContent = "ERROR: " + err);
         });
       $("#github-user-universe").append(a(`https://github.com/r-universe/${universe}`, `${universe}`));
       if(!success){

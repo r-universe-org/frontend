@@ -459,7 +459,7 @@ router.patch('/api/packages/:package/:version/:type', function(req, res, next) {
       const minutes = (now - rebuild) / 60000;
       //sometimes a (re)build gets stuck, so ignore _progress_url after 60 minutes
       if(minutes < 60){
-        res.status(429).send(`A (re)build of ${pkgname} is already in progress.`);
+        res.status(429).send(`A (re)build of ${pkgname} is already in progress: ${doc['_progress_url']}`);
         return;
       }
     }
