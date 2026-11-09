@@ -376,7 +376,7 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
       return packages.find(query).project({_id:1, _fileid:1, Version: 1}).toArray().then(function(docs){
         if(docs.length > 1)
           console.log(`WARNING: deleting duplicates for ${JSON.stringify(query)}`);
-        if(docs.length > 3)
+        if(new Set(docs.map(x => x._fileid)).size > 3) //same file may appear more than once
           throw `Found too many duplicates, something seems off`;
         var previous = docs[0];
         if(previous && (previous.Version !== description.Version))
