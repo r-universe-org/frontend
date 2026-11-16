@@ -1,13 +1,23 @@
 import express from 'express';
 import {mongo_all_universes, mongo_dump, mongo_search, mongo_everyone, mongo_all_files, mongo_summary, 
-  mongo_universe_topics, mongo_usedbyorg, mongo_all_sysdeps} from '../src/db.js';
+  mongo_universe_topics, mongo_usedbyorg, mongo_all_sysdeps, get_all_universes_lastmodified} from '../src/db.js';
 import {cursor_stream, build_query, send_results} from '../src/tools.js';
-import {global_pages} from './cache.js';
+import {global_pages, make_etag} from './cache.js';
 const router = express.Router();
 
 // Top-level pages of r-universe.dev, for the edge worker (same format as /api/allowlist of a universe)
 router.get('/api/allowlist', function(req, res, next) {
   res.send({packages: [], universe: global_pages});
+});
+
+// The ETag of the universe pages (e.g. /packages) of every universe, for the edge worker.
+// Like /api/etags of a universe, but only the universe ETag. Cache policy in routes/cache.js.
+router.get('/api/etags', function(req, res, next) {
+  return get_all_universes_lastmodified().then(function(docs){
+    res.send({
+      universes: Object.fromEntries(docs.map(x => [x._id, make_etag(x.latest)]))
+    });
+  });
 });
 
 router.get('/api/revdeps/:package', function(req, res, next){

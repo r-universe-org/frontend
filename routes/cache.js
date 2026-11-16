@@ -39,6 +39,11 @@ function page_cache_policy(pkg, req){
     //the pages of r-universe.dev: these only change with the code, not with the db
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600', revalidate: false};
   }
+  if(pkg == '_global' && req.path == '/api/etags'){
+    //the ETags of all universes, for the edge worker: revalidated every 10s with the global ETag
+    //(the last publish anywhere), so the ~0.7s query only runs after something was published
+    return {cache_control: 'public, max-age=10, stale-while-revalidate=3600, stale-if-error=86400'};
+  }
   if(pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)){
     //data from CRAN and conda-forge, which can be slow or down: serve stale while refreshing in the
     //background, and when the refresh fails (server errors are not cached, see routes/global.js).
