@@ -31,6 +31,11 @@ function page_cache_policy(pkg, req){
     //the edge worker loads this for every universe, and it changes rarely
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600'};
   }
+  if(pkg == 'api' && req.path == '/maintainers'){
+    //loaded by the sidebar of every universe page, and changes slowly: refresh at most once an hour,
+    //in the background (a flood of page loads revalidated it for every universe every minute)
+    return {cache_control: 'public, max-age=3600, stale-while-revalidate=86400, stale-if-error=86400'};
+  }
   if(pkg == 'api' && req.path == '/summary'){
     //loaded on every page and changes slowly: refresh in the background, like the global pages
     return {cache_control: 'public, max-age=300, stale-while-revalidate=86400, stale-if-error=86400'};
