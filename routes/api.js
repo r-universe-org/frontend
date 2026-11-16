@@ -39,13 +39,24 @@ router.get('/api/etags', function(req, res, next) {
   });
 });
 
+// GitHub failed, e.g. rate limited because a flood of page loads requested this for every universe
+// (November 2026). Keep the error at the edge for an hour, so that requests do not keep going to
+// GitHub. Failures other than 404 become a 502, so that Cloudflare serves the last good copy
+// instead where it has one (stale-if-error does not apply to 4xx).
+function github_error(res, err){
+  res.removeHeader('ETag');
+  res.removeHeader('Last-Modified');
+  res.set('Cache-Control', 'public, max-age=3600');
+  throw err.status === 404 ? err : createError(502, err.message || err);
+}
+
 router.get('/api/registry', function(req, res, next) {
   return get_registry_info(res.locals.universe).then(function(x){
     //prevents the revalidation mechanism from serving old responses
     res.removeHeader('ETag');
     res.removeHeader('Last-Modified');
     res.set('Cache-Control', 'max-age=120, stale-if-error=3600, public').send(x);
-  });
+  }, err => github_error(res, err));
 });
 
 router.get('/api/user', function(req, res, next) {
@@ -54,7 +65,7 @@ router.get('/api/user', function(req, res, next) {
     res.removeHeader('ETag');
     res.removeHeader('Last-Modified');
     res.set('Cache-Control', 'max-age=3600, stale-while-revalidate=86400, stale-if-error=86400, public').send(x);
-  });
+  }, err => github_error(res, err));
 });
 
 router.get('/:package/api/upstream', function(req, res, next) {
