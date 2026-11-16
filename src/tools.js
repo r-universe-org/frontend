@@ -133,10 +133,38 @@ export function cheerio_page(html, page, pkgname, universe){
   return el.html();
 }
 
-function fetch_github_app(url, opt = {}){
+// The rate limit of the GitHub app, from the headers of its last response. Low priority requests
+// (sidebar info: /api/user, /api/registry, /api/upstream) are not sent when less than a quarter of
+// it remains, so that floods of page loads can not use it all up (November 2026), and important
+// requests (build logs, artifacts, check results) keep working until the limit resets.
+const github_reserve = 0.25;
+const github_ratelimit = {remaining: Infinity, limit: Infinity, reset: 0};
+
+function update_ratelimit(response){
+  const remaining = parseInt(response.headers.get('x-ratelimit-remaining'));
+  const limit = parseInt(response.headers.get('x-ratelimit-limit'));
+  const reset = parseInt(response.headers.get('x-ratelimit-reset'));
+  if(!isNaN(remaining) && !isNaN(limit) && !isNaN(reset)){
+    Object.assign(github_ratelimit, {remaining: remaining, limit: limit, reset: reset * 1000});
+  }
+}
+
+function check_ratelimit(){
+  const {remaining, limit, reset} = github_ratelimit;
+  if(remaining < limit * github_reserve && Date.now() < reset){
+    throw createError(503, `Skipped to keep the GitHub API rate limit for other requests ` +
+      `(${remaining} of ${limit} left until ${new Date(reset).toISOString()})`);
+  }
+}
+
+function fetch_github_app(url, {low_priority, ...opt} = {}){
+  if(low_priority){
+    check_ratelimit();
+  }
   return gh_app_token().then(function(token){
     opt.headers = {'Authorization': `token ${token}`, 'X-GitHub-Api-Version': '2026-03-10'};
     return fetch(url, opt).then(function(response){
+      update_ratelimit(response);
       if (!response.ok && opt.redirect !== 'manual') {
         // the body can only be read once, so read it as text and then try json
         return response.text().then(function(text){
@@ -210,7 +238,7 @@ export function get_submodule_hash(user, submodule){
 /* GitHub has a bug that yields old results when filtering status=completed on server side */
 export function get_registry_info(user){
   const url = `https://api.github.com/repos/r-universe/${user}/actions/workflows/sync.yml/runs?per_page=5`;
-  return fetch_github_json(url).then(function(data){
+  return fetch_github_json(url, {low_priority: true}).then(function(data){
     return data.workflow_runs?.find(x => x.status == 'completed');
   });
 }
@@ -221,7 +249,7 @@ export function get_user_info(universe){
   const login = aliases[universe] || universe;
   if(/^(gitlab|bitbucket|codeberg)-/.test(login))
     throw createError(404, `No user info available for ${login}`);
-  return fetch_github_json(`https://api.github.com/users/${login}`).then(function(user){
+  return fetch_github_json(`https://api.github.com/users/${login}`, {low_priority: true}).then(function(user){
     return {
       provider: 'github',
       login: user.login,
@@ -242,7 +270,7 @@ export function get_upstream_info(upstream){
   const repo = upstream && upstream.match(/^https:\/\/github\.com\/([^/]+\/[^/]+?)(\.git)?\/?$/);
   if(!repo || /^(cran|bioc|r-forge)\//i.test(repo[1]))
     throw createError(404, `No upstream info available for ${upstream}`);
-  return fetch_github_json(`https://api.github.com/repos/${repo[1]}`).then(function(data){
+  return fetch_github_json(`https://api.github.com/repos/${repo[1]}`, {low_priority: true}).then(function(data){
     return {
       provider: 'github',
       url: data.html_url,
