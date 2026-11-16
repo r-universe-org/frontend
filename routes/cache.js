@@ -36,6 +36,13 @@ function page_cache_policy(pkg, req){
     //in the background (a flood of page loads revalidated it for every universe every minute)
     return {cache_control: 'public, max-age=3600, stale-while-revalidate=86400, stale-if-error=86400'};
   }
+  if((pkg == 'api' && ['/user', '/registry'].includes(req.path)) || (!reserved.includes(pkg) && req.path == '/api/upstream')){
+    //data from GitHub, not from our db: never answer a revalidation with the universe or package
+    //ETag. Cloudflare then kept GitHub rate limit errors (403 with max-age=60) as valid for hours,
+    //revalidating them every minute for every universe (November 2026). The routes set their own
+    //Cache-Control; this one is for errors that they do not handle.
+    return {cache_control: 'public, max-age=3600', revalidate: false};
+  }
   if(pkg == 'api' && req.path == '/summary'){
     //loaded on every page and changes slowly: refresh in the background, like the global pages
     return {cache_control: 'public, max-age=300, stale-while-revalidate=86400, stale-if-error=86400'};
