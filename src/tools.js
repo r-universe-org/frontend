@@ -158,10 +158,13 @@ function check_ratelimit(){
 }
 
 function fetch_github_app(url, {low_priority, ...opt} = {}){
-  if(low_priority){
-    check_ratelimit();
-  }
-  return gh_app_token().then(function(token){
+  //a rejected promise rather than a throw, so that callers can handle it like other GitHub errors
+  return Promise.resolve().then(function(){
+    if(low_priority){
+      check_ratelimit();
+    }
+    return gh_app_token();
+  }).then(function(token){
     opt.headers = {'Authorization': `token ${token}`, 'X-GitHub-Api-Version': '2026-03-10'};
     return fetch(url, opt).then(function(response){
       update_ratelimit(response);
