@@ -84,7 +84,8 @@ app.use(function(err, req, res, next) {
   const status = err.status || (api ? 400 : 500);
   if(status >= 500){
     // log the cause of server errors, 4xx are already in logs/frontend.log
-    console.log(`ERROR: ${req.path} (${status}): ${err.stack || err.message || err}`);
+    // without a stack for errors we raise on purpose (http-errors), e.g. upstream failures
+    console.log(`ERROR: ${req.path} (${status}): ${createError.isHttpError(err) ? err.message : err.stack || err.message || err}`);
     // prevent revalidation of (intermittent) server errors
     res.removeHeader('ETag');
     res.removeHeader('Last-Modified');
