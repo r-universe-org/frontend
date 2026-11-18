@@ -87,17 +87,14 @@ router.get('/api/packages', function(req, res, next) {
   return mongo_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
     // Write one package at a time: JSON.stringify() of a large universe at once (bioc: ~200MB)
     // blocked the event loop for seconds. The JSON is formatted as res.send() does ('json spaces').
-    function* ndjson(){
-      for (const doc of x) yield JSON.stringify(doc) + '\n';
-    }
-    function* json(){
+    function* json_generator(){
       for (const [i, doc] of x.entries()) yield (i ? ',\n  ' : '[\n  ') + JSON.stringify(doc, null, 2).replaceAll('\n', '\n  ');
       yield x.length ? '\n]' : '[]';
     }
     if(stream){
-      return pipeline(Readable.from(ndjson()), res.type('text/plain'));
+      return pipeline(Readable.from(x).map(doc => JSON.stringify(doc) + '\n'), res.type('text/plain'));
     } else {
-      return pipeline(Readable.from(json()), res.type('application/json'));
+      return pipeline(Readable.from(json_generator()), res.type('application/json'));
     }
   });
 });
