@@ -308,6 +308,15 @@ export function mongo_search(query, limit = 100, skip = 0){
 //TODO: because _universe is only set for source package,
 //Using all:true implies no binaries are included.
 export function mongo_universe_packages(user, fields, limit = 5000, all = true, skip_remotes = true){
+  return mongo_universe_packages_cursor(user, fields, limit, all, skip_remotes).toArray().then(function(pkglist){
+    if(!pkglist.length)
+      throw createError(404, `No packages found in this universe: ${user}`)
+    return pkglist;
+  });
+}
+
+// The same as a cursor, to stream large universes (cran, bioc) one package at a time
+export function mongo_universe_packages_cursor(user, fields, limit = 5000, all = true, skip_remotes = true){
   var query = all ? {'_universes': user} : {'_user': user};
   var projection = build_projection(fields);
   var postmatch = {'$or': [{indexed: true}, {'_id.user': user}]};
@@ -330,11 +339,9 @@ export function mongo_universe_packages(user, fields, limit = 5000, all = true, 
     {$sort : {timestamp : -1}},
     {$limit : limit}
   ]);
-  return cursor.toArray().then(function(pkglist){
-    if(!pkglist.length)
-      throw createError(404, `No packages found in this universe: ${user}`)
-    return pkglist.map(x => group_package_data(x.files));
-  });
+  // Each document holds all files of a package (~60kB): the driver decodes a batch at once, which
+  // blocked the event loop ~1s for the default 16MB batches of large universes (~0.1s for 50)
+  return cursor.batchSize(50).map(x => group_package_data(x.files));
 }
 
 function mongo_universe_vignettes(user){
@@ -537,7 +544,24 @@ export function mongo_universe_maintainers(user, limit = 100){
   return cursor;
 }
 
+// The summary of all universes reads the whole collection for the total file size (a collection
+// scan of ~3s), and changes slowly: compute it at most once an hour (per worker).
+let global_summary = null;
+
 export function mongo_summary(universe){
+  if(universe)
+    return compute_summary(universe);
+  if(!global_summary || global_summary.expires < Date.now()){
+    const value = compute_summary().catch(function(err){
+      global_summary = null;
+      throw err;
+    });
+    global_summary = {value: value, expires: Date.now() + 3600 * 1000};
+  }
+  return global_summary.value;
+}
+
+function compute_summary(universe){
   var query = {_type: 'src', _registered: true};
   var query_all = {}
   if(universe){
@@ -645,22 +669,22 @@ export function mongo_all_universes(organizations_only, limit = 999999){
     query['_userbio.type'] = 'organization';
     query['_user'] = {$ne: 'cran'};
   }
+  // The bio of the most recent upload of each universe. Not with {$sort: {_id: -1}} and $first: then
+  // mongo walks the _id index over all documents (~3s) instead of the _type index over the sources (~1s)
   var cursor = mongo_aggregate([
     {$match: query},
-    {$sort:{ _id: -1}},
     {$group: {
       _id : '$_user',
       updated: { $max: '$_commit.time'},
       packages: { $sum: 1 },
       indexed: { $sum: { $toInt: '$_indexed' }},
-      name: { $first: '$_userbio.name'},
-      type: { $first: '$_userbio.type'},
-      uuid: { $first: '$_userbio.uuid'},
-      bio: { $first: '$_userbio.description'},
+      bio: { $top: { sortBy: { _id: -1 }, output: {name: '$_userbio.name', type: '$_userbio.type',
+        uuid: '$_userbio.uuid', description: '$_userbio.description'}}},
       emails: { $addToSet: '$_maintainer.email'}
     }},
-    {$project: {_id: 0, universe: '$_id', packages: 1, updated: 1, type: 1, uuid: 1,
-      indexed:1, name: 1, bio: 1, maintainers: { $size: '$emails' },
+    {$project: {_id: 0, universe: '$_id', packages: 1, updated: 1, type: {$ifNull: ['$bio.type', null]},
+      uuid: {$ifNull: ['$bio.uuid', null]}, indexed:1, name: {$ifNull: ['$bio.name', null]},
+      bio: {$ifNull: ['$bio.description', null]}, maintainers: { $size: '$emails' },
     }},
     {$sort:{ indexed: -1}},
     {$limit : limit}

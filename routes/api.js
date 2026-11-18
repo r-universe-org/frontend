@@ -1,10 +1,10 @@
 import express from 'express';
 import createError from 'http-errors';
 import {reserved, make_etag} from './cache.js';
-import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
+import {ls_packages, mongo_universe_packages_cursor, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_abi_summary, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps,
   get_package_upstream, get_universe_lastmodified} from '../src/db.js';
-import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info,
+import {cursor_stream, cursor_json_array, build_query, send_results, github_buildlog, github_artifact, get_registry_info,
   get_user_info, get_upstream_info} from '../src/tools.js';
 
 const router = express.Router();
@@ -82,16 +82,14 @@ router.get('/api/packages', function(req, res, next) {
   var limit = parseInt(req.query.limit) || 3000;
   var all = req.query.all != undefined;
   var stream = req.query.stream;
-  return mongo_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
+  var cursor = mongo_universe_packages_cursor(res.locals.universe, fields, limit, all);
+  return cursor.hasNext().then(function(has_next){
+    if(!has_next)
+      throw createError(404, `No packages found in this universe: ${res.locals.universe}`);
     if(stream){
-      res.type('text/plain');
-      x.forEach(function(doc){
-        res.write(JSON.stringify(doc));
-        res.write('\n');
-      });
-      res.end();
+      return cursor_stream(cursor, res.type('text/plain'), doc => JSON.stringify(doc) + '\n');
     } else {
-      res.send(x);
+      return cursor_json_array(cursor, res);
     }
   });
 });

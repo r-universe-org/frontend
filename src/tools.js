@@ -1,5 +1,6 @@
 import {Buffer} from "node:buffer";
 import {pipeline} from 'node:stream/promises';
+import {Readable} from 'node:stream';
 import {createGzip, createGunzip, deflateSync, inflateSync } from "node:zlib";
 import tar from 'tar-stream';
 import fs from 'node:fs';
@@ -525,6 +526,20 @@ export function cursor_stream(cursor, output, transform = (x => x), gzip = false
       return pipeline(input, output);
     }
   });
+}
+
+// Send a cursor as a JSON array, formatted as res.send() does with 'json spaces' 2, one document at a
+// time: a large universe is tens of MB, and a single JSON.stringify() blocked the event loop for seconds
+export function cursor_json_array(cursor, output){
+  async function* json(){
+    let sep = '[\n';
+    for await (const doc of cursor){
+      yield sep + '  ' + JSON.stringify(doc, null, 2).replaceAll('\n', '\n  ');
+      sep = ',\n';
+    }
+    yield sep == '[\n' ? '[]' : '\n]';
+  }
+  return pipeline(Readable.from(json()), output.type('application/json'));
 }
 
 export function send_results(cursor, res, stream = false, transform = (x) => x){
