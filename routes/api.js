@@ -1,5 +1,7 @@
 import express from 'express';
 import createError from 'http-errors';
+import {pipeline} from 'node:stream/promises';
+import {Readable} from 'node:stream';
 import {reserved, make_etag} from './cache.js';
 import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_abi_summary, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps,
@@ -83,15 +85,16 @@ router.get('/api/packages', function(req, res, next) {
   var all = req.query.all != undefined;
   var stream = req.query.stream;
   return mongo_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
+    // Write one package at a time: JSON.stringify() of a large universe at once (bioc: ~200MB)
+    // blocked the event loop for seconds. The JSON is formatted as res.send() does ('json spaces').
+    function* json_generator(){
+      for (const [i, doc] of x.entries()) yield (i ? ',\n  ' : '[\n  ') + JSON.stringify(doc, null, 2).replaceAll('\n', '\n  ');
+      yield x.length ? '\n]' : '[]';
+    }
     if(stream){
-      res.type('text/plain');
-      x.forEach(function(doc){
-        res.write(JSON.stringify(doc));
-        res.write('\n');
-      });
-      res.end();
+      return pipeline(Readable.from(x).map(doc => JSON.stringify(doc) + '\n'), res.type('text/plain'));
     } else {
-      res.send(x);
+      return pipeline(Readable.from(json_generator()), res.type('application/json'));
     }
   });
 });

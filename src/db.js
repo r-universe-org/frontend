@@ -330,7 +330,9 @@ export function mongo_universe_packages(user, fields, limit = 5000, all = true, 
     {$sort : {timestamp : -1}},
     {$limit : limit}
   ]);
-  return cursor.toArray().then(function(pkglist){
+  // Each document holds all files of a package (~60kB). The driver decodes a batch at once, which
+  // blocked the event loop for ~1s with the default batches of 16MB (~0.1s with 50 documents)
+  return cursor.batchSize(50).toArray().then(function(pkglist){
     if(!pkglist.length)
       throw createError(404, `No packages found in this universe: ${user}`)
     return pkglist.map(x => group_package_data(x.files));
