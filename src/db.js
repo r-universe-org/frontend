@@ -647,16 +647,17 @@ export function mongo_all_universes(organizations_only, limit = 999999){
   }
   var cursor = mongo_aggregate([
     {$match: query},
-    {$sort:{ _id: -1}},
+    // The bio of the latest upload. Not with $sort {_id: -1} and $first: mongo then reads all
+    // documents through the _id index (~3s) instead of the sources through the _type index
     {$group: {
       _id : '$_user',
       updated: { $max: '$_commit.time'},
       packages: { $sum: 1 },
       indexed: { $sum: { $toInt: '$_indexed' }},
-      name: { $first: '$_userbio.name'},
-      type: { $first: '$_userbio.type'},
-      uuid: { $first: '$_userbio.uuid'},
-      bio: { $first: '$_userbio.description'},
+      name: { $top: { sortBy: { _id: -1 }, output: '$_userbio.name'}},
+      type: { $top: { sortBy: { _id: -1 }, output: '$_userbio.type'}},
+      uuid: { $top: { sortBy: { _id: -1 }, output: '$_userbio.uuid'}},
+      bio: { $top: { sortBy: { _id: -1 }, output: '$_userbio.description'}},
       emails: { $addToSet: '$_maintainer.email'}
     }},
     {$project: {_id: 0, universe: '$_id', packages: 1, updated: 1, type: 1, uuid: 1,
