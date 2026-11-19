@@ -138,7 +138,7 @@ function enable_default_tooltips(){
 
 function update_citation_html(){
   if($('#citation').length){
-    get_text(`${server}/${package}/citation.html`).then(function(htmlString){
+    get_text(`/${package}/citation.html`).then(function(htmlString){
       var htmlDoc = (new DOMParser()).parseFromString(htmlString, "text/html");
       $(htmlDoc).find('.container').removeClass('container').appendTo('.package-citation-content');
     });
