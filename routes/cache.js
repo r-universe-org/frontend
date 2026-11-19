@@ -38,7 +38,7 @@ function page_cache_policy(pkg, req){
     //in the background (a flood of page loads revalidated it for every universe every minute)
     return {cache_control: 'public, max-age=3600, stale-while-revalidate=86400, stale-if-error=86400'};
   }
-  if((pkg == 'api' && ['/user', '/registry'].includes(path)) || (!reserved.includes(pkg) && path == '/api/upstream')){
+  if(pkg == 'api' && ['/user', '/registry'].includes(path)){
     //data from GitHub, not from our db: never answer a revalidation with the universe or package
     //ETag. Cloudflare then kept GitHub rate limit errors (403 with max-age=60) as valid for hours,
     //revalidating them every minute for every universe (November 2026). The routes set their own
@@ -62,9 +62,11 @@ function page_cache_policy(pkg, req){
     //(the last publish anywhere), so the ~0.7s query only runs after something was published
     return {cache_control: 'public, max-age=10, stale-while-revalidate=3600, stale-if-error=86400'};
   }
-  if((pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)) || (pkg == 'api' && /^\/info\/(cran|conda)status\//.test(req.path))){
-    //data from CRAN and conda-forge, which can be slow or down: serve stale while refreshing in the
-    //background, and when the refresh fails (server errors are not cached, see routes/global.js).
+  if((pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)) || (pkg == 'api' && /^\/info\/(cran|conda|repo)status\//.test(req.path)) ||
+    (!reserved.includes(pkg) && req.path == '/api/upstream')){
+    //data from CRAN, conda-forge and GitHub, which can be slow or down: serve stale while refreshing in the
+    //background, and when the refresh fails (server errors from CRAN and conda-forge are not cached, see
+    //upstream_error in src/tools.js; GitHub errors are kept for an hour, see github_error in routes/api.js).
     //No s-maxage: cloudflare does not serve stale content with it.
     return {cache_control: 'public, max-age=3600, stale-while-revalidate=604800, stale-if-error=2592000', revalidate: false};
   }

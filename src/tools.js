@@ -134,7 +134,7 @@ export function cheerio_page(html, page, pkgname, universe){
 }
 
 // The rate limit of the GitHub app, from the headers of its last response. Low priority requests
-// (sidebar info: /api/info/user, /api/info/registry, /api/info/upstream) are not sent when less than a quarter of
+// (sidebar info: /api/info/user, /api/info/registry, /api/info/repostatus) are not sent when less than a quarter of
 // it remains, so that floods of page loads can not use it all up (November 2026), and important
 // requests (build logs, artifacts, check results) keep working until the limit resets.
 const github_reserve = 0.25;

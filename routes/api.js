@@ -70,13 +70,12 @@ router.get('/api{/info}/user', function(req, res, next) {
   }, err => github_error(res, err));
 });
 
-router.get('/:package/api{/info}/upstream', function(req, res, next) {
-  return get_package_upstream(req.params.package, res.locals.universe).then(get_upstream_info).then(function(x){
-    //data comes from upstream platform, so do not use package-based revalidation
-    res.removeHeader('ETag');
-    res.removeHeader('Last-Modified');
-    res.set('Cache-Control', 'max-age=3600, stale-while-revalidate=86400, stale-if-error=86400, public').send(x);
-  });
+// Repository info from GitHub for the package page, cache policy in routes/cache.js.
+// The old path /:package/api/upstream is still used by cached pages.
+router.get(['/api/info/repostatus/:package', '/:package/api/upstream'], function(req, res, next) {
+  return get_package_upstream(req.params.package, res.locals.universe).then(function(upstream){
+    return get_upstream_info(upstream).catch(err => github_error(res, err));
+  }).then(x => res.send(x));
 });
 
 router.get('/api/packages', function(req, res, next) {

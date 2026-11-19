@@ -20,7 +20,7 @@ function update_copy_gist(){
 
 function update_open_issues(){
   if(pkginfo.bugtracker){
-    return get_json(`${server}/${package}/api/info/upstream`).then(function(data){
+    return get_json(`${server}/api/info/repostatus/${package}`).then(function(data){
       if(data.archived){
         $('.open-issues-count').text(`ARCHIVED upstream`)
       } else if(data.open_issues !== undefined){
