@@ -20,7 +20,7 @@ function update_copy_gist(){
 
 function update_open_issues(){
   if(pkginfo.bugtracker){
-    return get_json(`${server}/api/info/repostatus/${package}`).then(function(data){
+    return get_json(`${server}/api/info/upstream/${package}`).then(function(data){
       if(data.archived){
         $('.open-issues-count').text(`ARCHIVED upstream`)
       } else if(data.open_issues !== undefined){
@@ -43,7 +43,7 @@ function compare_url(giturl, cran){
 function update_cran_status(){
   var upstream = pkginfo.upstream;
   if(universe == 'bioc' || universe == 'bioc-release') return;
-  get_json(`${server}/api/info/cranstatus/${package}`).then(function(craninfo){
+  get_json(`${server}/api/info/cran/${package}`).then(function(craninfo){
     if(craninfo.version){
       var versiontxt = craninfo.version === 'archived' ? `${package} (archived)` : `${package}-${craninfo.version}`;
       $('.release-version').text(versiontxt).attr('href', `https://cran.r-project.org/package=${package}`);
@@ -84,7 +84,7 @@ function update_cran_status(){
 
 function update_conda_status(){
   const lowpkg = package.toLowerCase();
-  return get_json(`${server}/api/info/condastatus/${lowpkg}`).then(function(conda){
+  return get_json(`${server}/api/info/conda/${lowpkg}`).then(function(conda){
     if(conda.version){
       $('.conda-version').text(`r-${lowpkg}-${conda.version}`).attr('href', conda.url);
       $('.conda-date').text(`(${conda.date.substring(0,10)}) `);

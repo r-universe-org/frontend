@@ -72,7 +72,7 @@ router.get('/api{/info}/user', function(req, res, next) {
 
 // Repository info from GitHub for the package page, cache policy in routes/cache.js.
 // The old path /:package/api/upstream is still used by cached pages.
-router.get(['/api/info/repostatus/:package', '/:package/api/upstream'], function(req, res, next) {
+router.get(['/api/info/upstream/:package', '/:package/api/upstream'], function(req, res, next) {
   return get_package_upstream(req.params.package, res.locals.universe).then(function(upstream){
     return get_upstream_info(upstream).catch(err => github_error(res, err));
   }).then(x => res.send(x));
@@ -172,11 +172,11 @@ router.get('/api{/info}/summary', function(req, res, next){
 });
 
 // Data from CRAN and conda-forge for the package page, cache policy in routes/cache.js
-router.get('/api/info/cranstatus/:package', function(req, res, next) {
+router.get('/api/info/cran/:package', function(req, res, next) {
   return get_cran_desc(req.params.package).then(x => res.send(x)).catch(err => upstream_error(res, err));
 });
 
-router.get('/api/info/condastatus/:package', function(req, res, next) {
+router.get('/api/info/conda/:package', function(req, res, next) {
   return get_conda_info(req.params.package).then(x => res.send(x)).catch(err => upstream_error(res, err));
 });
 

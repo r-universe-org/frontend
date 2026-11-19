@@ -62,7 +62,7 @@ function page_cache_policy(pkg, req){
     //(the last publish anywhere), so the ~0.7s query only runs after something was published
     return {cache_control: 'public, max-age=10, stale-while-revalidate=3600, stale-if-error=86400'};
   }
-  if((pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)) || (pkg == 'api' && /^\/info\/(cran|conda|repo)status\//.test(req.path)) ||
+  if((pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)) || (pkg == 'api' && /^\/info\/(cran|conda|upstream)\//.test(req.path)) ||
     (!reserved.includes(pkg) && req.path == '/api/upstream')){
     //data from CRAN, conda-forge and GitHub, which can be slow or down: serve stale while refreshing in the
     //background, and when the refresh fails (server errors from CRAN and conda-forge are not cached, see
