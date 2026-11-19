@@ -1,6 +1,7 @@
 import express from 'express';
 import createError from 'http-errors';
 import {pipeline} from 'node:stream/promises';
+import {setImmediate} from 'node:timers/promises';
 import {Readable} from 'node:stream';
 import {reserved, make_etag} from './cache.js';
 import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
@@ -87,12 +88,23 @@ router.get('/api/packages', function(req, res, next) {
   return mongo_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
     // Write one package at a time: JSON.stringify() of a large universe at once (bioc: ~200MB)
     // blocked the event loop for seconds. The JSON is formatted as res.send() does ('json spaces').
-    function* json_generator(){
-      for (const [i, doc] of x.entries()) yield (i ? ',\n  ' : '[\n  ') + JSON.stringify(doc, null, 2).replaceAll('\n', '\n  ');
+    // Writing alone does not let other requests run: nginx reads as fast as we write, so the stream
+    // never waits for the event loop. Hence the setImmediate() every 10 packages.
+    async function* json_generator(){
+      for (const [i, doc] of x.entries()) {
+        if(i % 10 == 9) await setImmediate();
+        yield (i ? ',\n  ' : '[\n  ') + JSON.stringify(doc, null, 2).replaceAll('\n', '\n  ');
+      }
       yield x.length ? '\n]' : '[]';
     }
+    async function* ndjson_generator(){
+      for (const [i, doc] of x.entries()) {
+        if(i % 10 == 9) await setImmediate();
+        yield JSON.stringify(doc) + '\n';
+      }
+    }
     if(stream){
-      return pipeline(Readable.from(x).map(doc => JSON.stringify(doc) + '\n'), res.type('text/plain'));
+      return pipeline(Readable.from(ndjson_generator()), res.type('text/plain'));
     } else {
       return pipeline(Readable.from(json_generator()), res.type('application/json'));
     }
