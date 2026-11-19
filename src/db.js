@@ -1058,13 +1058,15 @@ export function get_universe_lastmodified(universe){
 // The last time anything was published in each universe: the same date as get_latest() in
 // routes/cache.js for universe pages {_universes}. Only src and failure records have
 // _universes, so the _type index skips the binaries (~0.7s instead of ~2.5s for a full scan).
+// The driver decodes a batch at once: the default batch (all ~15k universes) blocked the event
+// loop of a worker for ~0.2-0.4s, batches of 1000 documents for ~40ms.
 export function get_all_universes_lastmodified(){
   return packages.aggregate([
     {$match: {_type: {$in: ['src', 'failure']}}},
     {$unwind: '$_universes'},
     {$group: {_id: '$_universes', latest: {$max: '$_published'}}},
     {$sort: {_id: 1}}
-  ]).toArray();
+  ]).batchSize(1000).toArray();
 }
 
 export function get_packages_index(query, fields = [], mixed = false){
