@@ -45,6 +45,10 @@ function page_cache_policy(pkg, req){
     //Cache-Control; this one is for errors that they do not handle.
     return {cache_control: 'public, max-age=3600', revalidate: false};
   }
+  if(pkg == 'api' && /^\/revdeps\//.test(path) && req.query.all !== undefined){
+    //revdeps in all universes: these do not follow the universe ETag
+    return {cache_control: 'public, max-age=3600, stale-while-revalidate=86400, stale-if-error=86400', revalidate: false};
+  }
   if(pkg == 'api' && path == '/summary'){
     //loaded on every page and changes slowly: refresh in the background, like the global pages
     return {cache_control: 'public, max-age=300, stale-while-revalidate=86400, stale-if-error=86400'};
@@ -58,7 +62,7 @@ function page_cache_policy(pkg, req){
     //(the last publish anywhere), so the ~0.7s query only runs after something was published
     return {cache_control: 'public, max-age=10, stale-while-revalidate=3600, stale-if-error=86400'};
   }
-  if(pkg == '_global' && /^(\/api\/info)?\/(cran|conda)status\//.test(req.path)){
+  if((pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)) || (pkg == 'api' && /^\/info\/(cran|conda)status\//.test(req.path))){
     //data from CRAN and conda-forge, which can be slow or down: serve stale while refreshing in the
     //background, and when the refresh fails (server errors are not cached, see routes/global.js).
     //No s-maxage: cloudflare does not serve stale content with it.

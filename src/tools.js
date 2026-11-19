@@ -510,6 +510,31 @@ export function get_cran_desc(pkg){
   });
 }
 
+export function get_conda_info(pkg){
+  const url = `https://api.anaconda.org/package/conda-forge/r-${pkg}`;
+  //anaconda.org usually responds in <0.5s but sometimes hangs: fail fast, cloudflare serves stale
+  return fetch(url, {signal: AbortSignal.timeout(5000)}).then(function(response){
+    if (response.ok) {
+      return response.json().then(function(conda){
+        /* Workaround sorting bug https://github.com/conda/infrastructure/issues/1122
+         * Alternatively we could parse the badge? https://anaconda.org/conda-forge/r-sf/badges */
+        var latest_version = Array.isArray(conda.versions) ? conda.versions.at(-1) : conda.latest_version;
+        return {name: conda.full_name, url: conda.html_url, version: latest_version, date: conda.modified_at};
+      });
+    } else if (response.status == 404) { //not on conda-forge: send HTTP 200 to ensure caching
+      return {error: "Failed"};
+    } else {
+      throw new Error(`HTTP ${response.status} from anaconda.org`);
+    }
+  });
+}
+
+// For the cranstatus and condastatus APIs: server errors are not cached (see routes/cache.js)
+export function upstream_error(res, err){
+  res.removeHeader('Cache-Control');
+  res.status(502).send({error: `Upstream failure: ${err.message || err}`});
+}
+
 function doc_to_ndjson(x){
   return JSON.stringify(x) + '\n';
 }

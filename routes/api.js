@@ -7,7 +7,7 @@ import {ls_packages, mongo_universe_packages_cursor, group_package_data, mongo_u
   mongo_search, mongo_everyone, mongo_abi_summary, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps,
   get_package_upstream, get_universe_lastmodified} from '../src/db.js';
 import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info,
-  get_user_info, get_upstream_info} from '../src/tools.js';
+  get_user_info, get_upstream_info, get_cran_desc, get_conda_info, upstream_error} from '../src/tools.js';
 
 const router = express.Router();
 
@@ -107,8 +107,9 @@ router.get('/api/packages/:package', function(req, res, next) {
   });
 });
 
+// With ?all the revdeps in all universes (for the package page), otherwise only those in this universe
 router.get('/api{/info}/revdeps/:package', function(req, res, next){
-  var cursor = mongo_usedbyorg(req.params.package, res.locals.universe);
+  var cursor = mongo_usedbyorg(req.params.package, req.query.all === undefined ? res.locals.universe : null);
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
 
@@ -169,6 +170,15 @@ router.get('/api/files', function(req, res, next){
 
 router.get('/api{/info}/summary', function(req, res, next){
   return mongo_summary(res.locals.universe).then(x => res.send(x));
+});
+
+// Data from CRAN and conda-forge for the package page, cache policy in routes/cache.js
+router.get('/api/info/cranstatus/:package', function(req, res, next) {
+  return get_cran_desc(req.params.package).then(x => res.send(x)).catch(err => upstream_error(res, err));
+});
+
+router.get('/api/info/condastatus/:package', function(req, res, next) {
+  return get_conda_info(req.params.package).then(x => res.send(x)).catch(err => upstream_error(res, err));
 });
 
 router.get('/api{/info}/actions/logs/:job', function(req, res, next){

@@ -20,7 +20,7 @@ router.get('/api/etags', function(req, res, next) {
   });
 });
 
-router.get('/api{/info}/revdeps/:package', function(req, res, next){
+router.get('/api/revdeps/:package', function(req, res, next){
   var cursor = mongo_usedbyorg(req.params.package);
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
