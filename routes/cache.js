@@ -27,23 +27,25 @@ export function make_etag(published){
 // update the headers of a cached page. Pages with revalidate: false do not come from our db,
 // so they get no ETag (nor existence check), and are refreshed after max-age instead.
 function page_cache_policy(pkg, req){
+  //APIs for the pages are under /api/info, and still at their old place without /info for now
+  const path = req.path.replace(/^(\/api)?\/info\//, '$1/');
   if(pkg == 'api' && req.path == '/allowlist'){
     //the edge worker loads this for every universe, and it changes rarely
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600'};
   }
-  if(pkg == 'api' && req.path == '/maintainers'){
+  if(pkg == 'api' && path == '/maintainers'){
     //loaded by the sidebar of every universe page, and changes slowly: refresh at most once an hour,
     //in the background (a flood of page loads revalidated it for every universe every minute)
     return {cache_control: 'public, max-age=3600, stale-while-revalidate=86400, stale-if-error=86400'};
   }
-  if((pkg == 'api' && ['/user', '/registry'].includes(req.path)) || (!reserved.includes(pkg) && req.path == '/api/upstream')){
+  if((pkg == 'api' && ['/user', '/registry'].includes(path)) || (!reserved.includes(pkg) && path == '/api/upstream')){
     //data from GitHub, not from our db: never answer a revalidation with the universe or package
     //ETag. Cloudflare then kept GitHub rate limit errors (403 with max-age=60) as valid for hours,
     //revalidating them every minute for every universe (November 2026). The routes set their own
     //Cache-Control; this one is for errors that they do not handle.
     return {cache_control: 'public, max-age=3600', revalidate: false};
   }
-  if(pkg == 'api' && req.path == '/summary'){
+  if(pkg == 'api' && path == '/summary'){
     //loaded on every page and changes slowly: refresh in the background, like the global pages
     return {cache_control: 'public, max-age=300, stale-while-revalidate=86400, stale-if-error=86400'};
   }
@@ -56,7 +58,7 @@ function page_cache_policy(pkg, req){
     //(the last publish anywhere), so the ~0.7s query only runs after something was published
     return {cache_control: 'public, max-age=10, stale-while-revalidate=3600, stale-if-error=86400'};
   }
-  if(pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)){
+  if(pkg == '_global' && /^(\/api\/info)?\/(cran|conda)status\//.test(req.path)){
     //data from CRAN and conda-forge, which can be slow or down: serve stale while refreshing in the
     //background, and when the refresh fails (server errors are not cached, see routes/global.js).
     //No s-maxage: cloudflare does not serve stale content with it.

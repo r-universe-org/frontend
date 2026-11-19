@@ -20,7 +20,7 @@ function update_copy_gist(){
 
 function update_open_issues(){
   if(pkginfo.bugtracker){
-    return get_json(`${server}/${package}/api/upstream`).then(function(data){
+    return get_json(`${server}/${package}/api/info/upstream`).then(function(data){
       if(data.archived){
         $('.open-issues-count').text(`ARCHIVED upstream`)
       } else if(data.open_issues !== undefined){
@@ -43,7 +43,7 @@ function compare_url(giturl, cran){
 function update_cran_status(){
   var upstream = pkginfo.upstream;
   if(universe == 'bioc' || universe == 'bioc-release') return;
-  get_json(`https://r-universe.dev/cranstatus/${package}`).then(function(craninfo){
+  get_json(`https://r-universe.dev/api/info/cranstatus/${package}`).then(function(craninfo){
     if(craninfo.version){
       var versiontxt = craninfo.version === 'archived' ? `${package} (archived)` : `${package}-${craninfo.version}`;
       $('.release-version').text(versiontxt).attr('href', `https://cran.r-project.org/package=${package}`);
@@ -84,7 +84,7 @@ function update_cran_status(){
 
 function update_conda_status(){
   const lowpkg = package.toLowerCase();
-  return get_json(`https://r-universe.dev/condastatus/${lowpkg}`).then(function(conda){
+  return get_json(`https://r-universe.dev/api/info/condastatus/${lowpkg}`).then(function(conda){
     if(conda.version){
       $('.conda-version').text(`r-${lowpkg}-${conda.version}`).attr('href', conda.url);
       $('.conda-date').text(`(${conda.date.substring(0,10)}) `);
@@ -187,7 +187,7 @@ function update_readme_html(){
 
 function update_package_revdeps(){
   var revdepdiv = $(".package-details-revdeps");
-  return get_json(`https://r-universe.dev/api/revdeps/${package}`).then(function(revdeps){
+  return get_json(`https://r-universe.dev/api/info/revdeps/${package}`).then(function(revdeps){
     function make_link(pkg, owner){
       return $("<a>").text(pkg).addClass('text-dark').attr('href', `https://${owner}.r-universe.dev/${pkg}`);
     }
@@ -329,7 +329,7 @@ function update_checktable_apilinks(){
   $('#checktable').on('shown.bs.collapse', function(){
     console.log("Populating checktable links");
     $('#checktable a[data-apilink]').each(function() {
-      this.href = `/api/actions/${this.dataset.apilink}`;
+      this.href = `/api/info/actions/${this.dataset.apilink}`;
     });
   });
 }

@@ -33,12 +33,12 @@ html
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css')
     //- start fetching sidebar data right away, rather than after the (possibly large) page has been parsed
-    link(rel='preload' href='/api/summary' as='fetch' crossorigin)
-    link(rel='preload' href='/api/maintainers?limit=25' as='fetch' crossorigin)
-    link(rel='preload' href='/api/registry?nocache=4' as='fetch' crossorigin)
+    link(rel='preload' href='/api/info/summary' as='fetch' crossorigin)
+    link(rel='preload' href='/api/info/maintainers?limit=25' as='fetch' crossorigin)
+    link(rel='preload' href='/api/info/registry?nocache=4' as='fetch' crossorigin)
     //- github account shown in the sidebar (some universes mirror another account)
     - var ghuser = {'bioc': 'bioconductor', 'bioc-release': 'bioconductor', 'r-multiverse-staging': 'r-multiverse', 'ropensci-champions': 'ropensci'}[universe] || universe
-    link(rel='preload' href='/api/user' as='fetch' crossorigin)
+    link(rel='preload' href='/api/info/user' as='fetch' crossorigin)
     block after_head
     style
       include layout.css

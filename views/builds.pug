@@ -91,7 +91,7 @@ block content
                 span.package-show-difftime(data-timestamp=`${(row._failure ? row._failure.date : row._created).toISOString()}`)
 
 block after_head
-  link(rel='preload' href='/api/updates' as='fetch' crossorigin)
+  link(rel='preload' href='/api/info/updates' as='fetch' crossorigin)
 
 block after_scripts
   script

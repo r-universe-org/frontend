@@ -66,7 +66,7 @@ function load_github_user_info(){
     }
   });
   */
-  return get_json('/api/user').then(function(user){
+  return get_json('/api/info/user').then(function(user){
     $("#github-user-name").text(user.name || ghuser);
 
     if(user.name){
@@ -115,7 +115,7 @@ function add_maintainer_icon(maintainer){
 }
 
 function load_maintainer_list(){
-  get_json('/api/maintainers?limit=25').then(function(x){
+  get_json('/api/info/maintainers?limit=25').then(function(x){
     x.forEach(function(maintainer){
       if(maintainer.login == universe && maintainer.orcid){
         $("#github-user-orcid").removeClass("d-none").attr('href', 'https://orcid.org/' + maintainer.orcid);
@@ -153,7 +153,7 @@ function load_registry_status(){
   const tooltip_success = "Last sync was OK";
   const tooltip_failure = "There was a problem updating the registry. Click to inspect the log files.";
   $("#registry-status-link").attr("href", 'https://github.com/r-universe/' + universe + '/actions/workflows/sync.yml');
-  return get_json('/api/registry?nocache=4').then(function(last_job){
+  return get_json('/api/info/registry?nocache=4').then(function(last_job){
     if(last_job) {
       const success = last_job.conclusion == 'success';
       add_tooltip($("#registry-status-link").removeClass('d-none'), success ? tooltip_success : tooltip_failure);
@@ -196,7 +196,7 @@ function load_registry_status(){
 }
 
 function load_universe_stats(){
-  return get_json(`/api/summary`).then(function(stats){
+  return get_json(`/api/info/summary`).then(function(stats){
     for (const [key, value] of Object.entries(stats)) {
       $(`#github-user-${key} .content`).text(`${value || 0} ${key}`);
       if(!value){

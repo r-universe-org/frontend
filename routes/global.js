@@ -182,7 +182,7 @@ function upstream_error(res, err){
   res.status(502).send({error: `Upstream failure: ${err.message || err}`});
 }
 
-router.get('/condastatus/:package', function(req, res, next) {
+router.get('{/api/info}/condastatus/:package', function(req, res, next) {
   //cache policy in routes/cache.js
   const url = `https://api.anaconda.org/package/conda-forge/r-${req.params.package}`;
   //anaconda.org usually responds in <0.5s but sometimes hangs: fail fast, cloudflare serves stale
@@ -211,7 +211,7 @@ router.get('/mongostatus', function(req, res, next) {
   });
 });
 
-router.get('/cranstatus/:package', function(req, res, next) {
+router.get('{/api/info}/cranstatus/:package', function(req, res, next) {
   //cache policy in routes/cache.js
   return get_cran_desc(req.params.package).then(function(info){
     return res.send(info);
