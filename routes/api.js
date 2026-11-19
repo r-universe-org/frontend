@@ -3,7 +3,7 @@ import createError from 'http-errors';
 import {pipeline} from 'node:stream/promises';
 import {Readable} from 'node:stream';
 import {reserved, make_etag} from './cache.js';
-import {ls_packages, mongo_universe_packages, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
+import {ls_packages, mongo_universe_packages_cursor, group_package_data, mongo_universe_maintainers, get_package_info, mongo_dump, mongo_usedbyorg,
   mongo_search, mongo_everyone, mongo_abi_summary, mongo_all_files, mongo_summary, mongo_universe_updates, mongo_universe_topics, mongo_all_sysdeps,
   get_package_upstream, get_universe_lastmodified} from '../src/db.js';
 import {cursor_stream, build_query, send_results, github_buildlog, github_artifact, get_registry_info,
@@ -84,18 +84,20 @@ router.get('/api/packages', function(req, res, next) {
   var limit = parseInt(req.query.limit) || 3000;
   var all = req.query.all != undefined;
   var stream = req.query.stream;
-  return mongo_universe_packages(res.locals.universe, fields, limit, all).then(function(x){
-    // Write one package at a time: JSON.stringify() of a large universe at once (bioc: ~200MB)
-    // blocked the event loop for seconds. The JSON is formatted as res.send() does ('json spaces').
-    function* json_generator(){
-      for (const [i, doc] of x.entries()) yield (i ? ',\n  ' : '[\n  ') + JSON.stringify(doc, null, 2).replaceAll('\n', '\n  ');
-      yield x.length ? '\n]' : '[]';
-    }
+  return mongo_universe_packages_cursor(res.locals.universe, fields, limit, all).then(function(cursor){
+    // Stream from the cursor: JSON.stringify() of a large universe at once (bioc: ~200MB) blocked
+    // the event loop for seconds, and other requests run while the driver fetches the next batch.
     if(stream){
-      return pipeline(Readable.from(x).map(doc => JSON.stringify(doc) + '\n'), res.type('text/plain'));
-    } else {
-      return pipeline(Readable.from(json_generator()), res.type('application/json'));
+      return send_results(cursor, res, true, doc => group_package_data(doc.files));
     }
+    // The JSON is formatted as res.send() does ('json spaces')
+    async function* json_generator(){
+      let i = 0;
+      for await (const doc of cursor)
+        yield (i++ ? ',\n  ' : '[\n  ') + JSON.stringify(group_package_data(doc.files), null, 2).replaceAll('\n', '\n  ');
+      yield i ? '\n]' : '[]';
+    }
+    return pipeline(Readable.from(json_generator()), res.type('application/json'));
   });
 });
 

@@ -96,7 +96,7 @@ function mongo_cache_invalidate(universe){
   });
 }
 
-function group_package_data(docs){
+export function group_package_data(docs){
   var src = docs.find(x => x['_type'] == 'src');
   var failure = docs.find(x => x['_type'] == 'failure');
   if(!src){
@@ -307,7 +307,8 @@ export function mongo_search(query, limit = 100, skip = 0){
 
 //TODO: because _universe is only set for source package,
 //Using all:true implies no binaries are included.
-export function mongo_universe_packages(user, fields, limit = 5000, all = true, skip_remotes = true){
+//Resolves to a cursor with the files of each package: group_package_data(doc.files) makes the package.
+export function mongo_universe_packages_cursor(user, fields, limit = 5000, all = true, skip_remotes = true){
   var query = all ? {'_universes': user} : {'_user': user};
   var projection = build_projection(fields);
   var postmatch = {'$or': [{indexed: true}, {'_id.user': user}]};
@@ -332,9 +333,18 @@ export function mongo_universe_packages(user, fields, limit = 5000, all = true, 
   ]);
   // Each document holds all files of a package (~60kB). The driver decodes a batch at once, which
   // blocked the event loop for ~1s with the default batches of 16MB (~0.1s with 50 documents)
-  return cursor.batchSize(50).toArray().then(function(pkglist){
-    if(!pkglist.length)
+  cursor.batchSize(50);
+  return cursor.hasNext().then(function(has_next){
+    if(!has_next)
       throw createError(404, `No packages found in this universe: ${user}`)
+    return cursor;
+  });
+}
+
+export function mongo_universe_packages(user, fields, limit = 5000, all = true, skip_remotes = true){
+  return mongo_universe_packages_cursor(user, fields, limit, all, skip_remotes).then(function(cursor){
+    return cursor.toArray();
+  }).then(function(pkglist){
     return pkglist.map(x => group_package_data(x.files));
   });
 }
