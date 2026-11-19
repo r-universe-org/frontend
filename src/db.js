@@ -1067,6 +1067,8 @@ export function get_all_universes_lastmodified(){
   ]).toArray();
 }
 
+// The driver decodes a batch at once: for the index of cran (23MB) the default batches of 16MB blocked
+// the event loop for ~0.5s, batches of 1000 documents (~1MB) for ~50ms, in the same total time.
 export function get_packages_index(query, fields = [], mixed = false){
   let projection = {...pkgfields};
   fields.forEach(function (f) {
@@ -1086,9 +1088,9 @@ export function get_packages_index(query, fields = [], mixed = false){
         doc: { '$first': '$$ROOT' }
       }},
       {$replaceRoot: { newRoot: {$mergeObjects: ['$doc', { _sysdeps: '$_sysdeps'}]}}}
-    ]);
+    ]).batchSize(1000);
   } else {
-    return mongo_find(query).project(projection).sort({"Package" : 1});
+    return mongo_find(query).project(projection).sort({"Package" : 1}).batchSize(1000);
   }
 }
 
