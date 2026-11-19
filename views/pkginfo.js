@@ -156,7 +156,7 @@ function replace_headers(doc, from, to){
 
 function update_readme_html(){
   if($('.package-readme-content').length){
-    get_text(`${server}/${package}/doc/readme?highlight=hljs`).then(function(res){
+    get_text(`/${package}/doc/readme?highlight=hljs`).then(function(res){
       var doc = $(res);
       doc.find("a").attr("target", "_blank").each(function(){
         if($(this).attr('href').startsWith("#")){
