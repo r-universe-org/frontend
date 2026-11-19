@@ -384,7 +384,6 @@ router.get('/robots.txt', function(req, res, next) {
     str.unshift('Disallow: /src/');
     str.unshift('Disallow: /bin/'); // package binaries are for R, not crawlers
     str.unshift('Disallow: /api/info/'); // APIs for the pages
-    str.unshift('Disallow: /api/actions/');
     str.unshift('User-agent: *');
     str.push("");
     str.push(`Sitemap: https://${res.locals.universe}.r-universe.dev/sitemap_index.xml`);
