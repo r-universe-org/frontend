@@ -84,10 +84,7 @@ router.get('/api/packages', function(req, res, next) {
   var limit = parseInt(req.query.limit) || 3000;
   var all = req.query.all != undefined;
   var stream = req.query.stream;
-  var cursor = mongo_universe_packages_cursor(res.locals.universe, fields, limit, all);
-  return cursor.hasNext().then(function(has_next){
-    if(!has_next)
-      throw createError(404, `No packages found in this universe: ${res.locals.universe}`);
+  return mongo_universe_packages_cursor(res.locals.universe, fields, limit, all).then(function(cursor){
     // Stream from the cursor: JSON.stringify() of a large universe at once (bioc: ~200MB) blocked
     // the event loop for seconds, and other requests run while the driver fetches the next batch.
     if(stream){
