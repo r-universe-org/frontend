@@ -432,7 +432,6 @@ block content
 
 block after_head
   //- start fetching data for pkginfo.js right away (must match the urls used there)
-  - var server = node_env == 'production' ? '' : `https://${universe}.r-universe.dev`
   if _assets.includes("extra/readme.html") || _assets.includes("readme.html")
     link(rel='preload' href=`/${Package}/doc/readme?highlight=hljs` as='fetch' crossorigin)
   if _assets.includes("extra/citation.html")
