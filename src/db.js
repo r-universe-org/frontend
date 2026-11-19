@@ -689,7 +689,8 @@ function mongo_all_scores(){
     vignettes: array_size('$_vignettes'),
     releases: array_size('$_releases')
   }
-  var cursor = mongo_find(query).sort({_score: -1}).project(projection);
+  // The driver decodes a batch at once; see mongo_all_datasets()
+  var cursor = mongo_find(query).sort({_score: -1}).project(projection).batchSize(1000);
   return cursor.toArray();
 }
 
@@ -768,7 +769,9 @@ function mongo_all_datasets(){
       fields: array_size('$dataset.fields')
     }}
   ]);
-  return cursor.toArray();
+  // The driver decodes a batch at once: in a worker with a large heap, the default batch of 16MB
+  // (75k datasets, 12MB) blocked the event loop for ~0.6-1.2s, batches of 1000 documents for ~20ms.
+  return cursor.batchSize(1000).toArray();
 }
 
 export function mongo_universe_topics(universe, min = 1, limit = 100){
