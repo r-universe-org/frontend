@@ -73,7 +73,7 @@ function load_scripts(urls){
   }));
 }
 
-Promise.all([get_json('/api/updates'), load_scripts([
+Promise.all([get_json('/api/info/updates'), load_scripts([
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js',
   'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.1/chartjs-adapter-moment.min.js'

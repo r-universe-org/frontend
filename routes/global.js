@@ -1,6 +1,6 @@
 import express from 'express';
 import {get_builds, get_organizations, get_repositories, get_articles, get_scores, get_sysdeps, get_datasets, mongo_indexes, find_cran_package, mongo_universe_updates, get_universe_contributors} from '../src/db.js';
-import {check_to_color, get_cran_desc} from '../src/tools.js';
+import {check_to_color, get_cran_desc, get_conda_info, upstream_error} from '../src/tools.js';
 const router = express.Router();
 
 function rnd(max){
@@ -177,31 +177,10 @@ router.get(["/index.xml", "/feed.xml"], function(req, res, next){
 
 // Upstream failures of the status pages are server errors without a Cache-Control, so that they
 // are not cached and cloudflare keeps serving the previous response (stale-if-error)
-function upstream_error(res, err){
-  res.removeHeader('Cache-Control');
-  res.status(502).send({error: `Upstream failure: ${err.message || err}`});
-}
-
+// Legacy: the pages now use /api/info/{cran,conda}status of the universe (same origin, for the challenge)
 router.get('/condastatus/:package', function(req, res, next) {
   //cache policy in routes/cache.js
-  const url = `https://api.anaconda.org/package/conda-forge/r-${req.params.package}`;
-  //anaconda.org usually responds in <0.5s but sometimes hangs: fail fast, cloudflare serves stale
-  return fetch(url, {signal: AbortSignal.timeout(5000)}).then(function(response){
-    if (response.ok) {
-      return response.json().then(function(conda){
-        /* Workaround sorting bug https://github.com/conda/infrastructure/issues/1122
-         * Alternatively we could parse the badge? https://anaconda.org/conda-forge/r-sf/badges */
-        var latest_version = Array.isArray(conda.versions) ? conda.versions.at(-1) : conda.latest_version;
-        return res.send({
-          name: conda.full_name, url: conda.html_url, version: latest_version, date: conda.modified_at
-        });
-      });
-    } else if (response.status == 404) { //not on conda-forge: send HTTP 200 to ensure caching
-      res.send({error: "Failed"});
-    } else {
-      throw new Error(`HTTP ${response.status} from anaconda.org`);
-    }
-  }).catch(err => upstream_error(res, err));
+  return get_conda_info(req.params.package).then(x => res.send(x)).catch(err => upstream_error(res, err));
 });
 
 router.get('/mongostatus', function(req, res, next) {

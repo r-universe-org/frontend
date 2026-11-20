@@ -256,7 +256,7 @@ function append_topic(topic, i){
 
 function load_all_topics(){
   $('#topics-list').empty().text("Popular topics: ");
-  get_json('https://r-universe.dev/api/topics?min=3&limit=250').then(function(topicdata){
+  get_json('https://r-universe.dev/api/info/topics?min=3&limit=250').then(function(topicdata){
     topicdata.map(x => x.topic).forEach(append_topic);
   });
   return false;
@@ -275,7 +275,7 @@ function load_organizations(){
   var pagesize = 12;
   var pinned = ['ropensci', 'bioc', 'tidyverse', 'r-spatial', 'pharmaverse', 'posit-dev',
               'lcbc-uio', 'rstudio', 'ropengov', 'r-lib', 'stan-dev', 'carpentries'];
-  get_ndjson('https://r-universe.dev/api/organizations?limit=96&stream=1').then(function(data){
+  get_ndjson('https://r-universe.dev/api/info/organizations?limit=96&stream=1').then(function(data){
     data = data.sort((x,y) => pinned.includes(x.universe) ? -1 : 1);
     for(let i = 0; i < pages; i++) {
       var slide = $("#templatezone .carousel-item").clone();
@@ -293,7 +293,7 @@ function load_organizations(){
 }
 
 function load_summary_stats(){
-  get_json('https://r-universe.dev/api/summary').then(function(stats){
+  get_json('https://r-universe.dev/api/info/summary').then(function(stats){
     Object.keys(stats).forEach(key => $(`#summary-n-${key}`).text(stats[key]));
   });
 }

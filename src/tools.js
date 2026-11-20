@@ -134,7 +134,7 @@ export function cheerio_page(html, page, pkgname, universe){
 }
 
 // The rate limit of the GitHub app, from the headers of its last response. Low priority requests
-// (sidebar info: /api/user, /api/registry, /api/upstream) are not sent when less than a quarter of
+// (sidebar info: /api/info/user, /api/info/registry, /api/info/upstream) are not sent when less than a quarter of
 // it remains, so that floods of page loads can not use it all up (November 2026), and important
 // requests (build logs, artifacts, check results) keep working until the limit resets.
 const github_reserve = 0.25;
@@ -508,6 +508,31 @@ export function get_cran_desc(pkg){
     }
     throw "Failed to lookup CRAN version";
   });
+}
+
+export function get_conda_info(pkg){
+  const url = `https://api.anaconda.org/package/conda-forge/r-${pkg}`;
+  //anaconda.org usually responds in <0.5s but sometimes hangs: fail fast, cloudflare serves stale
+  return fetch(url, {signal: AbortSignal.timeout(5000)}).then(function(response){
+    if (response.ok) {
+      return response.json().then(function(conda){
+        /* Workaround sorting bug https://github.com/conda/infrastructure/issues/1122
+         * Alternatively we could parse the badge? https://anaconda.org/conda-forge/r-sf/badges */
+        var latest_version = Array.isArray(conda.versions) ? conda.versions.at(-1) : conda.latest_version;
+        return {name: conda.full_name, url: conda.html_url, version: latest_version, date: conda.modified_at};
+      });
+    } else if (response.status == 404) { //not on conda-forge: send HTTP 200 to ensure caching
+      return {error: "Failed"};
+    } else {
+      throw new Error(`HTTP ${response.status} from anaconda.org`);
+    }
+  });
+}
+
+// For the cran and conda APIs (and the old r-universe.dev/{cran,conda}status): server errors are not cached (see routes/cache.js)
+export function upstream_error(res, err){
+  res.removeHeader('Cache-Control');
+  res.status(502).send({error: `Upstream failure: ${err.message || err}`});
 }
 
 function doc_to_ndjson(x){
