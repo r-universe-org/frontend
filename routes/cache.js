@@ -10,7 +10,7 @@ export const reserved = ["", "api", "src", "bin", "stats", "articles", "builds",
 // itself). Other pages are rejected here, and by the edge worker via /_global/api/allowlist.
 export const global_pages = ["", "scores", "manuals", "webhook", "search", "activity", "builds",
   "organizations", "repositories", "articles", "datasets", "packages", "sysdeps", "galaxy", "welcome",
-  "sitemap_index.xml", "sitemap.xml", "sitemaps.xml", "condastatus", "mongostatus", "cranstatus",
+  "sitemap_index.xml", "sitemap.xml", "sitemaps.xml", "mongostatus",
   "redirect", "api", "stats", "favicon.ico", "robots.txt", "static"];
 
 // The ETag of pages is based on the last time the universe or package was published.
@@ -27,29 +27,27 @@ export function make_etag(published){
 // update the headers of a cached page. Pages with revalidate: false do not come from our db,
 // so they get no ETag (nor existence check), and are refreshed after max-age instead.
 function page_cache_policy(pkg, req){
-  //APIs for the pages are under /api/info, and still at their old place without /info for now
-  const path = req.path.replace(/^(\/api)?\/info\//, '$1/');
   if(pkg == 'api' && req.path == '/allowlist'){
     //the edge worker loads this for every universe, and it changes rarely
     return {cache_control: 'public, max-age=300, stale-while-revalidate=3600'};
   }
-  if(pkg == 'api' && path == '/maintainers'){
+  if(pkg == 'api' && req.path == '/info/maintainers'){
     //loaded by the sidebar of every universe page, and changes slowly: refresh at most once an hour,
     //in the background (a flood of page loads revalidated it for every universe every minute)
     return {cache_control: 'public, max-age=3600, stale-while-revalidate=86400, stale-if-error=86400'};
   }
-  if(pkg == 'api' && ['/user', '/registry'].includes(path)){
+  if(pkg == 'api' && ['/info/user', '/info/registry'].includes(req.path)){
     //data from GitHub, not from our db: never answer a revalidation with the universe or package
     //ETag. Cloudflare then kept GitHub rate limit errors (403 with max-age=60) as valid for hours,
     //revalidating them every minute for every universe (November 2026). The routes set their own
     //Cache-Control; this one is for errors that they do not handle.
     return {cache_control: 'public, max-age=3600', revalidate: false};
   }
-  if(pkg == 'api' && /^\/revdeps\//.test(path) && req.query.all !== undefined){
+  if(pkg == 'api' && /^\/info\/revdeps\//.test(req.path) && req.query.all !== undefined){
     //revdeps in all universes: these do not follow the universe ETag
     return {cache_control: 'public, max-age=3600, stale-while-revalidate=86400, stale-if-error=86400', revalidate: false};
   }
-  if(pkg == 'api' && path == '/summary'){
+  if(pkg == 'api' && req.path == '/info/summary'){
     //loaded on every page and changes slowly: refresh in the background, like the global pages
     return {cache_control: 'public, max-age=300, stale-while-revalidate=86400, stale-if-error=86400'};
   }
@@ -62,8 +60,7 @@ function page_cache_policy(pkg, req){
     //(the last publish anywhere), so the ~0.7s query only runs after something was published
     return {cache_control: 'public, max-age=10, stale-while-revalidate=3600, stale-if-error=86400'};
   }
-  if((pkg == '_global' && /^\/(cran|conda)status\//.test(req.path)) || (pkg == 'api' && /^\/info\/(cran|conda|upstream)\//.test(req.path)) ||
-    (!reserved.includes(pkg) && req.path == '/api/upstream')){
+  if(pkg == 'api' && /^\/info\/(cran|conda|upstream)\//.test(req.path)){
     //data from CRAN, conda-forge and GitHub, which can be slow or down: serve stale while refreshing in the
     //background, and when the refresh fails (server errors from CRAN and conda-forge are not cached, see
     //upstream_error in src/tools.js; GitHub errors are kept for an hour, see github_error in routes/api.js).

@@ -529,7 +529,8 @@ export function get_conda_info(pkg){
   });
 }
 
-// For the cran and conda APIs (and the old r-universe.dev/{cran,conda}status): server errors are not cached (see routes/cache.js)
+// For the cran and conda APIs: server errors are not cached, so that cloudflare keeps serving the
+// previous response (stale-if-error, see routes/cache.js)
 export function upstream_error(res, err){
   res.removeHeader('Cache-Control');
   res.status(502).send({error: `Upstream failure: ${err.message || err}`});
