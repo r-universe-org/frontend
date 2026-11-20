@@ -52,7 +52,7 @@ function github_error(res, err){
   throw err.status === 404 ? err : createError(502, err.message || err);
 }
 
-router.get('/api{/info}/registry', function(req, res, next) {
+router.get('/api/info/registry', function(req, res, next) {
   return get_registry_info(res.locals.universe).then(function(x){
     //prevents the revalidation mechanism from serving old responses
     res.removeHeader('ETag');
@@ -61,7 +61,7 @@ router.get('/api{/info}/registry', function(req, res, next) {
   }, err => github_error(res, err));
 });
 
-router.get('/api{/info}/user', function(req, res, next) {
+router.get('/api/info/user', function(req, res, next) {
   return get_user_info(res.locals.universe).then(function(x){
     //data comes from upstream platform, so do not use package-based revalidation
     res.removeHeader('ETag');
@@ -71,8 +71,7 @@ router.get('/api{/info}/user', function(req, res, next) {
 });
 
 // Repository info from GitHub for the package page, cache policy in routes/cache.js.
-// The old path /:package/api/upstream is still used by cached pages.
-router.get(['/api/info/upstream/:package', '/:package/api/upstream'], function(req, res, next) {
+router.get('/api/info/upstream/:package', function(req, res, next) {
   return get_package_upstream(req.params.package, res.locals.universe).then(function(upstream){
     return get_upstream_info(upstream).catch(err => github_error(res, err));
   }).then(x => res.send(x));
@@ -107,7 +106,7 @@ router.get('/api/packages/:package', function(req, res, next) {
 });
 
 // With ?all the revdeps in all universes (for the package page), otherwise only those in this universe
-router.get('/api{/info}/revdeps/:package', function(req, res, next){
+router.get('/api/info/revdeps/:package', function(req, res, next){
   var cursor = mongo_usedbyorg(req.params.package, req.query.all === undefined ? res.locals.universe : null);
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
@@ -116,7 +115,7 @@ router.get('/api/abisummary/:package', function(req, res, next){
   return mongo_abi_summary(req.params.package, res.locals.universe).then(x => res.send(x));
 });
 
-router.get('/api{/info}/maintainers', function(req, res, next) {
+router.get('/api/info/maintainers', function(req, res, next) {
   var limit = parseInt(req.query.limit) || 100;
   var stream = req.query.stream || false;
   var cursor = mongo_universe_maintainers(res.locals.universe, limit);
@@ -147,12 +146,12 @@ router.get("/api/dbdump", function(req, res, next) {
   return cursor_stream(cursor, res.type("application/bson"));
 });
 
-router.get('/api{/info}/updates', function(req, res, next){
+router.get('/api/info/updates', function(req, res, next){
   var cursor = mongo_universe_updates(res.locals.universe);
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
 
-router.get('/api{/info}/topics', function(req, res, next){
+router.get('/api/info/topics', function(req, res, next){
   var cursor = mongo_universe_topics(res.locals.universe);
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
@@ -167,7 +166,7 @@ router.get('/api/files', function(req, res, next){
   return send_results(cursor, res.type('text/plain'), true); //always stream
 });
 
-router.get('/api{/info}/summary', function(req, res, next){
+router.get('/api/info/summary', function(req, res, next){
   return mongo_summary(res.locals.universe).then(x => res.send(x));
 });
 
@@ -180,11 +179,11 @@ router.get('/api/info/conda/:package', function(req, res, next) {
   return get_conda_info(req.params.package).then(x => res.send(x)).catch(err => upstream_error(res, err));
 });
 
-router.get('/api{/info}/actions/logs/:job', function(req, res, next){
+router.get('/api/info/actions/logs/:job', function(req, res, next){
   return github_buildlog(res.locals.universe, req.params.job).then(x => res.redirect(x));
 });
 
-router.get('/api{/info}/actions/artifacts/:id', function(req, res, next){
+router.get('/api/info/actions/artifacts/:id', function(req, res, next){
   return github_artifact(res.locals.universe, req.params.id).then(x => res.redirect(x));
 });
 
@@ -195,15 +194,15 @@ router.get("/stats/files", function(req, res, next) {
 });
 
 router.get("/stats/summary", function(req, res, next) {
-  res.redirect(req.url.replace("stats/summary", "api/summary"));
+  res.redirect(req.url.replace("stats/summary", "api/info/summary"));
 });
 
 router.get("/stats/updates", function(req, res, next) {
-  res.redirect(req.url.replace("stats/updates", "api/updates?stream=true"));
+  res.redirect(req.url.replace("stats/updates", "api/info/updates?stream=true"));
 });
 
 router.get("/stats/topics", function(req, res, next) {
-  res.redirect(req.url.replace("stats/topics", "api/topics?stream=true"));
+  res.redirect(req.url.replace("stats/topics", "api/info/topics?stream=true"));
 });
 
 router.get("/stats/sysdeps", function(req, res, next) {
@@ -211,11 +210,11 @@ router.get("/stats/sysdeps", function(req, res, next) {
 });
 
 router.get("/stats/maintainers", function(req, res, next) {
-  res.redirect(req.url.replace("stats/maintainers", "api/maintainers?stream=true"));
+  res.redirect(req.url.replace("stats/maintainers", "api/info/maintainers?stream=true"));
 });
 
 router.get("/stats/usedbyorg", function(req, res, next) {
-  res.redirect(req.url.replace("stats/usedbyorg", `api/revdeps/${req.query.package}?stream=true`));
+  res.redirect(req.url.replace("stats/usedbyorg", `api/info/revdeps/${req.query.package}?stream=true`));
 });
 
 export default router;

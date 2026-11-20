@@ -1,6 +1,6 @@
 import express from 'express';
 import {get_builds, get_organizations, get_repositories, get_articles, get_scores, get_sysdeps, get_datasets, mongo_indexes, find_cran_package, mongo_universe_updates, get_universe_contributors} from '../src/db.js';
-import {check_to_color, get_cran_desc, get_conda_info, upstream_error} from '../src/tools.js';
+import {check_to_color} from '../src/tools.js';
 const router = express.Router();
 
 function rnd(max){
@@ -175,26 +175,11 @@ router.get(["/index.xml", "/feed.xml"], function(req, res, next){
   res.status(404).send("Global feeds are no longer supported.");
 });
 
-// Upstream failures of the status pages are server errors without a Cache-Control, so that they
-// are not cached and cloudflare keeps serving the previous response (stale-if-error)
-// Legacy: the pages now use /api/info/{cran,conda}status of the universe (same origin, for the challenge)
-router.get('/condastatus/:package', function(req, res, next) {
-  //cache policy in routes/cache.js
-  return get_conda_info(req.params.package).then(x => res.send(x)).catch(err => upstream_error(res, err));
-});
-
 router.get('/mongostatus', function(req, res, next) {
   return mongo_indexes().then(function(indexes){
     var out = {indexes: indexes}
     res.send(out);
   });
-});
-
-router.get('/cranstatus/:package', function(req, res, next) {
-  //cache policy in routes/cache.js
-  return get_cran_desc(req.params.package).then(function(info){
-    return res.send(info);
-  }).catch(err => upstream_error(res, err));
 });
 
 router.get('/redirect/:package{/*path}', function(req, res, next) {

@@ -32,7 +32,7 @@ router.get("/api/universes", function(req, res, next) {
   return send_results(cursor, res.type('text/plain'), req.query.stream);
 });
 
-router.get("/api{/info}/organizations", function(req, res, next) {
+router.get("/api/info/organizations", function(req, res, next) {
   var limit = parseInt(req.query.limit) || 100000;
   var cursor = mongo_all_universes(true, limit);
   return send_results(cursor, res.type('text/plain'), req.query.stream);
@@ -65,7 +65,7 @@ router.get('/api/everyone', function(req, res, next){
   return mongo_everyone(query).then(x => res.send(x));
 });
 
-router.get('/api{/info}/topics', function(req, res, next){
+router.get('/api/info/topics', function(req, res, next){
   var min =  parseInt(req.query.min) || 5;
   var limit =  parseInt(req.query.limit) || 200;
   var cursor = mongo_universe_topics(null, min, limit);
@@ -82,7 +82,7 @@ router.get('/api/files', function(req, res, next){
   return send_results(cursor, res.type('text/plain'), true);
 });
 
-router.get('/api{/info}/summary', function(req, res, next){
+router.get('/api/info/summary', function(req, res, next){
   return mongo_summary().then(x => res.send(x));
 });
 
@@ -96,11 +96,11 @@ router.get("/stats/files", function(req, res, next) {
 });
 
 router.get("/stats/summary", function(req, res, next) {
-  res.redirect(req.url.replace("stats/summary", "api/summary"));
+  res.redirect(req.url.replace("stats/summary", "api/info/summary"));
 });
 
 router.get("/stats/topics", function(req, res, next) {
-  res.redirect(req.url.replace("stats/topics", "api/topics?stream=true"));
+  res.redirect(req.url.replace("stats/topics", "api/info/topics?stream=true"));
 });
 
 router.get("/stats/sysdeps", function(req, res, next) {
