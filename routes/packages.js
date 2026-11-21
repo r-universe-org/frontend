@@ -3,7 +3,7 @@ import {parse_stream} from 'rdesc-parser';
 import zlib from 'node:zlib';
 import rconstants from 'r-constants';
 import {extract_files_from_stream, trigger_rebuild, trigger_sync, get_submodule_hash} from '../src/tools.js';
-import {delete_file, delete_doc, delete_by_query, get_stream_by_url_or_key, crandb_store_file, check_cdn_upload, mongo_set_progress, packages} from '../src/db.js';
+import {delete_file, delete_doc, delete_by_query, mongo_cache_invalidate, get_stream_by_url_or_key, crandb_store_file, check_cdn_upload, mongo_set_progress, packages} from '../src/db.js';
 import {Buffer} from "node:buffer";
 
 /* Local variables */
@@ -373,7 +373,11 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
           delete query['_arch'];
         }
       }
-      return packages.find(query).project({_id:1, _fileid:1, Version: 1}).toArray().then(function(docs){
+      var dropped = [];
+      return packages.find(query).project({_id:1, _fileid:1, Version: 1, _universes: 1}).toArray().then(function(docs){
+        //universes that the previous version was cross-listed in, but this one is not (e.g. noindex)
+        var universes = description._universes || [];
+        dropped = [...new Set(docs.flatMap(x => x._universes || []))].filter(x => !universes.includes(x));
         if(docs.length > 1)
           console.log(`WARNING: deleting duplicates for ${JSON.stringify(query)}`);
         if(new Set(docs.map(x => x._fileid)).size > 3) //same file may appear more than once
@@ -388,6 +392,8 @@ router.put('/api/packages/:package/:version/:type/:key', function(req, res, next
         if(type === 'src'){
           return packages.deleteMany({_type : 'failure', _user : user, Package : pkgname});
         }
+      }).then(function(){
+        return Promise.all(dropped.map(mongo_cache_invalidate));
       }).then(() => res.send(description));  
     }).catch(function(e){
       return delete_file(key).then(()=>{throw e});

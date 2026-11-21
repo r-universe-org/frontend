@@ -82,8 +82,9 @@ function mongo_distinct(key, query){
   return packages.distinct(key, query);
 }
 
-// after deleting a package
-function mongo_cache_invalidate(universe){
+// after deleting a package, or when a package leaves a universe: the universe ETag is the newest
+// _published in the universe, which does not change when a package leaves it
+export function mongo_cache_invalidate(universe){
   return mongo_latest({_universes: universe}).then(function(doc){
     if(doc){
       console.log(`Invalidating cache for ${doc._user} via ${doc.Package}`)
@@ -1278,9 +1279,11 @@ export function delete_doc(doc, keep_file_id){
 }
 
 export function delete_by_query(query){
-  return packages.find(query).project({_type: 1, _id:1, _fileid:1, Package:1, Version:1}).toArray().then(function(docs){
+  return packages.find(query).project({_type: 1, _id:1, _fileid:1, Package:1, Version:1, _universes:1}).toArray().then(function(docs){
     return Promise.all(docs.map(delete_doc)).then(function(results){
-      return mongo_cache_invalidate(query._user).then(() => results);
+      //also the universes where the package was cross-listed
+      var universes = new Set([query._user, ...docs.flatMap(x => x._universes || [])]);
+      return Promise.all([...universes].map(mongo_cache_invalidate)).then(() => results);
     });
   });
 }
