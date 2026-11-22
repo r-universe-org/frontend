@@ -350,7 +350,7 @@ export function mongo_universe_packages(user, fields, limit = 5000, all = true, 
 }
 
 function mongo_universe_vignettes(user){
-  var query = {_universes: user, _type: 'src', '_vignettes' : {$exists: true}};
+  var query = {_universes: user, _type: 'src', _registered: true, '_vignettes' : {$exists: true}};
   if(user == 'cran'){
     query['_indexed'] = true;
   }
@@ -705,7 +705,7 @@ function mongo_all_scores(){
 }
 
 export function mongo_all_sysdeps(universe, distro){
-  var query = {_type: 'src', '_sysdeps': {$exists: true}};
+  var query = {_type: 'src', _registered: true, '_sysdeps': {$exists: true}};
   if(universe){
     query['_universes'] = universe;
   }
@@ -785,7 +785,7 @@ function mongo_all_datasets(){
 }
 
 export function mongo_universe_topics(universe, min = 1, limit = 100){
-  var query = {_type: 'src'};
+  var query = {_type: 'src', _registered: true};
   if(universe){
     query._universes = universe;
   }
