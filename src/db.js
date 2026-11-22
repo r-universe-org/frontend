@@ -82,9 +82,8 @@ function mongo_distinct(key, query){
   return packages.distinct(key, query);
 }
 
-// after deleting a package, or when a package leaves a universe: the universe ETag is the newest
-// _published in the universe, which does not change when a package leaves it
-export function mongo_cache_invalidate(universe){
+// after deleting a package
+function mongo_cache_invalidate(universe){
   return mongo_latest({_universes: universe}).then(function(doc){
     if(doc){
       console.log(`Invalidating cache for ${doc._user} via ${doc.Package}`)
