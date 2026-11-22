@@ -1280,8 +1280,7 @@ export function delete_doc(doc, keep_file_id){
 export function delete_by_query(query){
   return packages.find(query).project({_type: 1, _id:1, _fileid:1, Package:1, Version:1, _universes:1}).toArray().then(function(docs){
     return Promise.all(docs.map(delete_doc)).then(function(results){
-      //also the universes where the package was cross-listed
-      var universes = new Set([query._user, ...docs.flatMap(x => x._universes || [])]);
+      var universes = new Set(docs.flatMap(x => x._universes || []));
       return Promise.all([...universes].map(mongo_cache_invalidate)).then(() => results);
     });
   });
